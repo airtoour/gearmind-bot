@@ -2,9 +2,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.models import Base
-from src.settings import settings
 
-DB_URL = f'postgresql://{settings.DB_USERNAME}:{settings.DB_PASSWORD}@{settings.DB_HOST}/{settings.DB_NAME}'
+DB_URL = f'postgresql://postgres:postgres@localhost/diplom_db'
 
 engine = create_engine(DB_URL)
 Base.metadata.create_all(engine)
