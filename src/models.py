@@ -18,6 +18,8 @@ class Users(Base):
     tg_username = Column(String, nullable=True)
     first_name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
+    user_email = Column(String, nullable=False)
+    user_password = Column(String, nullable=True)
     phone_number = Column(String, nullable=True)
     city_id = Column(Integer, nullable=True)
     car_id = Column(Integer, nullable=True)
@@ -59,12 +61,16 @@ class Users(Base):
                                  is_vip=is_vip)
                 session.add(new_user)
                 session.commit()
-                return server_exceptions(status_code=200, detail='Успешная регистрация пользователя!')
+                return new_user
         except Exception as e:
             session.rollback()
             return server_exceptions(status_code=400, detail=e)
         finally:
             session.close()
+
+    # ТУТ НУЖНО ПАРОЛЬ СОЗДАТЬ ПОЛУЧАЕТСЯ НАХУЙ БЛЯТЬ КАК Я ЗАЕБАЛСЯ
+    def create_password(self):
+        pass
 
 
 class Cities(Base):
