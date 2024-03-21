@@ -1,8 +1,8 @@
-aiogram
-sqlalchemy
+aiogram~=3.4.1
+sqlalchemy~=2.0.27
 psycopg2-binary
 uvicorn
-fastapi[all]
+fastapi[all]~=0.110.0
 jinja2
 multidict
 pydantic
@@ -13,3 +13,4 @@ starlette
 typing_extensions
 urllib3
 Werkzeug
+python-dotenv~=1.0.1
