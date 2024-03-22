@@ -15,6 +15,7 @@ templates = Jinja2Templates(directory=str(Path(DIR, 'templates')))
 async def show_signup_form(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
+
 @app.post("/signup/", response_class=HTMLResponse)
 async def register_user(request: Request, user_data: Users.SignUp):
     try:
