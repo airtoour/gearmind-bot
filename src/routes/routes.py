@@ -11,11 +11,11 @@ DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(Path(DIR, 'templates')))
 
 
-@app.get("/signup", response_class=HTMLResponse)
+@app.get("/signup/", response_class=HTMLResponse)
 async def show_signup_form(request: Request):
     return templates.TemplateResponse("signup.html", {"request": request})
 
-@app.post("/signup", response_class=HTMLResponse)
+@app.post("/signup/", response_class=HTMLResponse)
 async def register_user(request: Request, user_data: Users.SignUp):
     try:
         new_user = await Users.create(**user_data.model_dump())

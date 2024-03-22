@@ -1,27 +1,53 @@
 from sqlalchemy import String, Integer, Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-
 from aiogram.types import Message
-from pydantic import BaseModel
-from typing import Optional
 
-from src.db.config import session
+from pydantic import BaseModel
 from src.exceptions import server_exceptions
 
+
 Base = declarative_base()
+
+class Cities(Base):
+    __tablename__ = 'cities'
+
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    city_id = Column(Integer, ForeignKey('users.city_id'))
+    city_name = Column(String, nullable=False)
+
+    user = relationship("Users", back_populates="cities")
+
+
+class ProdGroup(Base):
+    __tablename__ = 'prod_groups'
+
+    group_id = Column(Integer, primary_key=True, autoincrement=True)
+    group_name = Column(String, nullable=False)
+
+
+class Cars(Base):
+    __tablename__ = 'cars'
+
+    car_id = Column(Integer, ForeignKey('users.car_id'), primary_key=True)
+    prod_group_id = Column(Integer, ForeignKey('prod_groups.group_id'), nullable=False)
+    car_name = Column(String, nullable=False)
+    car_year = Column(Integer, nullable=False)
+
+    user = relationship("Users", back_populates="cars")
+    prod_group = relationship("ProdGroup", back_populates="cars")
 
 
 class Users(Base):
     __tablename__ = 'users'
 
-    user_id = Column(Integer, primary_key=True, autoincrement=True)
-    tg_user_id = Column(Integer, nullable=True)
-    tg_username = Column(String, nullable=True)
+    user_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    tg_user_id = Column(Integer, nullable=False, unique=True)
+    tg_username = Column(String, nullable=False, unique=True)
     first_name = Column(String, nullable=False)
-    phone_number = Column(String, nullable=True)
-    user_email = Column(String, nullable=False)
-    user_password = Column(String, nullable=True)
+    phone_number = Column(String, nullable=False, unique=True)
+    user_email = Column(String, nullable=False, unique=True)
+    user_password = Column(String, nullable=False)
     city_id = Column(Integer, nullable=True)
     car_id = Column(Integer, nullable=True)
     card_id = Column(Integer, nullable=True)
@@ -30,12 +56,13 @@ class Users(Base):
     cities = relationship("Cities", back_populates="user")
 
     @classmethod
-    async def get_current(cls, message):
+    async def get_current(cls, session, message: Message | None):
         user = session.query(Users).filter(Users.tg_user_id == message.from_user.id).first()
         return user
 
     @classmethod
     async def create(cls,
+                     session,
                      tg_user_id: int | None,
                      tg_username: str | None,
                      first_name: str,
@@ -47,7 +74,7 @@ class Users(Base):
                      card_id: int | None,
                      is_vip: str | None):
         try:
-            if Users.get_current() is not None:
+            if Users.get_current(session) is not None:
                 error_message = 'Такой пользователь уже существует!'
                 return server_exceptions(status_code=204, detail=error_message)
             else:
@@ -79,32 +106,3 @@ class Users(Base):
     # ТУТ НУЖНО ПАРОЛЬ СОЗДАТЬ ПОЛУЧАЕТСЯ НАХУЙ БЛЯТЬ КАК Я ЗАЕБАЛСЯ
     def create_password(self):
         pass
-
-
-
-class Cities(Base):
-    __tablename__ = 'cities'
-
-    city_id = Column(Integer, ForeignKey('users.city_id'), primary_key=True)
-    city_name = Column(String, nullable=False)
-
-    user = relationship("Users", back_populates="cities")
-
-
-class ProdGroup(Base):
-    __tablename__ = 'prod_groups'
-
-    group_id = Column(Integer, primary_key=True, autoincrement=True)
-    group_name = Column(String, nullable=False)
-
-
-class Cars(Base):
-    __tablename__ = 'cars'
-
-    car_id = Column(Integer, ForeignKey('users.car_id'), primary_key=True)
-    prod_group_id = Column(Integer, ForeignKey('prod_groups.group_id'), nullable=False)
-    car_name = Column(String, nullable=False)
-    car_year = Column(Integer, nullable=False)
-
-    user = relationship("Users", back_populates="cars")
-    prod_group = relationship("ProdGroup", back_populates="cars")
