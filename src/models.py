@@ -25,6 +25,7 @@ class ProdGroup(Base):
     group_id = Column(Integer, primary_key=True, autoincrement=True)
     group_name = Column(String, nullable=False)
 
+    cars = relationship("Cars", back_populates="prod_group")
 
 class Cars(Base):
     __tablename__ = 'cars'
@@ -54,6 +55,7 @@ class Users(Base):
     is_vip = Column(String, default='N', nullable=True)
 
     cities = relationship("Cities", back_populates="user")
+    cars = relationship("Cars", back_populates="user")
 
     @classmethod
     async def get_current(cls, session, message: Message | None):

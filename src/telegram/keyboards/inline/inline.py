@@ -1,7 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from aiogram import types
-
 from get_env import get_env
+
 
 def signup_tap_link(user_id: int) -> InlineKeyboardMarkup:
     from src.db.config import app

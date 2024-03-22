@@ -24,6 +24,7 @@ create table users(
     user_email varchar(128) not null,
     user_password varchar(128) not null,
     city_id integer references cities(city_id),
+    car_id integer references cars(car_id),
     card_id integer,
     is_vip varchar(1) default 'N'
 );
