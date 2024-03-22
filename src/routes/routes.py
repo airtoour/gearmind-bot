@@ -1,41 +1,33 @@
-from fastapi import FastAPI, Request
+from fastapi import Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pathlib import Path
 
-from src.exceptions import server_exceptions
-from src.db.config import session
+from src.db.config import app
 from src.models import Users, Cities, Cars
 
-app = FastAPI()
 
 DIR = Path(__file__).resolve().parent
 templates = Jinja2Templates(directory=str(Path(DIR, 'templates')))
 
 
-@app.route('/signup', methods=['GET', 'POST'], name='signup', response_class=HTMLResponse)
-async def index(request: Request, user_id: int):
-    from aiogram.types import Message as message
+@app.get("/signup", response_class=HTMLResponse)
+async def show_signup_form(request: Request):
+    return templates.TemplateResponse("signup.html", {"request": request})
+
+@app.post("/signup", response_class=HTMLResponse)
+async def register_user(request: Request, user_data: Users.SignUp):
     try:
-        user = session.query(Users).filter_by(tg_user_id=user_id)
-
-        if not user:
-            new_user = Users.create(tg_user_id=user_id,
-                                    tg_username=message.from_user.username,
-                                    first_name=first_name,
-                                    last_name=last_name,
-                                    phone_number=phone_number,
-                                    city_id=session.query(Cities.city_id).filter_by(Cities.city_name).first(),
-                                    car_id=session.query(Cars.car_id).filter_by(Cars.car_name).first())
-            session.add(new_user)
-            session.commit()
-        else:
-
-        return templates.TemplateResponse('index.html', {
-            "request": {
-                "user_id": user_id
-            }
-            ,
+        new_user = await Users.create(**user_data.model_dump())
+        message = 'Пользователь успешно зарегистрирован!'
+        return templates.TemplateResponse("signup_result.html", {
+            "request": request,
+            "message": message,
+            "new_user": new_user
         })
     except Exception as e:
-        server_exceptions(status_code=422, detail=e)
+        message = f'Произошла ошибка: {e}'
+        return templates.TemplateResponse("signup_result.html", {
+            "request": request,
+            "message": message
+        })

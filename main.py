@@ -3,7 +3,7 @@ if __name__ == '__main__':
     import uvicorn
 
     from src.telegram.bot import dp
-    from src.routes.routes import app
+    from src.db.config import app
     from get_env import get_env
 
     loop = asyncio.get_event_loop()
