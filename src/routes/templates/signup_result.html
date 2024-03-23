@@ -12,8 +12,10 @@
     </head>
 
     <body>
-        {% if message %}
-            <p>{{ message }}</p>
-        {% endif %}
+        <form action="/signup/{{ user_id }}" method="post">
+            {% if msg %}
+                <p>{{ msg }}</p>
+            {% endif %}
+        </form>
     </body>
 </html>

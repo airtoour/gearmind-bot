@@ -1,5 +1,5 @@
 from src.telegram.bot import bot
-from src.telegram.commands import dp
+from src.telegram.utils.commands import dp
 
 
 if __name__ == '__main__':

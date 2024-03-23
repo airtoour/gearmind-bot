@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from aiogram.types import Message
 
+from werkzeug.security import generate_password_hash, check_password_hash
+
 from pydantic import BaseModel
 from src.exceptions import server_exceptions
 
@@ -62,11 +64,15 @@ class Users(Base):
         user = session.query(Users).filter(Users.tg_user_id == message.from_user.id).first()
         return user
 
+    def set_password(self, user_password):
+        self.user_password = generate_password_hash(user_password)
+
+    def check_password(self, user_password):
+        return check_password_hash(self.user_password, user_password)
+
     @classmethod
     async def create(cls,
                      session,
-                     tg_user_id: int | None,
-                     tg_username: str | None,
                      first_name: str,
                      user_email: str,
                      user_password: str,
@@ -74,18 +80,20 @@ class Users(Base):
                      city_id: int | None,
                      car_id: int | None,
                      card_id: int | None,
-                     is_vip: str | None):
+                     is_vip: str | None,
+
+                     message: Message):
         try:
             if Users.get_current(session) is not None:
                 error_message = 'Такой пользователь уже существует!'
                 return server_exceptions(status_code=204, detail=error_message)
             else:
-                new_user = Users(tg_user_id=tg_user_id,
-                                 tg_username=tg_username,
+                new_user = Users(tg_user_id=message.from_user.id,
+                                 tg_username=message.from_user.username,
                                  first_name=first_name,
+                                 phone_number=phone_number,
                                  user_email=user_email,
                                  user_password=user_password,
-                                 phone_number=phone_number,
                                  city_id=city_id,
                                  car_id=car_id,
                                  card_id=card_id,
@@ -100,10 +108,16 @@ class Users(Base):
             session.close()
 
     class SignUp(BaseModel):
+        tg_user_id:    int | None
+        tg_user_name:  str | None
         first_name:    str
         phone_number:  str
         user_email:    str
         user_password: str
+        city_id:       int | None
+        car_id:        int | None
+        card_id:       int | None
+        is_vip:        str | None
 
     # ТУТ НУЖНО ПАРОЛЬ СОЗДАТЬ ПОЛУЧАЕТСЯ НАХУЙ БЛЯТЬ КАК Я ЗАЕБАЛСЯ
     def create_password(self):
