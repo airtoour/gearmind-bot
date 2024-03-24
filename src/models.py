@@ -81,23 +81,23 @@ class Users(Base):
                      car_id: int | None,
                      card_id: int | None,
                      is_vip: str | None,
-
                      message: Message):
         try:
-            if Users.get_current(session) is not None:
+            if cls.get_current(session) is not None:
                 error_message = 'Такой пользователь уже существует!'
                 return server_exceptions(status_code=204, detail=error_message)
             else:
-                new_user = Users(tg_user_id=message.from_user.id,
-                                 tg_username=message.from_user.username,
-                                 first_name=first_name,
-                                 phone_number=phone_number,
-                                 user_email=user_email,
-                                 user_password=user_password,
-                                 city_id=city_id,
-                                 car_id=car_id,
-                                 card_id=card_id,
-                                 is_vip=is_vip)
+                new_user = cls(tg_user_id=message.from_user.id,
+                               tg_username=message.from_user.username,
+                               first_name=first_name,
+                               phone_number=phone_number,
+                               user_email=user_email,
+                               user_password=user_password,
+                               city_id=city_id,
+                               car_id=car_id,
+                               card_id=card_id,
+                               is_vip=is_vip)
+                new_user.set_password(user_password)
                 session.add(new_user)
                 session.commit()
                 return new_user
@@ -118,7 +118,3 @@ class Users(Base):
         car_id:        int | None
         card_id:       int | None
         is_vip:        str | None
-
-    # ТУТ НУЖНО ПАРОЛЬ СОЗДАТЬ ПОЛУЧАЕТСЯ НАХУЙ БЛЯТЬ КАК Я ЗАЕБАЛСЯ
-    def create_password(self):
-        pass
