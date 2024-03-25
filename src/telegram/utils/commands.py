@@ -12,7 +12,7 @@ from src.exceptions import server_exceptions
 from src.telegram.keyboards.inline.inline import signup_tap_link
 
 
-@dp.message(Command("start"))
+@dp.message(CommandStart())
 async def start(message: Message, state: FSMContext):
     try:
         user = session.query(Users).filter_by(tg_user_id=message.from_user.id).first()
@@ -28,5 +28,6 @@ async def start(message: Message, state: FSMContext):
                                  'а потом будем подбирать тебе компоненты.', reply_markup=markup)
             await state.set_state(UserStates.registration)
     except TelegramAPIError or AiogramError as e:
-        print(e)
+        server_exceptions(status_code=422,
+                          detail=f'Ошибка во время работы бота: {e}')
 
