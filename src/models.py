@@ -75,7 +75,7 @@ class Users(Base):
                      first_name: str,
                      user_email: str,
                      user_password: str,
-                     phone_number: int):
+                     phone_number: str):
         from src.db.config import session
 
         try:
@@ -106,3 +106,27 @@ class Users(Base):
             return server_exceptions(status_code=400, detail=str(e))
         finally:
             session.close()
+
+    @classmethod
+    async def tg_insert(cls,
+                        tg_user_id: int,
+                        tg_username: str,
+                        phone_number: str):
+        from src.db.config import session
+
+        try:
+            exist_user = session.query(Users).filter_by(phone_number=phone_number).first()
+
+            if exist_user:
+                exist_user.tg_user_id = tg_user_id
+                exist_user.tg_username = tg_username
+
+                session.commit()
+                print("Данные пользователя успешно обновлены.")
+            else:
+                print(server_exceptions(404, 'Пользователь не найден!'))
+
+            # session.close()
+        except Exception as e:
+            print("Ошибка при обновлении данных пользователя:", e)
+            session.rollback()
