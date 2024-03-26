@@ -32,11 +32,11 @@ async def start(message: Message, state: FSMContext):
             await state.set_state(UserStates.confirm_signup)
     except TelegramAPIError or AiogramError as e:
         print(server_exceptions(status_code=422,
-                          detail=f'Ошибка во время работы бота: {e}'))
+                                detail=f'Ошибка во время работы бота: {e}'))
 
 
 @dp.message(UserStates.confirm_signup)
-async def confirm_signup(message: Message, state: FSMContext):
+async def confirm_signup(message: Message):
     try:
         while True:
             phone_number = str(message.text)
@@ -59,3 +59,5 @@ async def confirm_signup(message: Message, state: FSMContext):
                 await message.answer('Такого номера не существует! Попробуй снова!')
     except Exception as e:
         print('ПОДТВЕРЖДЕНИЕ РЕГИСТРАЦИИ: ', e)
+
+
