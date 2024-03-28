@@ -1,5 +1,5 @@
 from src.telegram.bot import bot
-from src.telegram.utils.commands import dp
+from src.telegram.utils.commands.start import dp
 from src.telegram.filters.menu import set_main_menu
 
 if __name__ == '__main__':

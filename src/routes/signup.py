@@ -23,15 +23,15 @@ async def show_signup_form():
 @signup.post("/", name='register_user', response_class=HTMLResponse)
 async def register_user_post(request: Request,
                              first_name: str = Form(...),
-                             phone_number: int = Form(...),
+                             phone_number: str = Form(...),
                              user_email: str = Form(...),
                              user_password: str = Form(...)):
     try:
         new_user = await Users.create(
             first_name=first_name,
-            phone_number=phone_number,
             user_email=user_email,
-            user_password=user_password
+            user_password=user_password,
+            phone_number=phone_number,
         )
         print(new_user.__dict__)
         result_message = 'Пользователь успешно зарегистрирован!'

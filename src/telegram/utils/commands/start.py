@@ -1,7 +1,6 @@
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram import F
 from aiogram.exceptions import TelegramAPIError, AiogramError
 
 from src.telegram.bot import dp

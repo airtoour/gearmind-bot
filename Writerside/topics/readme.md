@@ -17,8 +17,7 @@
 Итак, вот основные сервисы, которые мы будем использовать для проекта:
 <procedure title="Сервисы" id="services">
     <step>
-        <p>TelegramBot <a href="https://docs.aiogram.dev/en/latest/">
-                            <shortcut>Docs</shortcut></a>.</p>
+        <p>Aiogram <a href="https://docs.aiogram.dev/en/latest/"><shortcut>Docs</shortcut></a>.</p>
     </step>
     <step>
         <p>FastAPI <a href="https://fastapi.tiangolo.com/"><shortcut>Docs</shortcut></a></p>
