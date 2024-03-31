@@ -1,20 +1,14 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
-from fastapi import FastAPI
-
-from src.models import Base
-from src.routes.signup import signup
 from get_env import get_env
 
-app = FastAPI()
-app.include_router(signup)
+app = Flask(__name__)
+db = SQLAlchemy()
 
-DB_URL = f'postgresql://{get_env("BD_USERNAME")}:{get_env("BD_PASSWORD")}@{get_env("BD_HOST")}/{get_env("BD_NAME")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = (f'postgresql://{get_env("DB_USERNAME")}:{get_env("DB_PASSWORD")}'
+                                         f'@{get_env("DB_HOST")}:{get_env("DB_PORT")}/{get_env("DB_NAME")}')
+app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
+app.config['SECRET_KEY'] = 'cringe'
 
-
-engine = create_engine(DB_URL)
-Base.metadata.create_all(engine)
-
-Session = sessionmaker(bind=engine)
-session = Session()
+db.init_app(app)

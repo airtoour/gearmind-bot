@@ -1,47 +1,40 @@
-from fastapi import Request, Form, APIRouter
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from aiogram.types import Message as message
+from flask import Blueprint, render_template, redirect, url_for
+from flask_login import login_user
 
-from pathlib import Path
-from src.models import Users
+from src.models.forms.forms import SignUpForm
+from src.models.models.models import Users
+from src.db.config import app
 
-
-DIR = Path(__file__).resolve().parent
-templates = Jinja2Templates(directory=str(Path(DIR, 'templates')))
-
-signup = APIRouter(prefix="/signup")
+signup = Blueprint('operation', __name__, template_folder='templates')
 
 
-@signup.get("/", name='signup', response_class=HTMLResponse)
-async def show_signup_form():
-    return templates.TemplateResponse("signup.html", {
-        "request": {}
-    })
+@signup.route('/', methods=['GET', 'POST'])
+def signup():
+    form = SignUpForm()
 
+    if form.validate_on_submit():
+        name = form.name.data
+        phone = form.phone.data
+        email = form.email.data
+        password = form.password.data
 
-@signup.post("/", name='register_user', response_class=HTMLResponse)
-async def register_user_post(request: Request,
-                             first_name: str = Form(...),
-                             phone_number: str = Form(...),
-                             user_email: str = Form(...),
-                             user_password: str = Form(...)):
-    try:
-        new_user = await Users.create(
-            first_name=first_name,
-            user_email=user_email,
-            user_password=user_password,
-            phone_number=phone_number,
-        )
-        print(new_user.__dict__)
-        result_message = 'Пользователь успешно зарегистрирован!'
-        return templates.TemplateResponse("signup_result.html", {
-            "request": request,
-            "result_message": result_message
-        })
-    except Exception as e:
-        result_message = f'Произошла ошибка: {e}'
-        return templates.TemplateResponse("signup_result.html", {
-            "request": request,
-            "result_message": result_message
-        })
+        is_user = Users.get_current(email)
+
+        try:
+            if is_user:
+                message = 'Пользователь уже существует, попробуйте снова!'
+                return render_template('signup.html', message)
+            else:
+                new_user = Users.create(
+                    first_name=name,
+                    phone_number=phone,
+                    user_email=email,
+                    user_password=password
+                )
+                login_user(new_user)
+
+                return redirect(url_for('index.html'))
+        except Exception as e:
+            app.logger.error(str(e))
+
+    return render_template('signup.html', form=form)
