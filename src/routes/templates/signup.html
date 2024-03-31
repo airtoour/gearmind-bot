@@ -8,20 +8,27 @@
 
     <body>
         <h1>Регистрация</h1>
-        <form action="/signup/{{ user_id }}" method="post">
-            <label for="first_name">Ваше имя:</label><br>
-            <input type="text" id="first_name" name="first_name"><br>
+        <form action="{{ url_for('signup.signup') }}" method="post">
+            {{ form.hidden_tag() }}
 
-            <label for="phone_number">Номер телефона:</label><br>
-            <input type="text" id="phone_number" name="phone_number"><br>
+            <div>
+                <label>{{ form.name.label }}</label>
+                <p>{{ form.name() }}</p>
 
-            <label for="user_email">Эл. почта:</label><br>
-            <input type="email" id="user_email" name="user_email"><br>
+                <label>{{ form.bday.label }}</label>
+                <p>{{ form.bday() }}</p>
 
-            <label for="user_password">Пароль:</label><br>
-            <input type="password" id="user_password" name="user_password"><br><br>
+                <label>{{ form.phone.label }}</label>
+                <p>{{ form.phone() }}</p>
 
-            <input type="submit" value="Регистрация">
+                <label>{{ form.email.label }}</label>
+                <p>{{ form.email() }}</p>
+
+                <label>{{ form.password.label }}</label>
+                <p>{{ form.password() }}</p>
+
+                <p>{{ form.submit() }}</p>
+            </div>
         </form>
     </body>
 </html>

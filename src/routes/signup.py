@@ -5,15 +5,17 @@ from src.models.forms.forms import SignUpForm
 from src.models.models.models import Users
 from src.db.config import app
 
-signup = Blueprint('operation', __name__, template_folder='templates')
+import datetime
 
+signup_bp = Blueprint('signup', __name__, template_folder='templates')
 
-@signup.route('/', methods=['GET', 'POST'])
+@signup_bp.route('/', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm()
 
     if form.validate_on_submit():
         name = form.name.data
+        bday = form.bday.data
         phone = form.phone.data
         email = form.email.data
         password = form.password.data
@@ -27,13 +29,14 @@ def signup():
             else:
                 new_user = Users.create(
                     first_name=name,
+                    birthday=datetime.datetime.strptime(str(bday), '%d.%m.%Y').date(),
                     phone_number=phone,
                     user_email=email,
                     user_password=password
                 )
                 login_user(new_user)
 
-                return redirect(url_for('index.html'))
+                return redirect(url_for('main.index'))
         except Exception as e:
             app.logger.error(str(e))
 

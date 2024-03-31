@@ -50,6 +50,7 @@ class Users(db.Model, UserMixin):
     @staticmethod
     def create(cls,
                first_name: str,
+               birthday: str,
                phone_number: str,
                user_email: str,
                user_password: str):
@@ -57,6 +58,7 @@ class Users(db.Model, UserMixin):
             new_user = cls(tg_user_id=None,
                            tg_username=None,
                            first_name=first_name,
+                           birth_date=birthday,
                            phone_number=phone_number,
                            user_email=user_email,
                            user_password=user_password,
