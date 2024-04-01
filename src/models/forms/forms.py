@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import (IntegerField, FloatField, StringField, EmailField,
-                     PasswordField, DateField, SubmitField, SelectField, validators)
+                     PasswordField, DateField, SubmitField, SelectField)
 from wtforms.validators import DataRequired, InputRequired, Length, Email
 
 
@@ -12,3 +12,10 @@ class SignUpForm(FlaskForm):
     password = PasswordField('Пароль', validators=[InputRequired(), Length(8, 32)])
 
     submit = SubmitField('Регистрация')
+
+
+class LoginForm(FlaskForm):
+    phone = StringField('Номер телефона', validators=[DataRequired()])
+    password = PasswordField('Пароль', validators=[InputRequired()])
+
+    submit = SubmitField('Войти')

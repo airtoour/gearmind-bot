@@ -20,7 +20,7 @@ def signup():
         email = form.email.data
         password = form.password.data
 
-        is_user = Users.get_current(email)
+        is_user = Users.get_current(phone)
 
         try:
             if is_user:

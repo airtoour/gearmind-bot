@@ -43,8 +43,8 @@ class Users(db.Model, UserMixin):
         return check_password_hash(self.user_password, user_password)
 
     @staticmethod
-    def get_current(email):
-        is_user = Users.query.filter_by(user_email=email).first()
+    def get_current(phone):
+        is_user = Users.query.filter_by(phone_number=phone).first()
         return is_user
 
     @staticmethod
@@ -78,3 +78,8 @@ class Users(db.Model, UserMixin):
             return server_exceptions(500, str(e))
         finally:
             db.session.close()
+
+
+class Orders(db.Model):
+    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)

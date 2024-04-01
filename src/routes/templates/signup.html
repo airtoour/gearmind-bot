@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Регистрация</title>
+        
     </head>
 
     <body>
@@ -11,23 +12,23 @@
         <form action="{{ url_for('signup.signup') }}" method="post">
             {{ form.hidden_tag() }}
 
-            <div>
+            <div class="signupForm">
                 <label>{{ form.name.label }}</label>
-                <p>{{ form.name() }}</p>
+                <p class="inputGroup">{{ form.name() }}</p>
 
                 <label>{{ form.bday.label }}</label>
-                <p>{{ form.bday() }}</p>
+                <p class="inputGroup">{{ form.bday() }}</p>
 
                 <label>{{ form.phone.label }}</label>
-                <p>{{ form.phone() }}</p>
+                <p class="inputGroup">{{ form.phone() }}</p>
 
                 <label>{{ form.email.label }}</label>
-                <p>{{ form.email() }}</p>
+                <p class="inputGroup">{{ form.email() }}</p>
 
                 <label>{{ form.password.label }}</label>
-                <p>{{ form.password() }}</p>
+                <p class="inputGroup">{{ form.password() }}</p>
 
-                <p>{{ form.submit() }}</p>
+                <p class="inputGroup">{{ form.submit() }}</p>
             </div>
         </form>
     </body>
