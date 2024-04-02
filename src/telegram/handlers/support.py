@@ -1,9 +1,7 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-
-from src.telegram.states import UserStates
-from src.models.models.models import Users
+from src.models.models import Users
 from src.exceptions import server_exceptions
 
 

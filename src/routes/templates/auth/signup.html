@@ -9,50 +9,44 @@
     </head>
 
     <body>
-        <div class="signUpForm">
-            <p>{{ message }}</p>
+        <div class="container">
+            <div class="title">Регистрация</div>
+            <div class="content">
+                <form action="{{ url_for('signup.signup') }}" method="post">
+                    <div class="user-details">
+                        <div class="input-box">
+                            <span class="details">Логин</span>
+                            <input type="text" name="name" placeholder="Логин" required>
+                        </div>
+                            <div class="input-box">
+                            <span class="details">Дата рождения</span>
+                        <input type="date" name="bday" placeholder="" required>
+                        </div>
+                            <div class="input-box">
+                            <span class="details">Электронная почта</span>
+                        <input type="text" name="email" placeholder="Электронная почта" required>
+                        </div>
+                            <div class="input-box">
+                            <span class="details">Номер телефона</span>
+                        <input type="tel" name="phone" placeholder="Номер телефона" required>
+                        </div>
+                            <div class="input-box">
+                            <span class="details">Пароль</span>
+                        <input type="password" name="password" placeholder="Пароль" required>
+                        </div>
+                            <div class="input-box">
+                            <span class="details">Подтвердите пароль</span>
+                        <input type="text" name="confirm_password" placeholder="Подтвердите пароль" required>
+                        </div>
+                    </div>
 
-            <div class="topLine">
+                    <div class="button">
+                        <input type="submit" value="Регистрация">
+                    </div>
 
-            </div>
-
-            <form action="{{ url_for('signup.signup') }}" method="post">
-                <p class="title">Регистрация</p>
-
-                <div class="flex">
-                    <label>
-                        <span>Имя</span>
-                        <input class="input" type="name" name="name" placeholder="" required="">
-                    </label>
-
-                    <label>
-                        <span>Дата рождения</span>
-                        <input class="input" type="date" name="bday" placeholder="" required="">
-                    </label>
-                </div>
-
-                <label>
-                    <span>Номер телефона</span>
-                    <input class="input" type="text" name="phone" placeholder="" required="">
-                </label>
-
-                <label>
-                    <span>Электронная почта</span>
-                    <input class="input" type="email" name="email" placeholder="" required="">
-                </label>
-
-                <label>
-                    <span>Пароль</span>
-                    <input class="input" type="password" name="password" placeholder="" required="">
-                </label>
-
-                <button class="submit">Регистрация</button>
-
-                <p class="signin">Уже есть аккаунт?
-                    <a href="{{ url_for('login.login') }}">Войти</a>
-                </p>
-            </form>
+                    <p>Уже есть аккаунт? <a href="{{ url_for('login.login') }}">Войти</a></p>
+                </form>
+          </div>
         </div>
-
-    </body>
+      </body>
 </html>

@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramAPIError, AiogramError
 
 from src.telegram.states import UserStates
-from src.models.models.models import Users
+from src.models.models import Users
 from src.exceptions import server_exceptions
 from src.telegram.keyboards.inline.inline import signup_tap_link
 from src.db.config import app

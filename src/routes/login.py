@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_user, LoginManager
 
 from src.models.forms.forms import LoginForm
-from src.models.models.models import Users
+from src.models.models import Users
 from src.db.config import app
 
 login_bp = Blueprint('login', __name__, template_folder='templates')
