@@ -2,7 +2,6 @@ Flask~=3.0.2
 WTForms~=3.1.2
 Werkzeug~=3.0.1
 aiogram~=3.4.1
-<<<<<<< HEAD
 sqlalchemy~=2.0.27
 psycopg2-binary
 jinja2
@@ -17,7 +16,5 @@ urllib3
 Werkzeug~=3.0.1
 python-dotenv~=1.0.1
 Flask~=3.0.2
-=======
 starlette~=0.36.3
 python-dotenv~=1.0.1
->>>>>>> server_sonfiguration
