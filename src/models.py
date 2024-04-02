@@ -1,7 +1,6 @@
 from sqlalchemy import String, Integer, Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from aiogram.types import Message
 
 from werkzeug.security import generate_password_hash, check_password_hash
 from src.exceptions import server_exceptions
@@ -130,3 +129,11 @@ class Users(Base):
         except Exception as e:
             print("Ошибка при обновлении данных пользователя:", e)
             session.rollback()
+
+
+class UserOrder(Base):
+    __tablename__ = 'orders'
+
+    order_id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    

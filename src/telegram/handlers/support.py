@@ -1,17 +1,12 @@
-from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.exceptions import TelegramAPIError, AiogramError
 
-from src.telegram.bot import dp
 from src.db.config import session
 from src.telegram.states import UserStates
 from src.models import Users
 from src.exceptions import server_exceptions
-from src.telegram.keyboards.inline.inline import signup_tap_link
 
 
-@dp.message(Command('support'))
 async def support(message: Message, state: FSMContext):
     try:
         user = session.query(Users).filter_by(tg_user_id=message.from_user.id).first()
@@ -21,7 +16,7 @@ async def support(message: Message, state: FSMContext):
                                  '\n'
                                  '\n'
                                  'Как стать частью нашей команды?\n'
-                                 ''
+                                 'Ты можешь зарегистрироваться на нашем сайте: САЙТ'
                                  '\n'
                                  'Для вопросов по твоему заказу нажми на /order\n'
                                  'Там ты сможешь заказать:\n'
@@ -33,3 +28,4 @@ async def support(message: Message, state: FSMContext):
             await message.answer('Сначала ты зарегистрируйся, а потом ты сможешь пользоваться нашей системой.')
     except Exception as e:
         print('SUPPORT: ', e)
+        print(server_exceptions(400, 'Что-то пошло не так в support:\n'))
