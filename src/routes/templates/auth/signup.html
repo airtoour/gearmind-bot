@@ -15,10 +15,19 @@
             <form action="{{ url_for('signup.signup') }}" method="post">
                 {{ form.hidden_tag() }}
 
+                <label class="labels">{{ form.name.label }}</label>
                 <p class="inputGroup" placeholder="Ваше имя">{{ form.name }}</p>
+
+                <label class="labels">{{ form.bday.label }}</label>
                 <p class="inputGroup" placeholder="Дата рождения" >{{ form.bday }}</p>
+
+                <label class="labels">{{ form.phone.label }}</label>
                 <p class="inputGroup" placeholder="Номер телефона">{{ form.phone }}</p>
+
+                <label class="labels">{{ form.email.label }}</label>
                 <p class="inputGroup" placeholder="Электронная почта">{{ form.email }}</p>
+
+                <label class="labels">{{ form.password.label }}</label>
                 <p class="inputGroup" placeholder="Пароль">{{ form.password }}</p>
 
                 <p class="submitButton">{{ form.submit }}</p>

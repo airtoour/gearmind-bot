@@ -5,7 +5,7 @@ from get_env import get_env
 
 
 def signup_tap_link() -> InlineKeyboardMarkup:
-    url = f'https://{get_env("FASTAPI_HOST")}:{get_env("FASTAPI_PORT")}/{url_for("signup.signup")}'
+    url = f'https://{get_env("FLASK_HOST")}:{get_env("FLASK_PORT")}/signup/'
     markup = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text='Регистрация', web_app=WebAppInfo(url=url))]
     ])

@@ -31,8 +31,8 @@ create table details(
 -- Таблица с Пользователями, связана с Телеграм данными
 create table users(
     user_id serial primary key,
-    tg_user_id     integer not null,
-    tg_username    varchar(128) not null,
+    tg_user_id     integer,
+    tg_username    varchar(128),
     first_name     varchar(128) not null,
     birth_date     date not null,
     phone_number   varchar(12) not null,

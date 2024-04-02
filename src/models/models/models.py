@@ -48,24 +48,25 @@ class Users(db.Model, UserMixin):
         return is_user
 
     @staticmethod
-    def create(cls,
-               first_name: str,
+    def create(first_name: str,
                birthday: str,
                phone_number: str,
                user_email: str,
                user_password: str):
         try:
-            new_user = cls(tg_user_id=None,
-                           tg_username=None,
-                           first_name=first_name,
-                           birth_date=birthday,
-                           phone_number=phone_number,
-                           user_email=user_email,
-                           user_password=user_password,
-                           city_id=None,
-                           car_id=None,
-                           card_id=None,
-                           is_vip=None)
+            new_user = Users(
+                tg_user_id=None,
+                tg_username=None,
+                first_name=first_name,
+                birth_date=birthday,
+                phone_number=phone_number,
+                user_email=user_email,
+                user_password=user_password,
+                city_id=None,
+                car_id=None,
+                card_id=None,
+                is_vip=None
+            )
             new_user.set_password(user_password)
 
             db.session.add(new_user)

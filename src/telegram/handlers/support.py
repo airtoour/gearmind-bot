@@ -1,15 +1,15 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from src.db.config import session
+
 from src.telegram.states import UserStates
-from src.models import Users
+from src.models.models.models import Users
 from src.exceptions import server_exceptions
 
 
 async def support(message: Message, state: FSMContext):
     try:
-        user = session.query(Users).filter_by(tg_user_id=message.from_user.id).first()
+        user = Users.query.filter_by(tg_user_id=message.from_user.id).first()
 
         if user:
             await message.answer('Если тебе понадобилась помощь, я постараюсь помочь тебе.\n'

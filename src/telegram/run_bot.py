@@ -1,8 +1,10 @@
+from aiogram.filters import CommandStart, Command
+
 from src.telegram.bot import bot, dp
 from src.telegram.filters.menu import set_main_menu
 from src.telegram.states import UserStates
 
-from src.telegram.utils.commands.start import start, confirm_signup, CommandStart
+from src.telegram.utils.commands.start import start, confirm_signup
 from src.telegram.handlers.support import support
 
 

@@ -18,3 +18,5 @@ python-dotenv~=1.0.1
 Flask~=3.0.2
 starlette~=0.36.3
 python-dotenv~=1.0.1
+fastapi~=0.110.0
+path~=16.10.0

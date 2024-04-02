@@ -5,8 +5,6 @@ from src.models.forms.forms import SignUpForm
 from src.models.models.models import Users
 from src.db.config import app
 
-import datetime
-
 signup_bp = Blueprint('signup', __name__, template_folder='templates/auth', static_folder='static')
 
 login_manager = LoginManager(app)
@@ -39,7 +37,7 @@ def signup():
             else:
                 new_user = Users.create(
                     first_name=name,
-                    birthday=datetime.datetime.strptime(str(bday), '%d.%m.%Y').date(),
+                    birthday=bday,
                     phone_number=phone,
                     user_email=email,
                     user_password=password
