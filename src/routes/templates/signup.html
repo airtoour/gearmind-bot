@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Регистрация</title>
+<<<<<<< HEAD
         <link rel="stylesheet" href="signup.css">
+=======
+        
+>>>>>>> server_sonfiguration
     </head>
 
 
 
     <body>
         <h1>Регистрация</h1>
+<<<<<<< HEAD
         <form action="/signup/{{ user_id }}" method="post">
             <div class="inputGroup">
                 <input type="text" required="" autocomplete="off" id="first_name" name="first_name">
@@ -31,6 +36,29 @@
             </div>
 
             <button type="submit">Регистрация</button>
+=======
+        <form action="{{ url_for('signup.signup') }}" method="post">
+            {{ form.hidden_tag() }}
+
+            <div class="signupForm">
+                <label>{{ form.name.label }}</label>
+                <p class="inputGroup">{{ form.name() }}</p>
+
+                <label>{{ form.bday.label }}</label>
+                <p class="inputGroup">{{ form.bday() }}</p>
+
+                <label>{{ form.phone.label }}</label>
+                <p class="inputGroup">{{ form.phone() }}</p>
+
+                <label>{{ form.email.label }}</label>
+                <p class="inputGroup">{{ form.email() }}</p>
+
+                <label>{{ form.password.label }}</label>
+                <p class="inputGroup">{{ form.password() }}</p>
+
+                <p class="inputGroup">{{ form.submit() }}</p>
+            </div>
+>>>>>>> server_sonfiguration
         </form>
     </body>
 </html>
