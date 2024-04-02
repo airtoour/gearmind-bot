@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Регистрация</title>
+        <link rel="stylesheet" href="{{ url_for('signup.static', filename='css/signup.css', v=1) }}">
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    </head>
+
+    <body>
+        <div class="signUpForm">
+            <h2 class="title">Регистрация</h2>
+            <p>{{ message }}</p>
+            <form action="{{ url_for('signup.signup') }}" method="post">
+                {{ form.hidden_tag() }}
+
+                <p class="inputGroup" placeholder="Ваше имя">{{ form.name }}</p>
+                <p class="inputGroup" placeholder="Дата рождения" >{{ form.bday }}</p>
+                <p class="inputGroup" placeholder="Номер телефона">{{ form.phone }}</p>
+                <p class="inputGroup" placeholder="Электронная почта">{{ form.email }}</p>
+                <p class="inputGroup" placeholder="Пароль">{{ form.password }}</p>
+
+                <p class="submitButton">{{ form.submit }}</p>
+            </form>
+        </div>
+
+    </body>
+</html>

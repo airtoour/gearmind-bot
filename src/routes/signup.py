@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for
-from flask_login import login_user
+from flask_login import login_user, LoginManager
 
 from src.models.forms.forms import SignUpForm
 from src.models.models.models import Users
@@ -7,11 +7,21 @@ from src.db.config import app
 
 import datetime
 
-signup_bp = Blueprint('signup', __name__, template_folder='templates')
+signup_bp = Blueprint('signup', __name__, template_folder='templates/auth', static_folder='static')
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+
+
+@login_manager.user_loader
+def load_user(name):
+    return Users.query.get(name)
+
 
 @signup_bp.route('/', methods=['GET', 'POST'])
 def signup():
     form = SignUpForm()
+    message = ""
 
     if form.validate_on_submit():
         name = form.name.data
@@ -25,7 +35,7 @@ def signup():
         try:
             if is_user:
                 message = 'Пользователь уже существует, попробуйте снова!'
-                return render_template('signup.html', message)
+                return render_template('signup.html', form=form, message=message)
             else:
                 new_user = Users.create(
                     first_name=name,
@@ -40,4 +50,4 @@ def signup():
         except Exception as e:
             app.logger.error(str(e))
 
-    return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form, message=message)

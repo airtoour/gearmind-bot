@@ -10,10 +10,15 @@ login_bp = Blueprint('login', __name__, template_folder='templates')
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(user_id)
+
 
 @login_bp.route('/', methods=['GET', 'POST'])
 def login():
     form = LoginForm
+    message = None
 
     if form.validate_on_submit():
         phone = form.phone.data
@@ -37,4 +42,4 @@ def login():
         except Exception as e:
             app.logger.error(str(e))
 
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, message=message)

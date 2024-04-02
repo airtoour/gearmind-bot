@@ -6,12 +6,11 @@ from aiogram.exceptions import TelegramAPIError, AiogramError
 from src.telegram.bot import dp
 from src.db.config import session
 from src.telegram.states import UserStates
-from src.models import Users
+from src.models.models.models import Users
 from src.exceptions import server_exceptions
 from src.telegram.keyboards.inline.inline import signup_tap_link
 
 
-#@dp.message(CommandStart())
 async def start(message: Message, state: FSMContext):
     try:
         user = session.query(Users).filter_by(tg_user_id=message.from_user.id).first()
@@ -34,7 +33,6 @@ async def start(message: Message, state: FSMContext):
                                 detail=f'Ошибка во время работы бота: {e}'))
 
 
-#@dp.message(UserStates.confirm_signup)
 async def confirm_signup(message: Message):
     try:
         while True:
