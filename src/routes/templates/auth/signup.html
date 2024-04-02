@@ -10,27 +10,47 @@
 
     <body>
         <div class="signUpForm">
-            <h2 class="title">Регистрация</h2>
             <p>{{ message }}</p>
+
+            <div class="topLine">
+
+            </div>
+
             <form action="{{ url_for('signup.signup') }}" method="post">
-                {{ form.hidden_tag() }}
+                <p class="title">Регистрация</p>
 
-                <label class="labels">{{ form.name.label }}</label>
-                <p class="inputGroup" placeholder="Ваше имя">{{ form.name }}</p>
+                <div class="flex">
+                    <label>
+                        <span>Имя</span>
+                        <input class="input" type="name" name="name" placeholder="" required="">
+                    </label>
 
-                <label class="labels">{{ form.bday.label }}</label>
-                <p class="inputGroup" placeholder="Дата рождения" >{{ form.bday }}</p>
+                    <label>
+                        <span>Дата рождения</span>
+                        <input class="input" type="date" name="bday" placeholder="" required="">
+                    </label>
+                </div>
 
-                <label class="labels">{{ form.phone.label }}</label>
-                <p class="inputGroup" placeholder="Номер телефона">{{ form.phone }}</p>
+                <label>
+                    <span>Номер телефона</span>
+                    <input class="input" type="text" name="phone" placeholder="" required="">
+                </label>
 
-                <label class="labels">{{ form.email.label }}</label>
-                <p class="inputGroup" placeholder="Электронная почта">{{ form.email }}</p>
+                <label>
+                    <span>Электронная почта</span>
+                    <input class="input" type="email" name="email" placeholder="" required="">
+                </label>
 
-                <label class="labels">{{ form.password.label }}</label>
-                <p class="inputGroup" placeholder="Пароль">{{ form.password }}</p>
+                <label>
+                    <span>Пароль</span>
+                    <input class="input" type="password" name="password" placeholder="" required="">
+                </label>
 
-                <p class="submitButton">{{ form.submit }}</p>
+                <button class="submit">Регистрация</button>
+
+                <p class="signin">Уже есть аккаунт?
+                    <a href="{{ url_for('login.login') }}">Войти</a>
+                </p>
             </form>
         </div>
 

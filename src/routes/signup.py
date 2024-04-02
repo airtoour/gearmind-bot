@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_user, LoginManager
 
 from src.models.forms.forms import SignUpForm
@@ -18,22 +18,21 @@ def load_user(name):
 
 @signup_bp.route('/', methods=['GET', 'POST'])
 def signup():
-    form = SignUpForm()
     message = ""
 
-    if form.validate_on_submit():
-        name = form.name.data
-        bday = form.bday.data
-        phone = form.phone.data
-        email = form.email.data
-        password = form.password.data
+    if request.method == 'POST':
+        name = request.form.get('name')
+        bday = request.form.get('bday')
+        phone = request.form.get('phone')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
         is_user = Users.get_current(phone)
 
         try:
             if is_user:
                 message = 'Пользователь уже существует, попробуйте снова!'
-                return render_template('signup.html', form=form, message=message)
+                return render_template('signup.html', message=message)
             else:
                 new_user = Users.create(
                     first_name=name,
@@ -48,4 +47,4 @@ def signup():
         except Exception as e:
             app.logger.error(str(e))
 
-    return render_template('signup.html', form=form, message=message)
+    return render_template('signup.html', message=message)
