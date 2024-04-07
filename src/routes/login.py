@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_user, LoginManager
 
-from src.models.forms.forms import LoginForm
 from src.models.models import Users
 from src.db.config import app
 
@@ -17,12 +16,11 @@ def load_user(user_id):
 
 @login_bp.route('/', methods=['GET', 'POST'])
 def login():
-    form = LoginForm
     message = None
 
-    if form.validate_on_submit():
-        phone = form.phone.data
-        password = form.password.data
+    if request.method == 'POST':
+        phone = request.form.get('phone')
+        password = request.form.get('password')
 
         is_user = Users.get_current(phone)
 
@@ -35,11 +33,11 @@ def login():
                 else:
                     message = ('Неправильно введены номер телефона или пароль.\n'
                                'Попробуйте снова!')
-                    return render_template('login.html', message=message, form=form)
+                    return render_template('login.html', message=message)
             else:
                 message = 'Такого пользователя не существует!'
                 return render_template('signup.html', message)
         except Exception as e:
             app.logger.error(str(e))
 
-    return render_template('login.html', form=form, message=message)
+    return render_template('login.html', message=message)
