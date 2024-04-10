@@ -6,6 +6,7 @@ from src.telegram.states import UserStates
 
 from src.telegram.utils.commands.start import start, confirm_signup
 from src.telegram.handlers.support import support
+from src.telegram.handlers.order import order
 
 
 if __name__ == '__main__':
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     dp.message.register(confirm_signup, UserStates.confirm_signup)
 
     # Регистрация обработчиков, связанных с командой /order
+    dp.message.register(order, Command('order'))
     # Регистрация обработчиков, связанных с командой /description
     # Регистрация обработчиков, связанных с командой /social
     # Регистрация обработчиков, связанных с командой /faq

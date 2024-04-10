@@ -20,9 +20,9 @@ create table cars(
 );
 
 -- Таблица с компонентами, ОСНОВНАЯ ДЛЯ ЗАКАЗА
-create table details(
-    detail_id            serial primary key,
-    detail_name          varchar(128) not null,
+create table components(
+    component_id         serial primary key,
+    component_name       varchar(128) not null,
     article_number       varchar(20) not null,
     date_of_last_receipt date default current_date,
     -----------------------------------------------
@@ -48,5 +48,7 @@ create table users(
 create table orders(
     order_id serial primary key,
     user_id  integer references users(user_id) not null,
+    component_id integer references components(component_id) not null,
+    summ numeric not null,
     ----------------------------------------------------
 );

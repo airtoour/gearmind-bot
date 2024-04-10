@@ -1,15 +1,13 @@
 from aiogram.types import Message
-from aiogram.fsm.context import FSMContext
 from aiogram.exceptions import TelegramAPIError, AiogramError
 
-from src.telegram.states import UserStates
 from src.models.models import Users
 from src.exceptions import server_exceptions
 from src.telegram.keyboards.inline.inline import signup_tap_link
 from src.db.config import app
 
 
-async def start(message: Message, state: FSMContext):
+async def start(message: Message):
     try:
         with app.app_context():
             user = Users.query.filter_by(tg_user_id=message.from_user.id).first()
@@ -26,7 +24,6 @@ async def start(message: Message, state: FSMContext):
 
                 await message.answer('Если ты успешно прошел(ла) регистрацию в форме, то напиши, пожалуйста,'
                                      'свой номер телефона, чтобы я проверил информацию')
-                await state.set_state(UserStates.confirm_signup)
     except TelegramAPIError or AiogramError as e:
         print(server_exceptions(status_code=422,
                                 detail=f'Ошибка во время работы бота: {e}'))
@@ -50,7 +47,7 @@ async def confirm_signup(message: Message):
                         await message.answer('Регистрация успешно подтверждена! Добро пожаловать в нашу команду\n'
                                              'Давай узнаем что случилось с твоей машиной и посмотрим Меню. КНОПКИ МЕНЮ')
                     else:
-                        await message.answer('Регистрация уже подтверждена! КНОПКИ МЕНЮ')
+                        await message.answer('Регистрация уже подтверждена! Давай посмотрим Меню <3 КНОПКИ МЕНЮ')
                     break
                 else:
                     await message.answer('Такого номера не существует! Попробуй снова!')
