@@ -45,9 +45,9 @@ async def confirm_signup(message: Message):
                                               tg_username=message.from_user.username,
                                               phone_number=phone_number)
                         await message.answer('Регистрация успешно подтверждена! Добро пожаловать в нашу команду\n'
-                                             'Давай узнаем что случилось с твоей машиной и посмотрим Меню. КНОПКИ МЕНЮ')
+                                             'Давай узнаем что случилось с твоей машиной и посмотрим Меню.')
                     else:
-                        await message.answer('Регистрация уже подтверждена! Давай посмотрим Меню <3 КНОПКИ МЕНЮ')
+                        await message.answer('Регистрация уже подтверждена! Давай посмотрим Меню <3')
                     break
                 else:
                     await message.answer('Такого номера не существует! Попробуй снова!')

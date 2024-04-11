@@ -1,3 +1,4 @@
+from aiogram import F
 from aiogram.filters import CommandStart, Command
 
 from src.telegram.bot import bot, dp
@@ -6,7 +7,7 @@ from src.telegram.states import UserStates
 
 from src.telegram.utils.commands.start import start, confirm_signup
 from src.telegram.handlers.support import support
-from src.telegram.handlers.order import order
+from src.telegram.handlers.order import order, first_vote, second_vote, check_order, third_vote
 
 
 if __name__ == '__main__':
@@ -18,6 +19,11 @@ if __name__ == '__main__':
 
     # Регистрация обработчиков, связанных с командой /order
     dp.message.register(order, Command('order'))
+    dp.message.register(first_vote, F.text.lower() == "заказать")
+    dp.message.register(second_vote, F.text.lower() == "проверить свой заказ")
+    dp.message.register(check_order, UserStates.check_order)
+    dp.message.register(third_vote, F.text.lower() == "помощь")
+
     # Регистрация обработчиков, связанных с командой /description
     # Регистрация обработчиков, связанных с командой /social
     # Регистрация обработчиков, связанных с командой /faq

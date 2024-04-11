@@ -14,15 +14,16 @@ if __name__ == '__main__':
 
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 
-    cert_dir = Path('C:/cert')
+    cert_dir = Path(str(get_env("SSL_PATH")))
 
-    certfile = cert_dir / 'certificate.crt'
-    keyfile = cert_dir / 'privateKey.key'
+    certfile = cert_dir / str(get_env("SSL_CERT_FILE"))
+    keyfile = cert_dir / str(get_env("SSL_KEY_FILE"))
 
     ssl_context.load_cert_chain(certfile=str(certfile), keyfile=str(keyfile))
 
     with app.app_context():
         db.create_all()
+
     app.run(host=str(get_env("FLASK_HOST")),
             port=get_env("FLASK_PORT"),
             ssl_context=ssl_context)

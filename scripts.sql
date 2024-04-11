@@ -12,7 +12,7 @@ create table prod_groups(
 
 -- Таблица с машинами, ДОЛЖНА РАСШИРИТЬСЯ
 create table cars(
-    car_id serial primary key,
+    car_id        serial primary key,
     prod_group_id integer references prod_groups(group_id) not null,
     car_name      varchar(128) not null,
     car_year      integer not null
@@ -30,25 +30,31 @@ create table components(
 
 -- Таблица с Пользователями, связана с Телеграм данными
 create table users(
-    user_id serial primary key,
-    tg_user_id     integer,
-    tg_username    varchar(128),
-    first_name     varchar(128) not null,
-    birth_date     date not null,
-    phone_number   varchar(12) not null,
-    user_email     varchar(128) not null,
-    user_password  varchar(256) not null,
-    city_id        integer references cities(city_id),
-    car_id         integer references cars(car_id),
-    card_id        integer,
-    is_vip         varchar(1) default 'N'
+    user_id       serial primary key,
+    tg_user_id    integer,
+    tg_username   varchar(128),
+    first_name    varchar(128) not null,
+    birth_date    date not null,
+    phone_number  varchar(12) not null,
+    user_email    varchar(128) not null,
+    user_password varchar(256) not null,
+    city_id       integer references cities(city_id),
+    car_id        integer references cars(car_id),
+    card_id       integer,
+    is_vip        varchar(1) default 'N'
 );
 
 -- Таблица с Заказами
 create table orders(
-    order_id serial primary key,
-    user_id  integer references users(user_id) not null,
-    component_id integer references components(component_id) not null,
-    summ numeric not null,
+    order_id   serial primary key,
+    user_id    integer references users(user_id) not null,
+    order_date date default current_date,
+    content    varchar(2000) not null,
+    status     varchar(64) check status in ("В сборе", "Собран, ждёт отправки",
+                                            "Отправлен по адресу доставки",
+                                            "Доставлен, ждёт выдачи", "Выдан")
+    summ       numeric not null,
+    card_id    integer references users(card_id) not null,
+    is_open    integer default 0
     ----------------------------------------------------
 );
