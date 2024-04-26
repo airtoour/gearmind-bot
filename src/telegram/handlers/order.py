@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from src.telegram.states import UserStates
 from src.telegram.keyboards.reply.reply import order_button
 from src.telegram.keyboards.inline.inline import order_tap_link
-from src.db.config import app
+from src.db.db_app import app
 
 from src.models.models import Orders
 

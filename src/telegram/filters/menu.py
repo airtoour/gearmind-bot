@@ -2,9 +2,9 @@ from aiogram import Bot
 from aiogram.types import BotCommand
 
 from src.telegram.lexicon.lexicon import LEXICON_MENU_COMMANDS
-from get_env import get_env
+from config import config
 
-bot = Bot(token=get_env("TOKEN"),parse_mode='HTML')
+bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 
 # Кнопка меню, которая упаравляет основным функционалом
 async def set_main_menu(bot: Bot):

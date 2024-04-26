@@ -4,18 +4,24 @@ create table cities(
     city_name      varchar(128) not null
 );
 
--- Таблица марок машин
-create table prod_groups(
-    group_id   serial primary key,
-    group_name varchar(128) not null
+create table cars_brand(
+    car_brand_id serial primary key,
+    car_brand_name varchar(256) not null,
+);
+
+create table cars_names(
+    car_name_id serial primary key,
+    car_name    varchar(256) not null,
+    car_year    integer not null
 );
 
 -- Таблица с машинами, ДОЛЖНА РАСШИРИТЬСЯ
 create table cars(
     car_id        serial primary key,
     prod_group_id integer references prod_groups(group_id) not null,
-    car_name      varchar(128) not null,
-    car_year      integer not null
+    car_brand_id  integer references cars_brand(car_brand_id) not null,
+    car_name_id   integer references cars_names(car_name_id) not null,
+    user_id       integer references users(user_id) not null,
     -----------------------------------------------
 );
 
@@ -34,7 +40,7 @@ create table users(
     tg_user_id    integer,
     tg_username   varchar(128),
     first_name    varchar(128) not null,
-    birth_date    date not null,
+    birth_date    date check not null,
     phone_number  varchar(12) not null,
     user_email    varchar(128) not null,
     user_password varchar(256) not null,

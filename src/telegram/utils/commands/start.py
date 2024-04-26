@@ -4,7 +4,7 @@ from aiogram.exceptions import TelegramAPIError, AiogramError
 from src.models.models import Users
 from src.exceptions import server_exceptions
 from src.telegram.keyboards.inline.inline import signup_tap_link
-from src.db.config import app
+from src.db.db_app import app
 
 
 async def start(message: Message):

@@ -1,7 +1,7 @@
 from starlette.requests import Request
 
-from src.db.config import app
-from get_env import get_env
+from src.db.db_app import app
+from config import get_env
 
 
 @app.middleware('http')

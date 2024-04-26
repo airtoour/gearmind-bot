@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher
-from get_env import get_env
+from config import config
 
 
-bot = Bot(token=get_env("TOKEN"), parse_mode='HTML')
+bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
 dp = Dispatcher()

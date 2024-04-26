@@ -24,9 +24,7 @@ if __name__ == '__main__':
     dp.message.register(check_order, UserStates.check_order)
     dp.message.register(third_vote, F.text.lower() == "помощь")
 
-    # Регистрация обработчиков, связанных с командой /description
     # Регистрация обработчиков, связанных с командой /social
-    # Регистрация обработчиков, связанных с командой /faq
 
     # Регистрация обработчиков, связанных с командой /support
     dp.message.register(support, Command('support'))
