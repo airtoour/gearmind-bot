@@ -43,7 +43,7 @@ env.read_env()
 
 config = Config(
     tg_bot = TgBot(
-        token = env('BOT_TOKEN')
+        token = env('TOKEN')
     ),
     db = DatabaseConfig(
         db_username = env('DB_NAME'),

@@ -1,7 +1,7 @@
 Flask~=3.0.2
 WTForms~=3.1.2
 Werkzeug~=3.0.1
-aiogram~=3.4.1
+aiogram~=3.5.0
 sqlalchemy~=2.0.27
 psycopg2-binary
 jinja2
@@ -17,7 +17,7 @@ Werkzeug~=3.0.1
 python-dotenv~=1.0.1
 Flask~=3.0.2
 starlette~=0.36.3
-python-dotenv~=1.0.1
 fastapi~=0.110.0
 path~=16.10.0
 environs~=11.0.0
+pip~=24.0
