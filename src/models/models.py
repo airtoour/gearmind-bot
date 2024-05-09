@@ -6,35 +6,39 @@ from src.exceptions import server_exceptions
 
 
 class Cities(db.Model):
-    city_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    city_id   = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     city_name = db.Column(db.String(128), nullable=False, unique=True)
 
+    users = db.relationship('Users', backref='city', lazy=True)
 
-class Prod_groups(db.Model):
-    group_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    group_name = db.Column(db.String(128), nullable=False, unique=True)
+class CarsBrand(db.Model):
+    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    brand_name = db.Column(db.String(256), nullable=True)
 
+    model = db.relationship('CarsModel', backref='brand', lazy=True)
 
-class Cars(db.Model):
-    car_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    prod_group_id = db.Column(db.Integer, db.ForeignKey('prod_groups.group_id'), nullable=False)
-    car_name = db.Column(db.String(128), nullable=False)
-    car_year = db.Column(db.Integer, nullable=False)
+class CarsModel(db.Model):
+    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    model_id   = db.Column(db.Integer, db.ForeignKey('carsbrand.id'), nullable=True)
+    model_name = db.Column(db.String(256), nullable=True)
 
+    gens = db.relationship('CarsGens', backref='model', lazy=True)
+
+class CarsGens(db.Model):
+    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    model_id   = db.Column(db.Integer, db.ForeignKey('carsmodel.id'), nullable=True)
+    gen_name   = db.Column(db.String(256), nullable=True)
 
 class Users(db.Model, UserMixin):
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    tg_user_id = db.Column(db.Integer, nullable=True, unique=True)
-    tg_username = db.Column(db.String(128), nullable=True, unique=True)
-    first_name = db.Column(db.String(128), nullable=False)
-    birth_date = db.Column(db.DateTime, nullable=False)
-    phone_number = db.Column(db.String(12), nullable=False)
-    user_email = db.Column(db.String(128), nullable=False)
+    user_id       = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    tg_user_id    = db.Column(db.Integer, nullable=True, unique=True)
+    tg_username   = db.Column(db.String(128), nullable=True, unique=True)
+    first_name    = db.Column(db.String(128), nullable=False)
+    birth_date    = db.Column(db.DateTime, nullable=False)
+    phone_number  = db.Column(db.String(12), nullable=False)
+    user_email    = db.Column(db.String(128), nullable=False)
     user_password = db.Column(db.String(256), nullable=True)
-    city_id = db.Column(db.Integer, db.ForeignKey('cities.city_id'), nullable=True)
-    car_id = db.Column(db.Integer, db.ForeignKey('cars.car_id'), nullable=True)
-    card_id = db.Column(db.Integer, nullable=True)
-    is_vip = db.Column(db.String(1), default='N', nullable=True)
+    city_id       = db.Column(db.Integer, db.ForeignKey('cities.city_id'), nullable=True)
 
     def set_password(self, user_password):
         self.user_password = generate_password_hash(user_password)
@@ -48,24 +52,23 @@ class Users(db.Model, UserMixin):
         return is_user
 
     @staticmethod
-    def create(first_name: str,
-               birthday: str,
-               phone_number: str,
-               user_email: str,
-               user_password: str):
+    def create(first_name:    str,
+               birthday:      str,
+               phone_number:  str,
+               user_email:    str,
+               user_password: str,
+               city_id:       Cities):
         try:
+
             new_user = Users(
-                tg_user_id=None,
-                tg_username=None,
-                first_name=first_name,
-                birth_date=birthday,
-                phone_number=phone_number,
-                user_email=user_email,
-                user_password=user_password,
-                city_id=None,
-                car_id=None,
-                card_id=None,
-                is_vip=None
+                tg_user_id    = None,
+                tg_username   = None,
+                first_name    = first_name,
+                birth_date    = birthday,
+                phone_number  = phone_number,
+                user_email    = user_email,
+                user_password = user_password,
+                city_id       = city_id.city_id
             )
             new_user.set_password(user_password)
 
@@ -80,7 +83,11 @@ class Users(db.Model, UserMixin):
         finally:
             db.session.close()
 
+class Cars(db.Model):
+    car_id   = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    brand_id = db.Column(db.Integer, db.ForeignKey('carsbrand.id'), nullable=False)
+    model_id = db.Column(db.Integer, db.ForeignKey('carsmodel.id'), nullable=False)
+    gen_id   = db.Column(db.Integer, db.ForeignKey('carsgen.id'), nullable=False)
+    user_id  = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
 
-class Orders(db.Model):
-    order_id = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    user = db.relationship('Users', backref='cars', lazy=True)

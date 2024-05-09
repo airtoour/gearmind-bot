@@ -12,6 +12,7 @@ def order_button() -> types.ReplyKeyboardMarkup:
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=kb,
         resize_keyboard=True,
-        input_field_placeholder="Выберите необходимый вариант:"
+        input_field_placeholder="Выберите необходимый вариант:",
+        one_time_keyboard=True
     )
     return keyboard

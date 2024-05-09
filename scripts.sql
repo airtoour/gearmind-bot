@@ -5,33 +5,20 @@ create table cities(
 );
 
 create table cars_brand(
-    car_brand_id serial primary key,
-    car_brand_name varchar(256) not null,
+    id         serial primary key,
+    brand_name varchar(256) not null
 );
 
-create table cars_names(
-    car_name_id serial primary key,
-    car_name    varchar(256) not null,
-    car_year    integer not null
+create table cars_model(
+    id         serial primary key,
+    brand_id   integer references cars_brand(id),
+    model_name varchar(256) not null
 );
 
--- Таблица с машинами, ДОЛЖНА РАСШИРИТЬСЯ
-create table cars(
-    car_id        serial primary key,
-    prod_group_id integer references prod_groups(group_id) not null,
-    car_brand_id  integer references cars_brand(car_brand_id) not null,
-    car_name_id   integer references cars_names(car_name_id) not null,
-    user_id       integer references users(user_id) not null,
-    -----------------------------------------------
-);
-
--- Таблица с компонентами, ОСНОВНАЯ ДЛЯ ЗАКАЗА
-create table components(
-    component_id         serial primary key,
-    component_name       varchar(128) not null,
-    article_number       varchar(20) not null,
-    date_of_last_receipt date default current_date,
-    -----------------------------------------------
+create table cars_gens(
+    id       serial primary key,
+    model_id integer references cars_model(id) not null,
+    gen_name varchar(256) not null
 );
 
 -- Таблица с Пользователями, связана с Телеграм данными
@@ -40,27 +27,18 @@ create table users(
     tg_user_id    integer,
     tg_username   varchar(128),
     first_name    varchar(128) not null,
-    birth_date    date check not null,
+    birth_date    date not null,
     phone_number  varchar(12) not null,
     user_email    varchar(128) not null,
     user_password varchar(256) not null,
-    city_id       integer references cities(city_id),
-    car_id        integer references cars(car_id),
-    card_id       integer,
-    is_vip        varchar(1) default 'N'
+    city_id       integer references cities(city_id)
 );
 
--- Таблица с Заказами
-create table orders(
-    order_id   serial primary key,
-    user_id    integer references users(user_id) not null,
-    order_date date default current_date,
-    content    varchar(2000) not null,
-    status     varchar(64) check status in ("В сборе", "Собран, ждёт отправки",
-                                            "Отправлен по адресу доставки",
-                                            "Доставлен, ждёт выдачи", "Выдан")
-    summ       numeric not null,
-    card_id    integer references users(card_id) not null,
-    is_open    integer default 0
-    ----------------------------------------------------
+-- Таблица с машинами, ДОЛЖНА РАСШИРИТЬСЯ
+create table cars(
+    car_id   serial primary key,
+    brand_id integer references cars_brand(id) not null,
+    model_id integer references cars_model(id) not null,
+    gen_id   integer references cars_gens(id) not null,
+    user_id  integer references users(user_id) not null
 );
