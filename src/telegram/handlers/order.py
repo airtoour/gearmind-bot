@@ -4,9 +4,9 @@ from aiogram.fsm.context import FSMContext
 from src.telegram.states import UserStates
 from src.telegram.keyboards.reply.reply import order_button
 from src.telegram.keyboards.inline.inline import order_tap_link
-from src.db.db_app import app
+# from src.db.db_app import app
 
-from src.models.models import Orders
+# from src.models.models import Orders
 
 async def order(message: Message):
     try:
@@ -33,29 +33,29 @@ async def second_vote(message: Message, state: FSMContext):
                          'Напиши номер своего заказа, чтобы я смог помочь тебе.')
     await state.set_state(UserStates.check_order)
 
-async def check_order(message: Message, state: FSMContext):
-    try:
-        with app.app_context():
-            await state.update_data(order_id=message.text)
-
-            get_data = await state.get_data()
-            order_id = get_data.get('order_id')
-
-            order_obj = Orders.query.filter_by(order_id=order_id).first()
-
-            if order_obj:
-                await message.answer('Итаккк... Информация по твоему заказу:\n'
-                                     f'Номер заказа: {Orders.order_id}'
-                                     f'Дата заказа: {Orders.order_date}'
-                                     f'Состав: {Orders.content}\n'
-                                     f'Статус: {Orders.status}\n'
-                                     f'Сумма: {Orders.summ}\n')
-            else:
-                await message.answer('Кажется, ты ещё ничего не заказывал.'
-                                     'Ты сможешь это сделать через команду /order.')
-            await state.clear()
-    except Exception as e:
-        print('CHECK_ORDER', e)
+# async def check_order(message: Message, state: FSMContext):
+#    try:
+#        with app.app_context():
+#            await state.update_data(order_id=message.text)
+#
+#            get_data = await state.get_data()
+#            order_id = get_data.get('order_id')
+#
+#            order_obj = Orders.query.filter_by(order_id=order_id).first()
+#
+#            if order_obj:
+#                await message.answer('Итаккк... Информация по твоему заказу:\n'
+#                                     f'Номер заказа: {Orders.order_id}\n'
+#                                     f'Дата заказа: {Orders.order_date}\n'
+#                                     f'Состав: {Orders.content}\n'
+#                                     f'Статус: {Orders.status}\n'
+#                                     f'Сумма: {Orders.summ}\n')
+#            else:
+#                await message.answer('Кажется, ты ещё ничего не заказывал.'
+#                                     'Ты сможешь это сделать через команду /order.')
+#            await state.clear()
+#    except Exception as e:
+#        print('CHECK_ORDER', e)
 
 async def third_vote(message: Message):
     await message.answer('Если с твоим заказом что-то не так, ты всегда можешь обратиться за помощью по команде /help.')

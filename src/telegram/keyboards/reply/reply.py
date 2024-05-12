@@ -1,15 +1,15 @@
-from aiogram import types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
-def order_button() -> types.ReplyKeyboardMarkup:
+def order_button() -> ReplyKeyboardMarkup:
     kb = [
         [
-            types.KeyboardButton(text="Заказать"),
-            types.KeyboardButton(text="Проверить свой заказ"),
-            types.KeyboardButton(text="Помощь")
+            KeyboardButton(text="Заказать"),
+            KeyboardButton(text="Проверить свой заказ"),
+            KeyboardButton(text="Помощь")
         ],
     ]
-    keyboard = types.ReplyKeyboardMarkup(
+    keyboard = ReplyKeyboardMarkup(
         keyboard=kb,
         resize_keyboard=True,
         input_field_placeholder="Выберите необходимый вариант:",

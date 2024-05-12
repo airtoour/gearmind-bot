@@ -29,13 +29,18 @@ class SSLCert:
 class Images:
     path: str
 
+@dataclass
+class CarUrl:
+    path: str
 
 @dataclass
 class Config:
-    tg_bot: TgBot
-    db:     DatabaseConfig
-    flask:  FlaskConfig
-    ssl:    SSLCert
+    tg_bot:  TgBot
+    db:      DatabaseConfig
+    flask:   FlaskConfig
+    ssl:     SSLCert
+    images:  Images
+    car_url: CarUrl
 
 
 env: Env = Env()
@@ -61,4 +66,10 @@ config = Config(
         ssl_cert = env('SSL_CERT_FILE'),
         ssl_key  = env('SSL_KEY_FILE')
     ),
+    images = Images(
+        path = env('IMAGE_PATH')
+    ),
+    car_url = CarUrl(
+        path = env('CARS_URL')
+    )
 )

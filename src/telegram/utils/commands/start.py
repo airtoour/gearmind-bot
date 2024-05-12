@@ -1,55 +1,82 @@
 from aiogram.types import Message
-from aiogram.exceptions import TelegramAPIError, AiogramError
+from aiogram.fsm.context import FSMContext
 
 from src.models.models import Users
-from src.exceptions import server_exceptions
-from src.telegram.keyboards.inline.inline import signup_tap_link
+from src.telegram.states import UserStates
 from src.db.db_app import app
 
 
-async def start(message: Message):
+async def start(message: Message, state: FSMContext):
     try:
         with app.app_context():
-            user = Users.query.filter_by(tg_user_id=message.from_user.id).first()
+            user = Users.get_current(message.from_user.id)
 
             if user:
-                await message.answer('Привет, рад, что ты вернулся, что-то снова случилось с твоей машиной?\n'
-                                     'Давай будем думать, что тебе поможет, опиши свою проблему!')
+                await message.answer(
+                    'Привет, рад, что ты вернулся, что-то снова случилось с твоей машиной?\n'
+                    'Давай будем думать, что тебе поможет, опиши свою проблему!'
+                )
             else:
-                markup = signup_tap_link()
-                await message.answer('Привет, тебя приветствует команда "AUTOCOMP"\n'
-                                     'Если ты к нам обратился, значит с твоей машиной что-то не так :(\n'
-                                     'Это грустно. Поэтому давай сначала познакомимся\n'
-                                     'а потом будем подбирать тебе компоненты.', reply_markup=markup)
+                await message.answer(
+                    'Привет, тебя приветствует команда "AUTOCOMP"\n'
+                    'Если ты к нам обратился, значит с твоей машиной что-то не так\n'
+                    'Это грустно. Поэтому давай сначала познакомимся\n'
+                    'а потом будем подбирать тебе компоненты.\n'
+                    '\n'
+                    'Напиши свой номер телефона. Формат номера телефона - +79876543210'
+                )
+                await state.set_state(UserStates.user_phone)
+    except Exception as e:
+        await message.answer(
+            'Кажется, произошла какая-то ошибка.\n'
+            'Стараемся разобраться с этим, извините за неудобства...'
+        )
+        print('start:', e)
 
-                await message.answer('Если ты успешно прошел(ла) регистрацию в форме, то напиши, пожалуйста,'
-                                     'свой номер телефона, чтобы я проверил информацию')
-    except TelegramAPIError or AiogramError as e:
-        print(server_exceptions(status_code=422,
-                                detail=f'Ошибка во время работы бота: {e}'))
 
+async def phone(message: Message, state: FSMContext):
+    try:
+        await state.update_data(phone=message.text)
 
-async def confirm_signup(message: Message):
+        await message.answer(
+            "Отлично! А теперь свой город. Это нужно для того, "
+            "чтобы я смог подбирать товары исходя из твоего города проживания"
+        )
+        await state.set_state(UserStates.user_city)
+    except Exception as e:
+        await message.answer(
+            'Кажется, произошла какая-то ошибка.\n'
+            'Стараемся разобраться с этим, извините за неудобства...'
+        )
+        print('phone:', e)
+
+async def city(message: Message, state: FSMContext):
     try:
         with app.app_context():
-            while True:
-                phone_number = str(message.text)
+            await state.update_data(city=message.text)
+            get_data = await state.get_data()
+            user_phone = get_data.get('phone')
+            user_city = get_data.get('city')
 
-                registered_phone = Users.query.filter_by(phone_number=phone_number).first()
+            print(user_phone, user_city)
 
-                if registered_phone.phone_number:
-                    if (registered_phone.tg_username is None
-                            and registered_phone.tg_user_id is None
-                            and registered_phone.phone_number == phone_number):
-                        await Users.tg_insert(tg_user_id=message.from_user.id,
-                                              tg_username=message.from_user.username,
-                                              phone_number=phone_number)
-                        await message.answer('Регистрация успешно подтверждена! Добро пожаловать в нашу команду\n'
-                                             'Давай узнаем что случилось с твоей машиной и посмотрим Меню.')
-                    else:
-                        await message.answer('Регистрация уже подтверждена! Давай посмотрим Меню <3')
-                    break
-                else:
-                    await message.answer('Такого номера не существует! Попробуй снова!')
+            new_user = Users.create(
+                tg_user_id=message.from_user.id,
+                tg_username=message.from_user.username,
+                first_name=message.from_user.first_name,
+                phone_number=user_phone,
+                city_name=user_city
+            )
+            print(new_user)
+            await message.answer(
+                "Круто! Теперь у меня есть все, для того, чтобы я смог впредь помогать тебе.\n"
+                "Теперь, можем начать работать. Ты можешь начать с кнопки меню слева от поля ввода."
+            )
     except Exception as e:
-        print('ПОДТВЕРЖДЕНИЕ РЕГИСТРАЦИИ: ', e)
+        await message.answer(
+            'Кажется, произошла какая-то ошибка.\n'
+            'Стараемся разобраться с этим, извините за неудобства...'
+        )
+        print('city:', e)
+    finally:
+        await state.clear()

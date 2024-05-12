@@ -1,13 +1,12 @@
 from src.db.db_app import app, db
 from src.routes.login import login_bp
 from src.routes.signup import signup_bp
-from src.routes.car import car
 
 from config import config
 
 app.register_blueprint(signup_bp, url_prefix='/signup')
 app.register_blueprint(login_bp, url_prefix='/login')
-app.register_blueprint(car, url_prefix='/car')
+# app.register_blueprint(car, url_prefix='/car')
 
 app.debug = True
 

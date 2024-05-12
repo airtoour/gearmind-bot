@@ -1,77 +1,36 @@
 from flask_login import UserMixin
-from werkzeug.security import generate_password_hash,check_password_hash
-
 from src.db.db_app import db
-from src.exceptions import server_exceptions
 
-
-class Cities(db.Model):
-    city_id   = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    city_name = db.Column(db.String(128), nullable=False, unique=True)
-
-    users = db.relationship('Users', backref='city', lazy=True)
-
-class CarsBrand(db.Model):
-    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    brand_name = db.Column(db.String(256), nullable=True)
-
-    model = db.relationship('CarsModel', backref='brand', lazy=True)
-
-class CarsModel(db.Model):
-    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    model_id   = db.Column(db.Integer, db.ForeignKey('carsbrand.id'), nullable=True)
-    model_name = db.Column(db.String(256), nullable=True)
-
-    gens = db.relationship('CarsGens', backref='model', lazy=True)
-
-class CarsGens(db.Model):
-    id         = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    model_id   = db.Column(db.Integer, db.ForeignKey('carsmodel.id'), nullable=True)
-    gen_name   = db.Column(db.String(256), nullable=True)
 
 class Users(db.Model, UserMixin):
     user_id       = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
     tg_user_id    = db.Column(db.Integer, nullable=True, unique=True)
     tg_username   = db.Column(db.String(128), nullable=True, unique=True)
     first_name    = db.Column(db.String(128), nullable=False)
-    birth_date    = db.Column(db.DateTime, nullable=False)
-    phone_number  = db.Column(db.String(12), nullable=False)
-    user_email    = db.Column(db.String(128), nullable=False)
-    user_password = db.Column(db.String(256), nullable=True)
-    city_id       = db.Column(db.Integer, db.ForeignKey('cities.city_id'), nullable=True)
-
-    def set_password(self, user_password):
-        self.user_password = generate_password_hash(user_password)
-
-    def check_hash(self, user_password):
-        return check_password_hash(self.user_password, user_password)
+    phone_number  = db.Column(db.String(12), nullable=False, unique=True)
+    city_name     = db.Column(db.String(128), nullable=True)
 
     @staticmethod
-    def get_current(phone):
-        is_user = Users.query.filter_by(phone_number=phone).first()
+    def get_current(tg_user_id):
+        is_user = Users.query.filter_by(tg_user_id=int(tg_user_id)).first()
         return is_user
 
-    @staticmethod
-    def create(first_name:    str,
-               birthday:      str,
-               phone_number:  str,
-               user_email:    str,
-               user_password: str,
-               city_id:       Cities):
+    @classmethod
+    def create(
+            cls,
+            tg_user_id:    int,
+            tg_username:   str,
+            first_name:    str,
+            phone_number:  str,
+            city_name:     str):
         try:
-
-            new_user = Users(
-                tg_user_id    = None,
-                tg_username   = None,
-                first_name    = first_name,
-                birth_date    = birthday,
-                phone_number  = phone_number,
-                user_email    = user_email,
-                user_password = user_password,
-                city_id       = city_id.city_id
+            new_user = cls(
+                tg_user_id   = tg_user_id,
+                tg_username  = tg_username,
+                first_name   = first_name,
+                phone_number = phone_number,
+                city_name    = city_name
             )
-            new_user.set_password(user_password)
-
             db.session.add(new_user)
             db.session.commit()
 
@@ -79,15 +38,37 @@ class Users(db.Model, UserMixin):
         except Exception as e:
             print(e)
             db.session.rollback()
-            return server_exceptions(500, str(e))
         finally:
             db.session.close()
 
+
 class Cars(db.Model):
-    car_id   = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
-    brand_id = db.Column(db.Integer, db.ForeignKey('carsbrand.id'), nullable=False)
-    model_id = db.Column(db.Integer, db.ForeignKey('carsmodel.id'), nullable=False)
-    gen_id   = db.Column(db.Integer, db.ForeignKey('carsgen.id'), nullable=False)
-    user_id  = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
+    car_id     = db.Column(db.Integer, primary_key=True, autoincrement=True, unique=True)
+    brand_name = db.Column(db.String(128), nullable=False)
+    model_name = db.Column(db.String(128), nullable=False)
+    gen_name   = db.Column(db.String(128), nullable=False)
+    year       = db.Column(db.Integer, nullable=False)
+    user_id    = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
 
     user = db.relationship('Users', backref='cars', lazy=True)
+
+    @staticmethod
+    def car_register(brand: str, model: str, gen: str, year: int, tg_user_id: str):
+        user = Users.get_current(tg_user_id)
+
+        try:
+            user_car = Cars(
+                brand_name = brand,
+                model_name = model,
+                gen_name   = gen,
+                year       = year,
+                user_id    = user.user_id
+            )
+            db.session.add(user_car)
+            db.session.commit()
+            print('Машина успешно зарегистрирована в базе данных!')
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+        finally:
+            db.session.close()

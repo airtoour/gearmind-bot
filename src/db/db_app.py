@@ -6,8 +6,8 @@ from config import config
 app = Flask(__name__)
 db = SQLAlchemy()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (f'postgresql://{config.db.db_username}:{config.db.db_password}'
-                                         f'@{config.db.db_host}:{config.db.db_port}/{config.db.db_name}')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{config.db.db_name}.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config['SECRET_KEY'] = 'cringe'
