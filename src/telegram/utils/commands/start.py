@@ -1,14 +1,14 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 
-from src.models.models import Users
+from src.models.users import Users
 from src.telegram.states import UserStates
-from src.db.db_app import app
+# from src.db.db import app
 
 
 async def start(message: Message, state: FSMContext):
     try:
-        with app.app_context():
+        # with app.app_context():
             user = Users.get_current(message.from_user.id)
 
             if user:

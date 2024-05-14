@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request
 from flask_login import login_user, LoginManager
 
 from src.models.models import Users
-from src.db.db_app import app
+from src.db.db import app
 
 signup_bp = Blueprint('signup', __name__, template_folder='templates/auth', static_folder='static')
 

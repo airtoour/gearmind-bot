@@ -28,3 +28,5 @@ bs4~=0.0.2
 beautifulsoup4~=4.12.3
 fuzzywuzzy~=0.18.0
 emoji~=2.11.1
+asyncpg
+alembic

@@ -1,11 +1,11 @@
 from aiogram.types import Message
-from src.models.models import Users
-from src.db.db_app import app
+from src.models.users import Users
+# from src.db.db import app
 
 
 async def support(message: Message):
     try:
-        with app.app_context():
+        # with app.app_context():
             user = Users.get_current(message.from_user.id)
 
             if user:

@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 from aiogram.types import Message
-from src.models.models import Cars
+from src.models.cars import Cars
 
 car_info = []
 

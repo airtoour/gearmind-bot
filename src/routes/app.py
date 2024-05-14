@@ -1,4 +1,4 @@
-from src.db.db_app import app, db
+from src.db.db import app, db
 from src.routes.login import login_bp
 from src.routes.signup import signup_bp
 
