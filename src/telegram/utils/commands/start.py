@@ -8,24 +8,23 @@ from src.telegram.states import UserStates
 
 async def start(message: Message, state: FSMContext):
     try:
-        # with app.app_context():
-            user = Users.get_current(message.from_user.id)
+        user = Users.get_current(message.from_user.id)
 
-            if user:
-                await message.answer(
-                    'Привет, рад, что ты вернулся, что-то снова случилось с твоей машиной?\n'
-                    'Давай будем думать, что тебе поможет, опиши свою проблему!'
-                )
-            else:
-                await message.answer(
-                    'Привет, тебя приветствует команда "AUTOCOMP"\n'
-                    'Если ты к нам обратился, значит с твоей машиной что-то не так\n'
-                    'Это грустно. Поэтому давай сначала познакомимся\n'
-                    'а потом будем подбирать тебе компоненты.\n'
-                    '\n'
-                    'Напиши свой номер телефона. Формат номера телефона - +79876543210'
-                )
-                await state.set_state(UserStates.user_phone)
+        if user:
+            await message.answer(
+                'Привет, рад, что ты вернулся, что-то снова случилось с твоей машиной?\n'
+                'Давай будем думать, что тебе поможет, опиши свою проблему!'
+            )
+        else:
+            await message.answer(
+                'Привет, тебя приветствует команда "AUTOCOMP"\n'
+                'Если ты к нам обратился, значит с твоей машиной что-то не так\n'
+                'Это грустно. Поэтому давай сначала познакомимся\n'
+                'а потом будем подбирать тебе компоненты.\n'
+                '\n'
+                'Напиши свой номер телефона. Формат номера телефона - +79876543210'
+            )
+            await state.set_state(UserStates.user_phone)
     except Exception as e:
         await message.answer(
             'Кажется, произошла какая-то ошибка.\n'

@@ -1,6 +1,8 @@
 # from aiogram import F
 from aiogram.filters import CommandStart, Command
 
+# from src.db.db import app, db
+from src.db.db import engine, Base
 from src.telegram.bot import bot, dp
 from src.telegram.filters.menu import set_main_menu
 from src.telegram.states import UserStates
@@ -11,8 +13,13 @@ from src.telegram.handlers.support import support
 from src.telegram.handlers.social import social
 from src.telegram.handlers.car import car, register
 
-
 if __name__ == '__main__':
+    # with app.app_context():
+    #     db.create_all()
+    #     print("К базе подключились")
+
+    Base.metadata.create_all(engine)
+
     # Регистрация кнопки меню в чате
     dp.startup.register(set_main_menu)
 
