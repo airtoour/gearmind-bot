@@ -6,7 +6,7 @@ from src.telegram.states import UserStates
 from src.models.models import Users
 from src.telegram.keyboards.inline.inline import car_list
 from src.db.db_app import app
-from config import config
+from config import settings
 
 async def car(message: Message, state: FSMContext):
     try:
@@ -46,7 +46,7 @@ async def register(message: Message, state: FSMContext):
         get_data = await state.get_data()
         model = get_data.get('model')
 
-        await register_car(model, config.car_url.path)
+        await register_car(model, settings.CARS_URL)
 
         await message.answer("Отлично, твоя машина зарегистрирована у нас! ")
     except Exception as e:

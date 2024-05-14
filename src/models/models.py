@@ -9,6 +9,7 @@ class Users(db.Model, UserMixin):
     first_name    = db.Column(db.String(128), nullable=False)
     phone_number  = db.Column(db.String(12), nullable=False, unique=True)
     city_name     = db.Column(db.String(128), nullable=True)
+    password      = db.Column(String, nullable=False)
 
     @staticmethod
     def get_current(tg_user_id):

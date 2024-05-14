@@ -2,7 +2,7 @@ from src.db.db_app import app, db
 from src.routes.login import login_bp
 from src.routes.signup import signup_bp
 
-from config import config
+from config import settings
 
 app.register_blueprint(signup_bp, url_prefix='/signup')
 app.register_blueprint(login_bp, url_prefix='/login')
@@ -16,10 +16,10 @@ if __name__ == '__main__':
 
     ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
 
-    cert_dir = Path(str(config.ssl.ssl_path))
+    cert_dir = Path(settings.SSL_PATH)
 
-    certfile = cert_dir / config.ssl.ssl_cert
-    keyfile = cert_dir / config.ssl.ssl_key
+    certfile = cert_dir / settings.SSL_CERT_FILE
+    keyfile = cert_dir / settings.SSL_KEY_FILE
 
     ssl_context.load_cert_chain(certfile=str(certfile), keyfile=str(keyfile))
 

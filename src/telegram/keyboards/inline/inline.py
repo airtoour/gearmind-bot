@@ -1,9 +1,9 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from config import config
+from config import settings
 
 
 def signup_tap_link() -> InlineKeyboardMarkup:
-    url = f'https://{config.flask.flask_host}:{config.flask.flask_port}/signup/'
+    url = f'https://{settings.FASTAPI_HOST}:{settings.FASTAPI_PORT}/signup/'
 
     registration = InlineKeyboardButton(text='Регистрация', web_app=WebAppInfo(url=url))
     markup = InlineKeyboardMarkup(inline_keyboard=[[registration],])
@@ -14,7 +14,7 @@ def signup_tap_link() -> InlineKeyboardMarkup:
 def social_links() -> InlineKeyboardMarkup:
     tg_channel_link = 'https://t.me/autocomp_team/'
     instagram_link = 'https://www.instagram.com/autocomp_team/'
-    official_link = 'https://autocomp.ru'
+    official_link = 'https://s744844.lpmotortest.com/'
 
     tg_channel = InlineKeyboardButton(text="Телеграм-канал", url=tg_channel_link)
     instagram = InlineKeyboardButton(text="Instagram", url=instagram_link)
@@ -26,7 +26,7 @@ def social_links() -> InlineKeyboardMarkup:
 
 
 def car_list() -> InlineKeyboardMarkup:
-    url = config.car_url.path
+    url = settings.CARS_URL
 
     button = InlineKeyboardButton(text='Список машин', web_app=WebAppInfo(url=url))
     markup = InlineKeyboardMarkup(inline_keyboard=[[button],])

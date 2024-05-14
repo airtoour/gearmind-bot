@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher
-from config import config
+from config import settings
 
 
-bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
+bot = Bot(token=settings.TOKEN, parse_mode='HTML')
 dp = Dispatcher()
