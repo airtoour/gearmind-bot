@@ -3,7 +3,7 @@ from aiogram.fsm.context import FSMContext
 
 from src.telegram.states import UserStates
 from src.telegram.keyboards.reply.reply import order_button
-#from src.telegram.keyboards.inline.inline import order_tap_link
+# from src.telegram.keyboards.inline.inline import order_tap_link
 # from src.db.db_app import app
 
 # from src.models.models import Orders
@@ -22,11 +22,9 @@ async def order(message: Message):
 
 
 async def first_vote(message: Message):
-    #markup = order_tap_link()
     await message.answer('Хорошо, давай приступим к заказу.\n'
                          '\n'
-                         'Переходи ниже в приложение, оттуда ты сможешь уже продолжить заказ'#, reply_markup=markup
-                         )
+                         'Переходи ниже в приложение, оттуда ты сможешь уже продолжить заказ')
 
 
 async def second_vote(message: Message, state: FSMContext):

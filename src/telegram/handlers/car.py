@@ -3,14 +3,14 @@ from aiogram.fsm.context import FSMContext
 
 from src.telegram.filters.get_car import register_car
 from src.telegram.states import UserStates
-from src.models.users import Users
+from src.db.repository.users import get_user_by_tg
 from src.telegram.keyboards.inline.inline import car_list
 
 from config import settings
 
 async def car(message: Message, state: FSMContext):
     try:
-        user = Users.get_current(message.from_user.id)
+        user = get_user_by_tg(message.from_user.id)
 
         if user:
             link = car_list()

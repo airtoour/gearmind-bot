@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: fe830cc8bf81
+Revision ID: ccd9587965e5
 Revises: 
-Create Date: 2024-05-14 23:02:24.500171
+Create Date: 2024-05-15 20:41:55.162303
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'fe830cc8bf81'
+revision: str = 'ccd9587965e5'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,13 +24,15 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('tg_user_id', sa.Integer(), nullable=True),
     sa.Column('tg_username', sa.String(), nullable=True),
+    sa.Column('username', sa.String(), nullable=False),
     sa.Column('first_name', sa.String(), nullable=False),
     sa.Column('phone_number', sa.String(), nullable=False),
-    sa.Column('city_name', sa.String(), nullable=False),
-    sa.Column('password', sa.String(), nullable=False),
+    sa.Column('city_name', sa.String(), nullable=True),
+    sa.Column('password', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('tg_user_id'),
-    sa.UniqueConstraint('tg_username')
+    sa.UniqueConstraint('tg_username'),
+    sa.UniqueConstraint('username')
     )
     op.create_table('cars',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),

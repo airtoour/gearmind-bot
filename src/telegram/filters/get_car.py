@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 from aiogram.types import Message
-from src.models.cars import Cars
+from src.db.repository.cars import car_register
 
 car_info = []
 
@@ -33,6 +33,6 @@ async def register_car(user_message: str, url: str):
 
         if similarity > 80:
             print(f"Модель машины {car_model} найдена в сообщении пользователя")
-            Cars.car_register(get_car_info[0], get_car_info[1], get_car_info[2], get_car_info[3], Message.text)
+            car_register(get_car_info[0], get_car_info[1], get_car_info[2], get_car_info[3], Message.text)
         else:
             print(f"Модель машины {car_model} не найдена в сообщении пользователя")

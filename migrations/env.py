@@ -1,5 +1,5 @@
-import sys
 from logging.config import fileConfig
+import sys
 from os.path import abspath, dirname
 
 from sqlalchemy import engine_from_config
@@ -8,8 +8,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from src.db.db import Base, DATABASE_URL
-from src.models.users import Users
-from src.models.cars import Cars
+from src.db.models.users import Users
+from src.db.models.cars import Cars
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 

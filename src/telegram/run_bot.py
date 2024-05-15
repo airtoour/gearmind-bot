@@ -7,7 +7,7 @@ from src.telegram.bot import bot, dp
 from src.telegram.filters.menu import set_main_menu
 from src.telegram.states import UserStates
 
-from src.telegram.utils.commands.start import start, phone, city
+from src.telegram.utils.commands.start import start
 from src.telegram.handlers.support import support
 # from src.telegram.handlers.order import order, first_vote, second_vote, check_order, third_vote
 from src.telegram.handlers.social import social
@@ -25,8 +25,8 @@ if __name__ == '__main__':
 
     # Регистрация обработчиков, связанных с командой /start
     dp.message.register(start, CommandStart())
-    dp.message.register(phone, UserStates.user_phone)
-    dp.message.register(city, UserStates.user_city)
+    # dp.message.register(phone, UserStates.user_phone)
+    # dp.message.register(city, UserStates.user_city)
 
     # Регистрация обработчиков, связанных с командой /car
     dp.message.register(car, Command('car'))

@@ -6,7 +6,7 @@ sqlalchemy~=2.0.27
 psycopg2-binary
 jinja2
 multidict
-pydantic
+pydantic~=2.7.1
 pydantic_core
 requests
 setuptools
@@ -29,4 +29,6 @@ beautifulsoup4~=4.12.3
 fuzzywuzzy~=0.18.0
 emoji~=2.11.1
 asyncpg
-alembic
+alembic~=1.13.1
+python-jose
+jose
