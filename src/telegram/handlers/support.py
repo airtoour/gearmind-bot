@@ -1,11 +1,11 @@
 from aiogram.types import Message
-from src.db.repository.users import get_user_by_tg
-from src.telegram.keyboards.inline.inline import signup_tap_link
+from src.db.models.models import Users
+from src.telegram.keyboards.inline.inline import to_signup
 
 async def support(message: Message):
-    markup = signup_tap_link()
+    markup = to_signup()
     try:
-        user = get_user_by_tg(message.from_user.id)
+        user = Users.get_user_by_tg(message.from_user.id)
 
         if user:
             await message.answer(

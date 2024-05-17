@@ -1,14 +1,14 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+from src.db.models.models import Cars
+from sqlalchemy import inspect
 from config import settings
 
 
-def signup_tap_link() -> InlineKeyboardMarkup:
-    url = f'https://{settings.FASTAPI_HOST}:{settings.FASTAPI_PORT}/signup/'
+def to_signup() -> InlineKeyboardMarkup:
+    signup_button = InlineKeyboardButton(text="Регистрация", callback_data="/signup")
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[signup_button]])
 
-    registration = InlineKeyboardButton(text='Регистрация', web_app=WebAppInfo(url=url))
-    markup = InlineKeyboardMarkup(inline_keyboard=[[registration],])
-
-    return markup
+    return keyboard
 
 
 def social_links() -> InlineKeyboardMarkup:
@@ -32,3 +32,24 @@ def car_list() -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup(inline_keyboard=[[button],])
 
     return markup
+
+
+def car_info(user_id: int) -> InlineKeyboardMarkup:
+    car = Cars.get_car(user_id=user_id)
+    keyboard = []
+
+    fields = ['brand_name', 'model_name', 'gen_name', 'year']
+
+    for field in fields:
+        value = getattr(car, field)
+        keyboard.append([
+            InlineKeyboardButton(text=str(value), callback_data=f'info:{str(field)}')
+        ])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def lets_solution() -> InlineKeyboardMarkup:
+    solution = InlineKeyboardButton(text="Решать проблему", callback_data="/solution")
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[solution]])
+    return keyboard

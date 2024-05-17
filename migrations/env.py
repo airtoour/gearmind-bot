@@ -8,8 +8,7 @@ from sqlalchemy import pool
 from alembic import context
 
 from src.db.db import Base, DATABASE_URL
-from src.db.models.users import Users
-from src.db.models.cars import Cars
+from src.db.models.models import Users, Cars
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 

@@ -1,0 +1,102 @@
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from src.db.db import Base, session
+
+
+class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    tg_user_id = Column(Integer, nullable=False, unique=True)
+    tg_username = Column(String, nullable=False, unique=True)
+    first_name = Column(String, nullable=False)
+    phone_number = Column(String, nullable=False, unique=True)
+
+    car = relationship('Cars', backref='user')
+
+    @staticmethod
+    def get_user_by_tg(tg_user_id: int):
+        user = session.query(Users).filter_by(tg_user_id=tg_user_id).first()
+        return user if user else None
+
+    @staticmethod
+    def get_user_id(tg_user_id: int):
+        user = session.query(Users).filter_by(tg_user_id=tg_user_id).first()
+        return user.id if user else None
+
+    @classmethod
+    def create(cls,
+               tg_user_id: int,
+               tg_username: str,
+               first_name: str,
+               phone_number: str
+    ):
+        try:
+            is_user = Users.get_user_by_tg(tg_user_id)
+
+            if is_user:
+                return is_user
+            else:
+                user = cls(
+                    tg_user_id = tg_user_id,
+                    tg_username = tg_username,
+                    first_name = first_name,
+                    phone_number = phone_number
+                )
+                session.add(user)
+                session.commit()
+
+                return user
+        except Exception as e:
+            print("create user:", e)
+            session.rollback()
+            raise e
+        finally:
+            session.close()
+
+
+class Cars(Base):
+    __tablename__ = "cars"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    brand_name = Column(String, nullable=False)
+    model_name = Column(String, nullable=False)
+    gen_name = Column(String, nullable=False)
+    year = Column(Integer, nullable=False)
+    user_id = Column(ForeignKey("users.id"))
+
+    @classmethod
+    def car_register(cls,
+                     brand: str,
+                     model: str,
+                     gen: str,
+                     year: int,
+                     tg_user_id: str):
+        try:
+            user = Users.get_user_id(tg_user_id)
+
+            new_car = cls(
+                brand_name = brand,
+                model_name = model,
+                gen_name = gen,
+                year = year,
+                user_id = user
+            )
+            session.add(new_car)
+            session.commit()
+
+            return new_car if user else None
+        except Exception as e:
+            session.rollback()
+            print(e)
+            raise e
+        finally:
+            session.close()
+
+    @staticmethod
+    def get_car(user_id: int):
+        car = session.query(Cars).filter_by(user_id=user_id).first()
+        return car if car else None
+
+
+print(Users.get_user_id(1068989629))

@@ -2,9 +2,14 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 class UserStates(StatesGroup):
-    user_phone = State()
-    user_city = State()
+    phone = State()
 
-    check_order = State()
+    confirm_info = State()
+    correct_part = State()
+
+    car_brand = State()
+    car_model = State()
+    car_gen = State()
+    car_year = State()
 
     car_register = State()
