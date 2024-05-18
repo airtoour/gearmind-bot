@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
 from sqlalchemy.orm import relationship
 from src.db.db import Base, session
 
@@ -99,4 +99,56 @@ class Cars(Base):
         return car if car else None
 
 
-print(Users.get_user_id(1068989629))
+class ProductsTypes(Base):
+    __tablename__ = 'products_types'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(String, nullable=False)
+
+    oil = relationship('Oils', backref='products_type')
+    busbar = relationship('Busbars', backref='products_type')
+    batteries = relationship('Batteries', backref='products_type')
+    disks = relationship('Disks', backref='products_type')
+
+
+class Oils(Base):
+    __tablename__ = 'oils'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type_id = Column(ForeignKey('products_types.id'))
+    maker = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    liter = Column(Float, nullable=False)
+    comment = Column(String, nullable=False)
+    structure = Column(String, nullable=False)
+
+class Busbars(Base):
+    __tablename__ = 'busbars'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type_id = Column(ForeignKey('products_types.id'))
+    maker = Column(String, nullable=False)
+    width = Column(Integer, nullable=False)
+    diameter = Column(Integer, nullable=False)
+    thorns = Column(Boolean, nullable=False)
+
+class Batteries(Base):
+    __tablename__ = 'batteries'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type_id = Column(ForeignKey('products_types.id'))
+    maker = Column(String, nullable=False)
+    voltage = Column(Float, nullable=False)
+    capacity = Column(Float, nullable=False)
+    toque = Column(Float, nullable=False)
+
+class Disks(Base):
+    __tablename__ = 'disks'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type_id = Column(ForeignKey('products_types.id'))
+    maker = Column(String, nullable=False)
+    diameter = Column(Integer, nullable=False)
+    material = Column(String, nullable=False)
+
+
+print(Users.__tablename__)

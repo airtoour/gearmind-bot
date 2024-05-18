@@ -12,4 +12,4 @@ class UserStates(StatesGroup):
     car_gen = State()
     car_year = State()
 
-    car_register = State()
+    set_result = State()

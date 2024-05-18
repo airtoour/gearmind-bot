@@ -10,10 +10,11 @@ from src.telegram.states import UserStates
 from src.telegram.utils.commands.start import start
 from src.telegram.utils.commands.signup import signup, get_phone
 from src.telegram.handlers.support import support
-# from src.telegram.handlers.order import order, first_vote, second_vote, check_order, third_vote
 from src.telegram.handlers.social import social
 from src.telegram.handlers.car import (car, confirm_car, problem_parts, update_part,
                                        car_brand, car_model, car_year, register)
+from src.telegram.handlers.solution.solution import solution, problem_field, set_result
+
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
@@ -38,6 +39,11 @@ if __name__ == '__main__':
     dp.message.register(car_model, UserStates.car_model)
     dp.message.register(car_year, UserStates.car_year)
     dp.message.register(register, UserStates.car_gen)
+
+    # Регистрация обработчиков, связанных с командой /solution
+    dp.message.register(solution, Command('solution'))
+    dp.callback_query.register(problem_field, lambda c: c.data.startswith('table'))
+    dp.callback_query.register(set_result, lambda c: c.data.startswith('value'))
 
     # Регистрация обработчиков, связанных с командой /social
     dp.message.register(social, Command('social'))

@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from src.telegram.bot import bot, logger
 from src.telegram.states import UserStates
 from src.telegram.keyboards.reply.reply import car_info_confirm
-from src.telegram.keyboards.inline.inline import car_info, car_list, lets_solution
+from src.telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
 
 from src.db.models.models import Cars, Users
 from src.db.db import session
@@ -12,26 +12,35 @@ from src.db.db import session
 
 async def car(message: Message, state: FSMContext):
     try:
+        user = Users.get_user_by_tg(message.from_user.id)
         confirm = car_info_confirm()
         user_id = Users.get_user_id(message.from_user.id)
         car = Cars.get_car(user_id)
 
-        if car:
-            await message.answer(
-                "Твоя машина зарегистрирована у нас. Это она, верно?\n"
-                f"{car.brand_name} {car.model_name} {car.gen_name} {car.year} года", reply_markup=confirm
-            )
-            await state.set_state(UserStates.confirm_info)
+        if user:
+            if car:
+                await message.answer(
+                    "Твоя машина зарегистрирована у нас. Это она, верно?\n"
+                    f"<b>{car.brand_name} {car.model_name} {car.gen_name} {car.year} года</b>", reply_markup=confirm
+                )
+                await state.set_state(UserStates.confirm_info)
+            else:
+                await message.answer(
+                    "Для того, чтобы я смог зарегистрировать твою машину, напиши, пожалуйста, "
+                    "<b>марку</b> своей машины\n"
+                    "Для того, чтобы информация была корректной, сверь ее со списком машин, "
+                    "который будет по ссылке ниже\n"
+                    "\n"
+                    "Настоятельно прошу тебя действовать по инструкции, которые я указываю. Это позволит мне корректно "
+                    "зарегистрировать твою машину для дальнейшей работы.",
+                    reply_markup=car_list()
+                )
+                await state.set_state(UserStates.car_brand)
         else:
             await message.answer(
-                "Для того, чтобы я смог зарегистрировать твою машину, напиши, пожалуйста, <b>марку</b> своей машины\n"
-                "Для того, чтобы информация была корректной, сверь ее со списком машин, который будет по ссылке ниже\n"
-                "\n"
-                "Настоятельно прошу тебя действовать по инструкции, которые я указываю. Это позволит мне корректно "
-                "зарегистрировать твою машину для дальнейшей работы.",
-                reply_markup=car_list()
+                "Для того, чтобы зарегистрировать свою машину, нужно сначала <b>тебя</b> зарегистрировать.\n"
+                "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
             )
-            await state.set_state(UserStates.car_brand)
     except Exception as e:
         logger.exception("car", e)
         await message.answer(
