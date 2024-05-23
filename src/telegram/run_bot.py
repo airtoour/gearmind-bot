@@ -9,16 +9,14 @@ from src.telegram.states import UserStates
 
 from src.telegram.utils.commands.start import start
 from src.telegram.utils.commands.signup import signup, get_phone
-from src.telegram.handlers.support import support
 from src.telegram.handlers.social import social
-from src.telegram.handlers.car import (car, confirm_car, problem_parts, update_part,
+from src.telegram.handlers.car import (car_command, car_button, confirm_car, problem_parts, update_part,
                                        car_brand, car_model, car_year, register)
 from src.telegram.handlers.solution.solution import solution, problem_field, set_result
 
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
-    print("К базе подключились")
 
     # Регистрация кнопки меню в чате
     dp.startup.register(set_main_menu)
@@ -31,7 +29,8 @@ if __name__ == '__main__':
     dp.message.register(get_phone, UserStates.phone)
 
     # Регистрация обработчиков, связанных с командой /car
-    dp.message.register(car, Command('car'))
+    dp.message.register(car_command, Command('car'))
+    dp.callback_query.register(car_button, lambda c: c.data == '/car')
     dp.message.register(confirm_car, UserStates.confirm_info)
     dp.callback_query.register(problem_parts, lambda c: c.data.startswith('info'))
     dp.message.register(update_part, UserStates.correct_part)
@@ -48,8 +47,4 @@ if __name__ == '__main__':
     # Регистрация обработчиков, связанных с командой /social
     dp.message.register(social, Command('social'))
 
-    # Регистрация обработчиков, связанных с командой /support
-    dp.message.register(support, Command('support'))
-
-    print("Бот работает")
     dp.run_polling(bot)

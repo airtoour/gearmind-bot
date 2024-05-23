@@ -10,22 +10,24 @@ from src.db.models.models import Cars, Users
 from src.db.db import session
 
 
-async def car(message: Message, state: FSMContext):
+async def car(form_user_id: int, state: FSMContext):
     try:
-        user = Users.get_user_by_tg(message.from_user.id)
+        user = Users.get_user_by_tg(form_user_id)
         confirm = car_info_confirm()
-        user_id = Users.get_user_id(message.from_user.id)
+        user_id = Users.get_user_id(form_user_id)
         car = Cars.get_car(user_id)
 
         if user:
             if car:
-                await message.answer(
+                await bot.send_message(
+                    form_user_id,
                     "Твоя машина зарегистрирована у нас. Это она, верно?\n"
                     f"<b>{car.brand_name} {car.model_name} {car.gen_name} {car.year} года</b>", reply_markup=confirm
                 )
                 await state.set_state(UserStates.confirm_info)
             else:
-                await message.answer(
+                await bot.send_message(
+                    form_user_id,
                     "Для того, чтобы я смог зарегистрировать твою машину, напиши, пожалуйста, "
                     "<b>марку</b> своей машины\n"
                     "Для того, чтобы информация была корректной, сверь ее со списком машин, "
@@ -37,16 +39,25 @@ async def car(message: Message, state: FSMContext):
                 )
                 await state.set_state(UserStates.car_brand)
         else:
-            await message.answer(
+            await bot.send_message(
+                form_user_id,
                 "Для того, чтобы зарегистрировать свою машину, нужно сначала <b>тебя</b> зарегистрировать.\n"
                 "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
         logger.exception("car", e)
-        await message.answer(
+        await bot.send_message(
+            form_user_id,
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
         )
+
+async def car_command(message: Message, state: FSMContext):
+    await car(message.from_user.id, state)
+
+async def car_button(callback_query: CallbackQuery, state: FSMContext):
+    await car(callback_query.from_user.id, state)
+
 
 async def confirm_car(message: Message, state: FSMContext):
     try:

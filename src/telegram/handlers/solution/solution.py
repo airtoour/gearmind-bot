@@ -6,7 +6,7 @@ from src.db.db import engine
 
 from src.telegram.bot import logger, bot
 from src.telegram.states import UserStates
-from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param
+from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
 from src.db.models.models import Users
 
@@ -17,12 +17,12 @@ async def solution(message: Message):
 
         if user:
             await message.answer(
-                "Наконец-то мы добрались до самого вкусного! Прости, я это так.. Кхм...\n"
-                "Итак, выбери область проблемной зоны своей машины ниже\n", reply_markup=prod_types()
+                "Для того, чтобы я смог подобрать тебе нужную продукцию, "
+                "выбери область проблемной зоны своей машины ниже", reply_markup=prod_types()
             )
         else:
             await message.answer(
-                "Для того, чтобы начать пользоваться этой функцией, нужно сначала <b>тебя</b> зарегистрировать.\n"
+                "Для того, чтобы начать пользоваться этой функцией, нужно сначала <b>тебя зарегистрировать</b>.\n"
                 "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
@@ -99,10 +99,18 @@ async def set_result(callback_query: CallbackQuery, state: FSMContext):
 
         stmt = select(table).where(getattr(table.c, field) == value)
 
+        names = []
         with engine.connect() as connection:
             result = connection.execute(stmt)
             for row in result:
-                print(row)
+                names.append(row[2])
+            print(names)
+
+            await bot.send_message(
+                callback_query.from_user.id,
+                "Я поискал для тебя продукты, которые тебе необходимы, можешь взглянуть на них по сcылке ниже",
+                reply_markup=result_solution(names)
+            )
     except Exception as e:
         logger.exception("set_result", e)
         await bot.send_message(

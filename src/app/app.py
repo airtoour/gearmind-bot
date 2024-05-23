@@ -12,12 +12,7 @@ if __name__ == '__main__':
     from pathlib import Path
     import uvicorn
 
-    from src.app.webapps.signup.signup import signup
-    from src.app.webapps.auth.login import login
     from src.app.webapps.result_items import result
-
-    app.include_router(signup)  # Регистрация роутера регистрации
-    app.include_router(login)   # Регистрация роутера входа пользователя
 
     app.include_router(result)  # Регистрация роутера результирующего набора
 

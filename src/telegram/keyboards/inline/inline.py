@@ -1,13 +1,17 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 from src.db.models.models import Cars
-from sqlalchemy import inspect
 from config import settings
 
 
 def to_signup() -> InlineKeyboardMarkup:
     signup_button = InlineKeyboardButton(text="Регистрация", callback_data="/signup")
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[signup_button]])
+    return keyboard
 
+
+def to_car_register() -> InlineKeyboardMarkup:
+    car_register = InlineKeyboardButton(text="Зарегистрировать машину", callback_data="car")
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[car_register]])
     return keyboard
 
 
@@ -26,9 +30,7 @@ def social_links() -> InlineKeyboardMarkup:
 
 
 def car_list() -> InlineKeyboardMarkup:
-    url = settings.CARS_URL
-
-    button = InlineKeyboardButton(text='Список машин', web_app=WebAppInfo(url=url))
+    button = InlineKeyboardButton(text='Список машин', web_app=WebAppInfo(url=settings.CARS_URL))
     markup = InlineKeyboardMarkup(inline_keyboard=[[button],])
 
     return markup
@@ -109,3 +111,19 @@ def first_param(table: str):
             keyboard.append(row)
 
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def result_solution(product_names: list) -> InlineKeyboardMarkup:
+    import urllib.parse
+    # Преобразование списка параметров в строку параметров запроса
+    query_string = urllib.parse.quote(str(product_names))
+
+    # Формирование URL с добавлением параметров запроса
+    url = f'https://127.0.0.1:8000/items/query_params={query_string}'
+    print(url)
+    # Создание кнопки с URL
+    button = InlineKeyboardButton(text="Посмотреть результат", web_app=WebAppInfo(url=url))
+
+    # Создание клавиатуры с кнопкой
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+    return keyboard

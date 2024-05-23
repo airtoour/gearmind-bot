@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
 from sqlalchemy.orm import relationship
 from src.db.db import Base, session
+from src.telegram.bot import logger
 
 
 class Users(Base):
@@ -14,14 +15,14 @@ class Users(Base):
 
     car = relationship('Cars', backref='user')
 
-    @staticmethod
-    def get_user_by_tg(tg_user_id: int):
-        user = session.query(Users).filter_by(tg_user_id=tg_user_id).first()
+    @classmethod
+    def get_user_by_tg(cls, tg_user_id: int):
+        user = session.query(cls).filter_by(tg_user_id=tg_user_id).first()
         return user if user else None
 
-    @staticmethod
-    def get_user_id(tg_user_id: int):
-        user = session.query(Users).filter_by(tg_user_id=tg_user_id).first()
+    @classmethod
+    def get_user_id(cls, tg_user_id: int):
+        user = session.query(cls).filter_by(tg_user_id=tg_user_id).first()
         return user.id if user else None
 
     @classmethod
@@ -32,25 +33,19 @@ class Users(Base):
                phone_number: str
     ):
         try:
-            is_user = Users.get_user_by_tg(tg_user_id)
+            user = cls(
+                tg_user_id = tg_user_id,
+                tg_username = tg_username,
+                first_name = first_name,
+                phone_number = phone_number
+            )
+            session.add(user)
+            session.commit()
 
-            if is_user:
-                return is_user
-            else:
-                user = cls(
-                    tg_user_id = tg_user_id,
-                    tg_username = tg_username,
-                    first_name = first_name,
-                    phone_number = phone_number
-                )
-                session.add(user)
-                session.commit()
-
-                return user
+            return user
         except Exception as e:
-            print("create user:", e)
+            logger.exception("create_user", e)
             session.rollback()
-            raise e
         finally:
             session.close()
 
@@ -87,9 +82,8 @@ class Cars(Base):
 
             return new_car if user else None
         except Exception as e:
+            logger.exception("create_user", e)
             session.rollback()
-            print(e)
-            raise e
         finally:
             session.close()
 
@@ -149,6 +143,3 @@ class Disks(Base):
     maker = Column(String, nullable=False)
     diameter = Column(Integer, nullable=False)
     material = Column(String, nullable=False)
-
-
-print(Users.__tablename__)
