@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from src.db.models.models import Cars
+from src.db.models.models import Cars, Users
+from src.db.db import session
 from config import settings
 
 
@@ -31,7 +32,7 @@ def social_links() -> InlineKeyboardMarkup:
 
 def car_list() -> InlineKeyboardMarkup:
     button = InlineKeyboardButton(text='Список машин', web_app=WebAppInfo(url=settings.CARS_URL))
-    markup = InlineKeyboardMarkup(inline_keyboard=[[button],])
+    markup = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
     return markup
 
@@ -113,17 +114,12 @@ def first_param(table: str):
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
-def result_solution(product_names: list) -> InlineKeyboardMarkup:
-    import urllib.parse
-    # Преобразование списка параметров в строку параметров запроса
-    query_string = urllib.parse.quote(str(product_names))
+def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
+    user = session.query(Users).filter_by(tg_user_id=user_id).first()
+    car = Cars.get_car(user_id=user.id)
+    url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name}%20{comment}%20'
+           f'Для%20машины%20{car.brand_name}%20{car.model_name}%20{car.gen_name}%20{car.year}')
+    button = InlineKeyboardButton(text="Посмотреть результат", url=url)
 
-    # Формирование URL с добавлением параметров запроса
-    url = f'https://127.0.0.1:8000/items/query_params={query_string}'
-    print(url)
-    # Создание кнопки с URL
-    button = InlineKeyboardButton(text="Посмотреть результат", web_app=WebAppInfo(url=url))
-
-    # Создание клавиатуры с кнопкой
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     return keyboard

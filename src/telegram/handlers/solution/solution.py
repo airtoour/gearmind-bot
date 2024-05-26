@@ -1,14 +1,13 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from sqlalchemy import MetaData, Table, select
-from src.db.db import engine
+from src.db.db import session
 
 from src.telegram.bot import logger, bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
-from src.db.models.models import Users
+from src.db.models.models import Users, ProductsTypes
 
 
 async def solution(message: Message):
@@ -75,7 +74,7 @@ async def problem_field(callback_query: CallbackQuery, state: FSMContext):
             )
 
         await state.set_state(UserStates.set_result)
-        await state.update_data(table=sql_table)
+        await state.update_data(table=table)
         await state.update_data(field=field)
     except Exception as e:
         logger.exception("problem_field", e)
@@ -88,29 +87,15 @@ async def problem_field(callback_query: CallbackQuery, state: FSMContext):
 
 async def set_result(callback_query: CallbackQuery, state: FSMContext):
     try:
-        metadata = MetaData()
-        value = callback_query.data.replace('value:', '')
-
+        data = callback_query.data.replace('value:', '')
         get_data = await state.get_data()
         table_name = get_data.get('table')
-        field = get_data.get('field')
 
-        table = Table(table_name, metadata, autoload_with=engine)
-
-        stmt = select(table).where(getattr(table.c, field) == value)
-
-        names = []
-        with engine.connect() as connection:
-            result = connection.execute(stmt)
-            for row in result:
-                names.append(row[2])
-            print(names)
-
-            await bot.send_message(
-                callback_query.from_user.id,
-                "Я поискал для тебя продукты, которые тебе необходимы, можешь взглянуть на них по сcылке ниже",
-                reply_markup=result_solution(names)
-            )
+        await bot.send_message(
+            callback_query.from_user.id,
+            "Я поискал для тебя продукты, которые тебе необходимы, можешь взглянуть на них по сcылке ниже",
+            reply_markup=result_solution(table_name, data, callback_query.from_user.id)
+        )
     except Exception as e:
         logger.exception("set_result", e)
         await bot.send_message(
