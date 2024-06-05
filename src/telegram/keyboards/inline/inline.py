@@ -11,7 +11,7 @@ def to_signup() -> InlineKeyboardMarkup:
 
 
 def to_car_register() -> InlineKeyboardMarkup:
-    car_register = InlineKeyboardButton(text="Зарегистрировать машину", callback_data="car")
+    car_register = InlineKeyboardButton(text="Зарегистрировать машину", callback_data="/car")
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[car_register]])
     return keyboard
 
@@ -19,13 +19,13 @@ def to_car_register() -> InlineKeyboardMarkup:
 def social_links() -> InlineKeyboardMarkup:
     tg_channel_link = 'https://t.me/autocomp_team/'
     instagram_link = 'https://www.instagram.com/autocomp_team/'
-    official_link = 'https://s744844.lpmotortest.com/'
+    # official_link = 'https://s744844.lpmotortest.com/'
 
     tg_channel = InlineKeyboardButton(text="Телеграм-канал", url=tg_channel_link)
     instagram = InlineKeyboardButton(text="Instagram", url=instagram_link)
-    official = InlineKeyboardButton(text="Официальный сайт", web_app=WebAppInfo(url=official_link))
+    # official = InlineKeyboardButton(text="Официальный сайт", web_app=WebAppInfo(url=official_link))
 
-    markup = InlineKeyboardMarkup(inline_keyboard=[[tg_channel], [instagram], [official]])
+    markup = InlineKeyboardMarkup(inline_keyboard=[[tg_channel], [instagram]])  # [official]])
 
     return markup
 
@@ -72,7 +72,6 @@ def prod_types() -> InlineKeyboardMarkup:
 
 def first_param(table: str):
     keyboard = []
-
     if table == 'oils':
         comments = ['10W40', '5W40']
         for comment in comments:
@@ -80,7 +79,6 @@ def first_param(table: str):
                 InlineKeyboardButton(text=str(comment), callback_data=str(f'value:{comment}'))
             ]
             keyboard.append(row)
-
     if table == 'busbars':
         diameters = [13, 14, 16, 18]
         for i in range(0, len(diameters), 2):
@@ -90,7 +88,6 @@ def first_param(table: str):
                                      callback_data=str(f'value:{diameters[i + 1]}') if i + 1 < len(diameters) else '')
             ]
             keyboard.append(row)
-
     if table == 'batteries':
         capacities = [1, 2.1, 2.3, 2.5, 55]
         for i in range(0, len(capacities), 3):
@@ -100,7 +97,6 @@ def first_param(table: str):
                                      callback_data=str(f'value:{capacities[i + 1]}') if i + 1 < len(capacities) else '')
             ]
             keyboard.append(row)
-
     if table == 'disks':
         diameters = [13, 14, 15, 16, 17]
         for i in range(0, len(diameters), 3):
@@ -117,8 +113,8 @@ def first_param(table: str):
 def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
     user = session.query(Users).filter_by(tg_user_id=user_id).first()
     car = Cars.get_car(user_id=user.id)
-    url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name}%20{comment}%20'
-           f'Для%20машины%20{car.brand_name}%20{car.model_name}%20{car.gen_name}%20{car.year}')
+    url = (f'https://megamarket.ru/catalog/?q={table_name}%20{comment}%20'
+           f'Для%20машины%20{car.brand_name}%20{car.model_name}%20{car.gen_name}%20{car.year}%года')
     button = InlineKeyboardButton(text="Посмотреть результат", url=url)
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])

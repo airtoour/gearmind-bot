@@ -1,13 +1,11 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.db.db import session
-
 from src.telegram.bot import logger, bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
-from src.db.models.models import Users, ProductsTypes
+from src.db.models.models import Users
 
 
 async def solution(message: Message):
@@ -93,7 +91,11 @@ async def set_result(callback_query: CallbackQuery, state: FSMContext):
 
         await bot.send_message(
             callback_query.from_user.id,
-            "Я поискал для тебя продукты, которые тебе необходимы, можешь взглянуть на них по сcылке ниже",
+            "Я поискал для Вас продукты, которые Вам необходимы, можете взглянуть на них по сcылке ниже\n"
+            "\n"
+            "<b>P.S НАСТОЯТЕЛЬНО РЕКОМЕНДУЕТСЯ!!!</b>\n"
+            "Перед тем, как приобрести необходимый компонент, пожалуйста, проконсультируйтесь со специалистами,"
+            "компетентными в данном вопросе.",
             reply_markup=result_solution(table_name, data, callback_query.from_user.id)
         )
     except Exception as e:

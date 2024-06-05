@@ -1,7 +1,5 @@
-# from aiogram import F
 from aiogram.filters import CommandStart, Command
 
-# from src.db.db import app, db
 from src.db.db import engine, Base
 from src.telegram.bot import bot, dp
 from src.telegram.filters.menu import set_main_menu

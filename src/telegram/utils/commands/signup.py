@@ -8,7 +8,7 @@ from src.db.models.models import Users
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
     try:
-        user = Users.get_user_by_tg(CallbackQuery.from_user.id)
+        user = Users.get_user_by_tg(callback_query.from_user.id)
 
         if user:
             await bot.send_message(
