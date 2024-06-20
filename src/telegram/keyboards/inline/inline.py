@@ -113,8 +113,8 @@ def first_param(table: str):
 def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
     user = session.query(Users).filter_by(tg_user_id=user_id).first()
     car = Cars.get_car(user_id=user.id)
-    url = (f'https://megamarket.ru/catalog/?q={table_name}%20{comment}%20'
-           f'Для%20машины%20{car.brand_name}%20{car.model_name}%20{car.gen_name}%20{car.year}%года')
+    url = (f'https://megamarket.ru/catalog/?q={table_name} {comment} '
+           f'Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year} года')
     button = InlineKeyboardButton(text="Посмотреть результат", url=url)
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
