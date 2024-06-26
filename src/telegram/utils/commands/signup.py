@@ -1,9 +1,11 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+
 from src.telegram.bot import bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.inline.inline import to_car_register
 from src.db.models.models import Users
+from src.telegram.bot import logger
 
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
@@ -24,7 +26,7 @@ async def signup(callback_query: CallbackQuery, state: FSMContext):
             )
             await state.set_state(UserStates.phone)
     except Exception as e:
-        print("start: ", e)
+        logger.exception("signup", e)
         await bot.send_message(
             callback_query.from_user.id,
             "Кажется, произошла какая-то ошибка.\n"
@@ -42,7 +44,7 @@ async def get_phone(message: Message, state: FSMContext):
         first_name = message.from_user.first_name
         phone = get_data.get('phone')
 
-        new_user = Users.create(tg_id, tg_username, first_name, phone)
+        Users.create(tg_id, tg_username, first_name, phone)
 
         await message.answer(
             f"Отлично, {first_name}! Теперь мы можем начинать работу.\n"
@@ -50,7 +52,7 @@ async def get_phone(message: Message, state: FSMContext):
             "предоставить информацию о своей машине. Это можно сделать по кнопке ниже", reply_markup=to_car_register()
         )
     except Exception as e:
-        print("get_phone start: ", e)
+        logger.exception("get_phone", e)
         await message.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
