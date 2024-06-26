@@ -187,7 +187,8 @@ async def register(message: Message, state: FSMContext):
 
         await message.answer(
             "Теперь, когда у нас есть вся необходимая информация, "
-            "ты можешь начать пользоваться моей системой по кнопке ниже.", reply_markup=lets_solution()
+            "ты можешь начать пользоваться моей системой по кнопке ниже.",
+            reply_markup=lets_solution()
         )
     except Exception as e:
         logger.exception("register", e)
@@ -197,3 +198,4 @@ async def register(message: Message, state: FSMContext):
         )
     finally:
         await state.clear()
+

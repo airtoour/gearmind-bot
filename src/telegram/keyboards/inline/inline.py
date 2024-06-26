@@ -19,13 +19,11 @@ def to_car_register() -> InlineKeyboardMarkup:
 def social_links() -> InlineKeyboardMarkup:
     tg_channel_link = 'https://t.me/autocomp_team/'
     instagram_link = 'https://www.instagram.com/autocomp_team/'
-    # official_link = 'https://s744844.lpmotortest.com/'
 
     tg_channel = InlineKeyboardButton(text="Телеграм-канал", url=tg_channel_link)
     instagram = InlineKeyboardButton(text="Instagram", url=instagram_link)
-    # official = InlineKeyboardButton(text="Официальный сайт", web_app=WebAppInfo(url=official_link))
 
-    markup = InlineKeyboardMarkup(inline_keyboard=[[tg_channel], [instagram]])  # [official]])
+    markup = InlineKeyboardMarkup(inline_keyboard=[[tg_channel], [instagram]])
 
     return markup
 
@@ -113,8 +111,8 @@ def first_param(table: str):
 def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
     user = session.query(Users).filter_by(tg_user_id=user_id).first()
     car = Cars.get_car(user_id=user.id)
-    url = (f'https://megamarket.ru/catalog/?q={table_name} {comment} '
-           f'Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year} года')
+    url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} '
+           f'Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year}')
     button = InlineKeyboardButton(text="Посмотреть результат", url=url)
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
