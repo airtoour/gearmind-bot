@@ -1,7 +1,7 @@
 from aiogram.types import Message
 
 from src.telegram.keyboards.inline.inline import to_signup
-from src.db.models.models import Users
+from db import Users
 from src.telegram.bot import logger
 
 

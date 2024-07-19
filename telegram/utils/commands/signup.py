@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from src.telegram.bot import bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.inline.inline import to_car_register
-from src.db.models.models import Users
+from db import Users
 from src.telegram.bot import logger
 
 

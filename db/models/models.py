@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Float
 from sqlalchemy.orm import relationship
-from src.db.db import Base, session
-from src.telegram.bot import logger
+from db.db import Base, session
+
+from logger import logger
 
 
 class Users(Base):
@@ -26,11 +27,12 @@ class Users(Base):
         return user.id if user else None
 
     @classmethod
-    def create(cls,
-               tg_user_id: int,
-               tg_username: str,
-               first_name: str,
-               phone_number: str
+    def create(
+        cls,
+        tg_user_id: int,
+        tg_username: str,
+        first_name: str,
+        phone_number: str
     ):
         try:
             user = cls(
@@ -61,12 +63,14 @@ class Cars(Base):
     user_id = Column(ForeignKey("users.id"))
 
     @classmethod
-    def car_register(cls,
-                     brand: str,
-                     model: str,
-                     gen: str,
-                     year: int,
-                     tg_user_id: str):
+    def car_register(
+        cls,
+        brand: str,
+        model: str,
+        gen: str,
+        year: int,
+        tg_user_id: str
+    ):
         try:
             user = Users.get_user_id(tg_user_id)
 

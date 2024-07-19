@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from src.db.models.models import Cars, Users
-from src.db.db import session
-from config import settings
+from db import Cars, Users
+from db import session
+from src.config import settings
 
 
 def to_signup() -> InlineKeyboardMarkup:

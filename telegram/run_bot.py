@@ -1,6 +1,6 @@
 from aiogram.filters import CommandStart, Command
 
-from src.db.db import engine, Base
+from db import engine, Base
 from src.telegram.bot import bot, dp
 from src.telegram.filters.menu import set_main_menu
 from src.telegram.states import UserStates
@@ -10,7 +10,7 @@ from src.telegram.utils.commands.signup import signup, get_phone
 from src.telegram.handlers.social import social
 from src.telegram.handlers.car import (car_command, car_button, confirm_car, problem_parts, update_part,
                                        car_brand, car_model, car_year, register)
-from src.telegram.handlers.solution.solution import solution, problem_field, set_result
+from telegram.handlers.solution.solution import solution, problem_field, set_result
 
 
 if __name__ == '__main__':

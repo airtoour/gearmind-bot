@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     CARS_URL: str
 
     class Config:
-        env_file = 'C:/Users/Артур/Desktop/diplom-diplomych/backend/.env'
+        env_file = '/.env'
 
 
 settings = Settings()

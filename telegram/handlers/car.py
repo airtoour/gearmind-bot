@@ -1,14 +1,14 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.telegram.bot import bot, logger
+from src.telegram.bot import bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.reply.reply import car_info_confirm
 from src.telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
 
-from src.db.models.models import Cars, Users
-from src.db.db import session
+from db import Cars, Users
 
+from src.logger import logger
 
 async def car(form_user_id: int, state: FSMContext):
     try:
@@ -118,7 +118,7 @@ async def update_part(message: Message, state: FSMContext):
 
         session.commit()
 
-        await message.answer(f"Всё! Поправили. Надеюсь такого больше не случится, успехов!")
+        await message.answer(f"Всё! Поправили. Надеюсь, такого больше не случится, успехов!")
 
     except Exception as e:
         logger.exception("update_part", e)
@@ -198,4 +198,3 @@ async def register(message: Message, state: FSMContext):
         )
     finally:
         await state.clear()
-

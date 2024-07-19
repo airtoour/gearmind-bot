@@ -5,7 +5,7 @@ from src.telegram.bot import logger, bot
 from src.telegram.states import UserStates
 from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
-from src.db.models.models import Users
+from db import Users
 
 
 async def solution(message: Message):
