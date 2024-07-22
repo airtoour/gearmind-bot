@@ -4,6 +4,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from db.dao.base import BaseDAO
 from db.users.users import Users
 from db.db import async_session_maker
+from db.users.users import Users
 
 from logger import logger
 

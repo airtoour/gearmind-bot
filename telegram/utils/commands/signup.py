@@ -11,7 +11,7 @@ from logger import logger
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
     try:
-        user = UsersDAO.get_by_tg(callback_query.from_user.id)
+        user = await UsersDAO.get_by_tg(callback_query.from_user.id)
 
         if user:
             await bot.send_message(

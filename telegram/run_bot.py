@@ -13,8 +13,15 @@ from telegram.handlers.car import (car_command, car_button, confirm_car, problem
 from telegram.handlers.solution.solution import solution, problem_field, set_result
 
 
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+
 if __name__ == '__main__':
-    Base.metadata.create_all(engine)
+    import asyncio
+
+    asyncio.run(init_db())
 
     dp.startup.register(set_main_menu)
 

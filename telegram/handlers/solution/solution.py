@@ -11,7 +11,7 @@ from logger import logger
 
 async def solution(message: Message):
     try:
-        user = UsersDAO.get_by_tg(message.from_user.id)
+        user = await UsersDAO.get_by_tg(message.from_user.id)
 
         if user:
             await message.answer(

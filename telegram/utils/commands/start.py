@@ -2,30 +2,30 @@ from aiogram.types import Message
 
 from telegram.keyboards.inline.inline import to_signup
 from db.users.dao import UsersDAO
+
 from logger import logger
 
 
 async def start(message: Message):
     try:
-        user = UsersDAO.get_by_tg(message.from_user.id)
-
-        signup_user = to_signup()
+        user = await UsersDAO.get_by_tg(message.from_user.id)
+        print(user)
 
         if user:
             await message.answer(
-                "Привет! Рады, что ты вернулся к нам!\n"
-                "Давай посмотрим меню!"
+                "Привет! Рады, что Вы вернулись к нам!\n"
+                "Давайте посмотрим меню!"
             )
         else:
             await message.answer(
                 "Добро пожаловать в нашу команду AUTOCOMP!\n"
-                "Я умею искать товары на различных маркетплейсах товары, которые требуются тебе.\n"
-                "Все интересующие тебя вопросы ты сможешь узнать сразу после регистрации!"
+                "Я умею искать товары на различных маркетплейсах товары, которые требуются Вам.\n"
+                "Все интересующие Вас вопросы Вы сможете узнать сразу после регистрации!"
                 "\n"
-                "Давай зарегистрируем тебя по кнопке ниже", reply_markup=signup_user
+                "Давайте зарегистрируем Вас по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
-        logger.exception("start:", e)
+        logger.error(e, exc_info=True)
         await message.answer(
             "Кажется, произошла какая-то ошибка, извините, пожалуйста, мы решаем эти проблемы...."
         )
