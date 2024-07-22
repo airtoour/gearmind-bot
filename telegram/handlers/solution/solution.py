@@ -1,16 +1,17 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.telegram.bot import logger, bot
-from src.telegram.states import UserStates
-from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
+from telegram.bot import bot
+from telegram.states import UserStates
+from telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
-from db import Users
+from db.users.dao import UsersDAO
+from logger import logger
 
 
 async def solution(message: Message):
     try:
-        user = Users.get_user_by_tg(message.from_user.id)
+        user = UsersDAO.get_by_tg(message.from_user.id)
 
         if user:
             await message.answer(
@@ -19,7 +20,7 @@ async def solution(message: Message):
             )
         else:
             await message.answer(
-                "Для того, чтобы начать пользоваться этой функцией, нужно сначала <b>тебя зарегистрировать</b>.\n"
+                "Для того, чтобы начать пользоваться этой функцией, нужно сначала <b>Вас зарегистрировать</b>.\n"
                 "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
@@ -32,7 +33,7 @@ async def solution(message: Message):
 
 async def problem_field(callback_query: CallbackQuery, state: FSMContext):
     try:
-        table = callback_query.data.replace('table:', '')
+        table = callback_query.data.replace("table:", "")
         sql_table = ""
         field = ""
 
@@ -96,7 +97,7 @@ async def set_result(callback_query: CallbackQuery, state: FSMContext):
             "<b>P.S НАСТОЯТЕЛЬНО РЕКОМЕНДУЕТСЯ!!!</b>\n"
             "Перед тем, как приобрести необходимый компонент, пожалуйста, проконсультируйтесь со специалистами,"
             "компетентными в данном вопросе.",
-            reply_markup=result_solution(table_name, data, callback_query.from_user.id)
+            reply_markup=await result_solution(table_name, data, callback_query.from_user.id)
         )
     except Exception as e:
         logger.exception("set_result", e)

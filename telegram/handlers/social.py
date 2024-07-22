@@ -1,6 +1,6 @@
 from aiogram.types import Message
-from src.telegram.keyboards.inline.inline import social_links
-from src.telegram.bot import logger
+from telegram.keyboards.inline.inline import social_links
+from logger import logger
 
 
 async def social(message: Message):

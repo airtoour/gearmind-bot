@@ -1,16 +1,17 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.telegram.bot import bot
-from src.telegram.states import UserStates
-from src.telegram.keyboards.inline.inline import to_car_register
-from db import Users
-from src.telegram.bot import logger
+from telegram.bot import bot
+from telegram.states import UserStates
+from telegram.keyboards.inline.inline import to_car_register
+from db.users.dao import UsersDAO
+
+from logger import logger
 
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
     try:
-        user = Users.get_user_by_tg(callback_query.from_user.id)
+        user = UsersDAO.get_by_tg(callback_query.from_user.id)
 
         if user:
             await bot.send_message(
@@ -21,8 +22,12 @@ async def signup(callback_query: CallbackQuery, state: FSMContext):
         else:
             await bot.send_message(
                 callback_query.from_user.id,
-                "Итак, регистрация простая, требуется всего-лишь твой номер телефона.\n"
-                "Напиши его, и мы сможем продолжать работу."
+                "Итак, регистрация простая, требуется всего-лишь Ваш номер телефона.\n"
+                "Напишите его, пожалуйста, и мы сможем продолжать работу."
+                "\n"
+                "```\n"
+                "НОМЕР ТЕЛЕФОНА ТРЕБУЕТСЯ ДЛЯ ТОГО, ЧТОБЫ ПОЛУЧАТЬ ПОЛЕЗНЫЕ УВЕДОМЛЕНИЯ В БУДУЩЕМ!\n"
+                "```\n"
             )
             await state.set_state(UserStates.phone)
     except Exception as e:
@@ -44,11 +49,16 @@ async def get_phone(message: Message, state: FSMContext):
         first_name = message.from_user.first_name
         phone = get_data.get('phone')
 
-        Users.create(tg_id, tg_username, first_name, phone)
+        await UsersDAO.add(
+            tg_user_id=tg_id,
+            tg_username=tg_username,
+            first_name=first_name,
+            phone_number=phone
+        )
 
         await message.answer(
             f"Отлично, {first_name}! Теперь мы можем начинать работу.\n"
-            "Итак, для того, чтобы полноценно использовать нашу систему тебе потребуется "
+            "Итак, для того, чтобы полноценно использовать нашу систему Вам потребуется "
             "предоставить информацию о своей машине. Это можно сделать по кнопке ниже",
             reply_markup=to_car_register()
         )

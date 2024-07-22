@@ -1,32 +1,28 @@
 from aiogram.filters import CommandStart, Command
 
-from db import engine, Base
-from src.telegram.bot import bot, dp
-from src.telegram.filters.menu import set_main_menu
-from src.telegram.states import UserStates
+from db.db import engine, Base
+from telegram.bot import bot, dp
+from telegram.filters.menu import set_main_menu
+from telegram.states import UserStates
 
-from src.telegram.utils.commands.start import start
-from src.telegram.utils.commands.signup import signup, get_phone
-from src.telegram.handlers.social import social
-from src.telegram.handlers.car import (car_command, car_button, confirm_car, problem_parts, update_part,
-                                       car_brand, car_model, car_year, register)
+from telegram.utils.commands.start import start
+from telegram.utils.commands.signup import signup, get_phone
+from telegram.handlers.social import social
+from telegram.handlers.car import (car_command, car_button, confirm_car, problem_parts, update_part,
+                                   car_brand, car_model, car_year, register)
 from telegram.handlers.solution.solution import solution, problem_field, set_result
 
 
 if __name__ == '__main__':
     Base.metadata.create_all(engine)
 
-    # Регистрация кнопки меню в чате
     dp.startup.register(set_main_menu)
 
-    # Регистрация обработчиков, связанных с командой /start
     dp.message.register(start, CommandStart())
 
-    # Регистрация команды /signup
     dp.callback_query.register(signup, lambda c: c.data == '/signup')
     dp.message.register(get_phone, UserStates.phone)
 
-    # Регистрация обработчиков, связанных с командой /car
     dp.message.register(car_command, Command('car'))
     dp.callback_query.register(car_button, lambda c: c.data == '/car')
     dp.message.register(confirm_car, UserStates.confirm_info)
@@ -37,12 +33,10 @@ if __name__ == '__main__':
     dp.message.register(car_year, UserStates.car_year)
     dp.message.register(register, UserStates.car_gen)
 
-    # Регистрация обработчиков, связанных с командой /solution
     dp.message.register(solution, Command('solution'))
     dp.callback_query.register(problem_field, lambda c: c.data.startswith('table'))
     dp.callback_query.register(set_result, lambda c: c.data.startswith('value'))
 
-    # Регистрация обработчиков, связанных с командой /social
     dp.message.register(social, Command('social'))
 
     dp.run_polling(bot)

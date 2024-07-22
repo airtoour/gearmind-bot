@@ -1,10 +1,11 @@
 from aiogram import Bot
 from aiogram.types import BotCommand
 
-from src.telegram.lexicon.lexicon import LEXICON_MENU_COMMANDS
-from src.config import settings
+from telegram.lexicon.lexicon import LEXICON_MENU_COMMANDS
+from config import settings
 
-bot = Bot(token=settings.TOKEN, parse_mode='HTML')
+bot = Bot(token=settings.TOKEN, parse_mode="HTML")
+
 
 async def set_main_menu(bot: Bot):
     main_menu_commands = [

@@ -1,28 +1,30 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.telegram.bot import bot
-from src.telegram.states import UserStates
-from src.telegram.keyboards.reply.reply import car_info_confirm
-from src.telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
+from telegram.bot import bot
+from telegram.states import UserStates
+from telegram.keyboards.reply.reply import car_info_confirm
+from telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
 
-from db import Cars, Users
+from db.users.dao import UsersDAO
+from db.cars.dao import CarsDAO
 
-from src.logger import logger
+from logger import logger
 
 async def car(form_user_id: int, state: FSMContext):
     try:
-        user = Users.get_user_by_tg(form_user_id)
+        user = await UsersDAO.get_by_tg(form_user_id)
         confirm = car_info_confirm()
-        user_id = Users.get_user_id(form_user_id)
-        car = Cars.get_car(user_id)
+        user_id = await UsersDAO.find_by_id(form_user_id)
+        users_car = await CarsDAO.find_one_or_none(user_id=user_id)
 
         if user:
             if car:
                 await bot.send_message(
                     form_user_id,
                     "Твоя машина зарегистрирована у нас. Это она, верно?\n"
-                    f"<b>{car.brand_name} {car.model_name} {car.gen_name} {car.year} года</b>", reply_markup=confirm
+                    f"<b>{users_car.brand_name} {users_car.model_name} {users_car.gen_name} {users_car.year} года</b>",
+                    reply_markup=confirm
                 )
                 await state.set_state(UserStates.confirm_info)
             else:
@@ -71,7 +73,7 @@ async def confirm_car(message: Message, state: FSMContext):
                 "то выбери интересующую тебя команду в меню команд"
             )
         elif answer == "Не верно":
-            user_id = Users.get_user_id(message.from_user.id)
+            user_id = await UsersDAO.find_by_id(message.form_user.id)
             problem_part = car_info(user_id)
             await message.answer(
                 "Оу, что именно не так в названии твоей машины?\n"
@@ -111,12 +113,9 @@ async def update_part(message: Message, state: FSMContext):
         problem_field = data.get('problem_field')
 
         new_value = message.text
-        user_id = Users.get_user_id(message.from_user.id)
-        car = Cars.get_car(user_id)
+        user = await UsersDAO.find_by_id(message.form_user.id)
 
-        setattr(car, problem_field, new_value)
-
-        session.commit()
+        await CarsDAO.update_car(user.id, problem_field, new_value)
 
         await message.answer(f"Всё! Поправили. Надеюсь, такого больше не случится, успехов!")
 
@@ -183,7 +182,13 @@ async def register(message: Message, state: FSMContext):
         gen = get_data.get('car_gen')
         year = get_data.get('car_year')
 
-        Cars.car_register(brand, model, gen, year, message.from_user.id)
+        await CarsDAO.add_car(
+            user_id=message.from_user.id,
+            brand_name=brand,
+            model_name=model,
+            gen_name=gen,
+            year=year
+        )
 
         await message.answer(
             "Теперь, когда у нас есть вся необходимая информация, "

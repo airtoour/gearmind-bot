@@ -1,5 +1,5 @@
 from aiogram import Bot, Dispatcher
-from src.config import settings
+from config import settings
 
 
 bot = Bot(token=settings.TOKEN, parse_mode='HTML')

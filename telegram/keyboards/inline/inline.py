@@ -1,7 +1,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from db import Cars, Users
-from db import session
-from src.config import settings
+from db.users.dao import UsersDAO
+from db.cars.dao import CarsDAO
+
+from config import settings
 
 
 def to_signup() -> InlineKeyboardMarkup:
@@ -36,7 +37,7 @@ def car_list() -> InlineKeyboardMarkup:
 
 
 def car_info(user_id: int) -> InlineKeyboardMarkup:
-    car = Cars.get_car(user_id=user_id)
+    car = CarsDAO.find_one_or_none(user_id=user_id)
     keyboard = []
     fields = ['brand_name', 'model_name', 'gen_name', 'year']
 
@@ -108,9 +109,9 @@ def first_param(table: str):
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
-def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
-    user = session.query(Users).filter_by(tg_user_id=user_id).first()
-    car = Cars.get_car(user_id=user.id)
+async def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
+    user = await UsersDAO.get_by_tg(tg_id=user_id)
+    car = await CarsDAO.find_one_or_none(user_id=user.id)
     url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} '
            f'Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year}')
     button = InlineKeyboardButton(text="Посмотреть результат", url=url)

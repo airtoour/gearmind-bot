@@ -1,13 +1,13 @@
 from aiogram.types import Message
 
-from src.telegram.keyboards.inline.inline import to_signup
-from db import Users
-from src.telegram.bot import logger
+from telegram.keyboards.inline.inline import to_signup
+from db.users.dao import UsersDAO
+from logger import logger
 
 
 async def start(message: Message):
     try:
-        user = Users.get_user_by_tg(message.from_user.id)
+        user = UsersDAO.get_by_tg(message.from_user.id)
 
         signup_user = to_signup()
 
