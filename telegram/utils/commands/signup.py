@@ -4,14 +4,14 @@ from aiogram.fsm.context import FSMContext
 from telegram.bot import bot
 from telegram.states import UserStates
 from telegram.keyboards.inline.inline import to_car_register
-from db.users.repository import UsersDAO
+from db.users.sync_repository import SyncUsersRepository
 
 from logger import logger
 
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
     try:
-        user = await UsersDAO.get_by_tg(callback_query.from_user.id)
+        user = SyncUsersRepository.get_by_tg(callback_query.from_user.id)
 
         if user:
             await bot.send_message(

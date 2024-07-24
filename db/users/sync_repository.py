@@ -2,13 +2,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from db.db import sync_session_maker
-from db.repository.base import BaseRepository
+from db.repository.sync_base import SyncBaseRepository
 from db.users.models import Users
 
 from logger import logger
 
 
-class SyncUsersRepository(BaseRepository):
+class SyncUsersRepository(SyncBaseRepository):
     model = Users
 
     @classmethod

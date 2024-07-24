@@ -1,15 +1,14 @@
 from aiogram.types import Message
 
 from telegram.keyboards.inline.inline import to_signup
-from db.users.repository import UsersDAO
+from db.users.sync_repository import SyncUsersRepository
 
 from logger import logger
 
 
 async def start(message: Message):
     try:
-        user = await UsersDAO.get_by_tg(message.from_user.id)
-        print(user)
+        user = SyncUsersRepository.get_by_tg(message.from_user.id)
 
         if user:
             await message.answer(
@@ -25,7 +24,7 @@ async def start(message: Message):
                 "Давайте зарегистрируем Вас по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
-        logger.error(e, exc_info=True)
+        logger.error(f"Start: {e}", exc_info=True)
         await message.answer(
             "Кажется, произошла какая-то ошибка, извините, пожалуйста, мы решаем эти проблемы...."
         )

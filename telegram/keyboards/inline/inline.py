@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from db.users.sync_repository import SyncUsersDAO
-from db.cars.sync_repository import SyncCarsDAO
+from db.users.sync_repository import SyncUsersRepository
+from db.cars.sync_repository import SyncCarsRepository
 
 from config import settings
 
@@ -37,7 +37,7 @@ def car_list() -> InlineKeyboardMarkup:
 
 
 def car_info(user_id: int) -> InlineKeyboardMarkup:
-    users_car = SyncCarsDAO.find_one_or_none(user_id=user_id)
+    users_car = SyncCarsRepository.find_one_or_none(user_id=user_id)
     keyboard = []
     fields = ['brand_name', 'model_name', 'gen_name', 'year']
 
@@ -111,8 +111,8 @@ def first_param(table: str):
 
 async def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
     try:
-        user = SyncUsersDAO.get_by_tg(tg_id=user_id)
-        users_car = SyncCarsDAO.find_one_or_none(user_id=user.id)
+        user = SyncUsersRepository.get_by_tg(tg_id=user_id)
+        users_car = SyncCarsRepository.find_one_or_none(user_id=user.id)
         url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} '
                f'Для машины {users_car.brand_name} {users_car.model_name} {users_car.gen_name} {users_car.year}')
         button = InlineKeyboardButton(text="Посмотреть результат", url=url)

@@ -13,16 +13,25 @@ class SyncCarsRepository(SyncBaseRepository):
     model = Cars
 
     @classmethod
-    def add_car(cls, user_id: int, **data):
+    def add_car(
+        cls,
+        user_id: int,
+        brand_name: str,
+        model_name: str,
+        gen_name: str,
+        year: int,
+    ):
         try:
             with sync_session_maker() as session:
-                get_id = select(Users).filter_by(user_id=user_id)
+                get_id = select(Users).filter_by(tg_user_id=user_id)
                 result_get = session.execute(get_id)
 
                 result: int = result_get.scalar_one_or_none()
 
                 if result:
-                    query = insert(cls.model).values(**data)
+                    query = insert(cls.model).values(
+                        user_id=user_id, brand_name=brand_name, model_name=model_name, gen_name=gen_name, year=year
+                    )
                     session.execute(query)
                     session.commit()
         except SQLAlchemyError as e:
@@ -30,7 +39,13 @@ class SyncCarsRepository(SyncBaseRepository):
                 message = 'Database'
             else:
                 message = 'Unknown'
-            extra = {"user_id": user_id}
+            extra = {
+                "user_id": user_id,
+                "brand_name": brand_name,
+                "model_name": model_name,
+                "gen_name": gen_name,
+                "year": year,
+            }
             logger.error(message, extra=extra, exc_info=True)
 
     @classmethod
@@ -52,6 +67,6 @@ class SyncCarsRepository(SyncBaseRepository):
             extra = {
                 "user_id": user_id,
                 "field_name": field_name,
-                "new_value": new_value
+                "new_value": new_value,
             }
             logger.error(message, extra=extra, exc_info=True)

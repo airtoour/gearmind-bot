@@ -20,11 +20,11 @@ async def solution(message: Message):
             )
         else:
             await message.answer(
-                "Для того, чтобы начать пользоваться этой функцией, нужно сначала <b>Вас зарегистрировать</b>.\n"
+                "Для того, чтобы начать пользоваться этой функцией, нужно сначала Вас <b>зарегистрировать</b>.\n"
                 "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
             )
     except Exception as e:
-        logger.exception("solution", e)
+        logger.error(f"Solution: {e}", exc_info=True)
         await message.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
@@ -76,7 +76,7 @@ async def problem_field(callback_query: CallbackQuery, state: FSMContext):
         await state.update_data(table=table)
         await state.update_data(field=field)
     except Exception as e:
-        logger.exception("problem_field", e)
+        logger.error(f"Problem_field: {e}", exc_info=True)
         await bot.send_message(
             callback_query.message.chat.id,
             "Кажется, произошла какая-то ошибка.\n"
@@ -100,7 +100,7 @@ async def set_result(callback_query: CallbackQuery, state: FSMContext):
             reply_markup = await result_solution(table_name, data, callback_query.from_user.id)
         )
     except Exception as e:
-        logger.exception("set_result", e)
+        logger.error(f"Set Result: {e}", exc_info=True)
         await bot.send_message(
             callback_query.message.chat.id,
             "Кажется, произошла какая-то ошибка.\n"
