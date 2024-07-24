@@ -9,8 +9,8 @@ from alembic import context
 
 from db.db import Base, DATABASE_URL
 
-from db.users.users import Users
-from db.cars.cars import Cars
+from db.users.models import Users
+from db.cars.models import Cars
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 

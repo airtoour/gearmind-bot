@@ -1,7 +1,7 @@
 from aiogram.types import Message
 
 from telegram.keyboards.inline.inline import to_signup
-from db.users.dao import UsersDAO
+from db.users.repository import UsersDAO
 
 from logger import logger
 

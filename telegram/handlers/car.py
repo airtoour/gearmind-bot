@@ -6,8 +6,8 @@ from telegram.states import UserStates
 from telegram.keyboards.reply.reply import car_info_confirm
 from telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
 
-from db.users.dao import UsersRepository
-from db.cars.sync_dao import SyncCarsRepository
+from db.users.repository import UsersRepository
+from db.cars.sync_repository import SyncCarsRepository
 
 from logger import logger
 

@@ -5,7 +5,7 @@ from telegram.bot import bot
 from telegram.states import UserStates
 from telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
-from db.users.dao import UsersRepository
+from db.users.repository import UsersRepository
 from logger import logger
 
 

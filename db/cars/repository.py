@@ -1,30 +1,29 @@
 from sqlalchemy import select, insert, update
 from sqlalchemy.exc import SQLAlchemyError
 
-from db.dao.sync_base import SyncBaseRepository
-from db.cars.cars import Cars
-from db.users.users import Users
-from db.db import sync_session_maker
+from db.repository.base import BaseRepository
+from db.cars.models import Cars
+from db.db import async_session_maker
 
 from logger import logger
 
 
-class SyncCarsRepository(SyncBaseRepository):
+class CarsRepository(BaseRepository):
     model = Cars
 
     @classmethod
-    def add_car(cls, user_id: int, **data):
+    async def add_car(cls, user_id: int, **data):
         try:
-            with sync_session_maker() as session:
-                get_id = select(Users).filter_by(user_id=user_id)
+            async with async_session_maker as session:
+                get_id = select(cls.model).filter_by(user_id=user_id)
                 result_get = session.execute(get_id)
 
                 result: int = result_get.scalar_one_or_none()
 
                 if result:
                     query = insert(cls.model).values(**data)
-                    session.execute(query)
-                    session.commit()
+                    await session.execute(query)
+                    await session.commit()
         except SQLAlchemyError as e:
             if isinstance(e, SQLAlchemyError):
                 message = 'Database'
@@ -34,16 +33,16 @@ class SyncCarsRepository(SyncBaseRepository):
             logger.error(message, extra=extra, exc_info=True)
 
     @classmethod
-    def update_car(cls, user_id: int, field_name, new_value):
+    async def update_car(cls, user_id: int, field_name, new_value):
         try:
-            with sync_session_maker() as session:
+            async with async_session_maker as session:
                 query = update(cls.model).where(
                     cls.model.user_id == user_id
                 ).values(
                     {field_name: new_value}
                 )
-                session.execute(query)
-                session.commit()
+                await session.execute(query)
+                await session.commit()
         except SQLAlchemyError as e:
             if isinstance(e, SQLAlchemyError):
                 message = 'Database'

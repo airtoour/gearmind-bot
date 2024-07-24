@@ -2,8 +2,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
 from db.db import async_session_maker
-from db.dao.base import BaseRepository
-from db.users.users import Users
+from db.repository.base import BaseRepository
+from db.users.models import Users
 
 from logger import logger
 

@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from db.users.sync_dao import SyncUsersDAO
-from db.cars.sync_dao import SyncCarsDAO
+from db.users.sync_repository import SyncUsersDAO
+from db.cars.sync_repository import SyncCarsDAO
 
 from config import settings
 

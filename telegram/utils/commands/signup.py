@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from telegram.bot import bot
 from telegram.states import UserStates
 from telegram.keyboards.inline.inline import to_car_register
-from db.users.dao import UsersDAO
+from db.users.repository import UsersDAO
 
 from logger import logger
 
