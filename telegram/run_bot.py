@@ -1,6 +1,6 @@
 from aiogram.filters import CommandStart, Command
 
-from db.db import engine, Base
+from db.db import Base, sync_engine
 from telegram.bot import bot, dp
 from telegram.filters.menu import set_main_menu
 from telegram.states import UserStates
@@ -13,15 +13,8 @@ from telegram.handlers.car import (car_command, car_button, confirm_car, problem
 from telegram.handlers.solution.solution import solution, problem_field, set_result
 
 
-async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-
 if __name__ == '__main__':
-    import asyncio
-
-    asyncio.run(init_db())
+    Base.metadata.create_all(sync_engine)
 
     dp.startup.register(set_main_menu)
 

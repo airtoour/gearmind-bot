@@ -1,6 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from db.users.dao import UsersDAO
-from db.cars.dao import CarsDAO
+from db.users.sync_dao import SyncUsersDAO
+from db.cars.sync_dao import SyncCarsDAO
 
 from config import settings
 
@@ -37,12 +37,12 @@ def car_list() -> InlineKeyboardMarkup:
 
 
 def car_info(user_id: int) -> InlineKeyboardMarkup:
-    car = CarsDAO.find_one_or_none(user_id=user_id)
+    users_car = SyncCarsDAO.find_one_or_none(user_id=user_id)
     keyboard = []
     fields = ['brand_name', 'model_name', 'gen_name', 'year']
 
     for field in fields:
-        value = getattr(car, field)
+        value = getattr(users_car, field)
         keyboard.append([
             InlineKeyboardButton(text=str(value), callback_data=f'info:{str(field)}')
         ])
@@ -110,11 +110,14 @@ def first_param(table: str):
 
 
 async def result_solution(table_name: str, comment: str, user_id: int) -> InlineKeyboardMarkup:
-    user = await UsersDAO.get_by_tg(tg_id=user_id)
-    car = await CarsDAO.find_one_or_none(user_id=user.id)
-    url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} '
-           f'Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year}')
-    button = InlineKeyboardButton(text="Посмотреть результат", url=url)
+    try:
+        user = SyncUsersDAO.get_by_tg(tg_id=user_id)
+        users_car = SyncCarsDAO.find_one_or_none(user_id=user.id)
+        url = (f'https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} '
+               f'Для машины {users_car.brand_name} {users_car.model_name} {users_car.gen_name} {users_car.year}')
+        button = InlineKeyboardButton(text="Посмотреть результат", url=url)
 
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
-    return keyboard
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
+        return keyboard
+    except Exception as e:
+        print("result_solution", e)
