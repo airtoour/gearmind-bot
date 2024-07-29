@@ -11,6 +11,7 @@ from telegram.handlers.social import social
 from telegram.handlers.car import (car_command, car_button, confirm_car, problem_parts, update_part,
                                    car_brand, car_model, car_year, register)
 from telegram.handlers.solution.solution import solution, problem_field, set_result
+from telegram.handlers.help import help_command
 
 
 if __name__ == '__main__':
@@ -38,5 +39,7 @@ if __name__ == '__main__':
     dp.callback_query.register(set_result, lambda c: c.data.startswith('value'))
 
     dp.message.register(social, Command('social'))
+
+    dp.message.register(help_command, Command('help'))
 
     dp.run_polling(bot)
