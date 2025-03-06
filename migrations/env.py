@@ -7,6 +7,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
+<<<<<<< HEAD
 from db.db_config import Base, DATABASE_URL
 
 from db.models.cars.models import Cars
@@ -17,6 +18,12 @@ from db.models.product_types.oils.models import Oils
 from db.models.product_types.busbars.models import Busbars
 from db.models.product_types.battaries.models import Batteries
 
+=======
+from db.db import Base, DATABASE_URL
+
+from db.users.models import Users
+from db.cars.models import Cars
+>>>>>>> dev
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 

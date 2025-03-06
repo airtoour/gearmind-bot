@@ -1,9 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
+<<<<<<< HEAD:src/db/models/users/repository.py
 from db.base_repository import BaseRepository
 from db.models.users.models import Users
 from db.db_config import async_session_maker
+=======
+from db.db import async_session_maker
+from db.repository.base import BaseRepository
+from db.users.models import Users
+>>>>>>> dev:db/users/repository.py
 
 from loguru import logger
 
