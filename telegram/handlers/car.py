@@ -6,17 +6,53 @@ from telegram.states import UserStates
 from telegram.keyboards.reply.reply import car_info_confirm
 from telegram.keyboards.inline.inline import car_info, car_list, lets_solution, to_signup
 
+<<<<<<< HEAD:telegram/handlers/car.py
 from db.users.sync_repository import SyncUsersRepository
 from db.cars.sync_repository import SyncCarsRepository
+=======
+<<<<<<< HEAD:src/telegram/handlers/car.py
+from db.models.users.repository import UsersRepository
+from db.models.cars.repository import CarsRepository
+=======
+from db.users.sync_repository import SyncUsersRepository
+from db.cars.sync_repository import SyncCarsRepository
+>>>>>>> dev:telegram/handlers/car.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
 
 from logger import logger
 
 
 async def car(from_user_id: int, state: FSMContext):
     try:
+<<<<<<< HEAD:telegram/handlers/car.py
         user = SyncUsersRepository.find_one_or_none(tg_user_id=from_user_id)
         users_car = SyncCarsRepository.find_one_or_none(user_id=user.tg_user_id)
 
+=======
+<<<<<<< HEAD:src/telegram/handlers/car.py
+        user = await UsersRepository.get_by_tg(form_user_id)
+        confirm = car_info_confirm()
+        user_id = await UsersRepository.find_by_id(form_user_id)
+        users_car = await CarsRepository.find_one_or_none(user_id=user_id)
+
+        if user and car:
+            await bot.send_message(
+                form_user_id,
+                "Для того, чтобы я смог зарегистрировать твою машину, напиши, пожалуйста, "
+                "<b>марку</b> своей машины\n"
+                "Для того, чтобы информация была корректной, сверь ее со списком машин, "
+                "который будет по ссылке ниже\n"
+                "\n"
+                "Настоятельно прошу тебя действовать по инструкции, которые я указываю. Это позволит мне корректно "
+                "зарегистрировать твою машину для дальнейшей работы.",
+                reply_markup=car_list()
+            )
+            await state.set_state(UserStates.car_brand)
+=======
+        user = SyncUsersRepository.find_one_or_none(tg_user_id=from_user_id)
+        users_car = SyncCarsRepository.find_one_or_none(user_id=user.tg_user_id)
+
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
         if user:
             if users_car:
                 await bot.send_message(
@@ -39,6 +75,10 @@ async def car(from_user_id: int, state: FSMContext):
                     reply_markup=car_list()
                 )
                 await state.set_state(UserStates.car_brand)
+<<<<<<< HEAD:telegram/handlers/car.py
+=======
+>>>>>>> dev:telegram/handlers/car.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
         else:
             await bot.send_message(
                 from_user_id,
@@ -72,7 +112,16 @@ async def confirm_car(message: Message, state: FSMContext):
                 "то выберите интересующую Вас команду в меню команд слева снизу"
             )
         elif answer == "Не верно":
+<<<<<<< HEAD:telegram/handlers/car.py
             problem_part = car_info(message.from_user.id)
+=======
+<<<<<<< HEAD:src/telegram/handlers/car.py
+            user_id = await UsersRepository.find_by_id(message.form_user.id)
+            problem_part = car_info(user_id)
+=======
+            problem_part = car_info(message.from_user.id)
+>>>>>>> dev:telegram/handlers/car.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
             await message.answer(
                 "Оу, что именно не так в названии Вашей машины?\n"
                 "Выберите необходимую часть, в которой проблема ниже", reply_markup=problem_part
@@ -111,8 +160,19 @@ async def update_part(message: Message, state: FSMContext):
         problem_field = data.get('problem_field')
 
         new_value = message.text
+<<<<<<< HEAD:telegram/handlers/car.py
 
         SyncCarsRepository.update_car(message.from_user.id, problem_field, new_value)
+=======
+<<<<<<< HEAD:src/telegram/handlers/car.py
+        user = await UsersRepository.find_by_id(message.form_user.id)
+
+        await CarsRepository.update(user.id, problem_field, new_value)
+=======
+
+        SyncCarsRepository.update_car(message.from_user.id, problem_field, new_value)
+>>>>>>> dev:telegram/handlers/car.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
 
         await message.answer(f"Всё! Поправили. Надеюсь, такого больше не случится, успехов!")
 
@@ -178,6 +238,7 @@ async def register(message: Message, state: FSMContext):
         gen = get_data.get('car_gen')
         year = get_data.get('car_year')
 
+<<<<<<< HEAD:telegram/handlers/car.py
         SyncCarsRepository.add_car(
             user_id = message.from_user.id,
             brand_name = brand,
@@ -187,11 +248,42 @@ async def register(message: Message, state: FSMContext):
         )
 
         await message.answer(
+=======
+<<<<<<< HEAD:src/telegram/handlers/car.py
+        await CarsRepository.add(
+            user_id=message.from_user.id,
+            brand_name=brand,
+            model_name=model,
+            gen_name=gen,
+            year=year
+        )
+
+        await message.answer(
+            text=(
+                "Теперь, когда у нас есть вся необходимая информация, "
+                "ты можешь начать пользоваться моей системой по кнопке ниже."
+            ),
+            reply_markup=lets_solution
+=======
+        SyncCarsRepository.add_car(
+            user_id = message.from_user.id,
+            brand_name = brand,
+            model_name = model,
+            gen_name = gen,
+            year = year
+        )
+
+        await message.answer(
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
             f"Отлично! Ваша машина: <b>{brand} {model} {gen} {year}</b>\n"
             "\n"
             "Теперь, когда у нас есть вся необходимая информация, "
             "Вы можете начать пользоваться моей системой по кнопке ниже.",
             reply_markup=lets_solution()
+<<<<<<< HEAD:telegram/handlers/car.py
+=======
+>>>>>>> dev:telegram/handlers/car.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/car.py
         )
     except Exception as e:
         logger.error(f"Register: {e}", exc_info=True)

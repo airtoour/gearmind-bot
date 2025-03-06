@@ -1,17 +1,38 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
+<<<<<<< HEAD:telegram/utils/commands/signup.py
+=======
+<<<<<<< HEAD:src/telegram/utils/commands/signup.py
+from src.telegram.bot import bot
+from src.telegram.states import UserStates
+from src.telegram.keyboards.inline.inline import to_car_register
+from db.models.users.repository import UsersRepository
+=======
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/utils/commands/signup.py
 from telegram.bot import bot
 from telegram.states import UserStates
 from telegram.keyboards.inline.inline import to_car_register
 from db.users.sync_repository import SyncUsersRepository
+<<<<<<< HEAD:telegram/utils/commands/signup.py
+=======
+>>>>>>> dev:telegram/utils/commands/signup.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/utils/commands/signup.py
 
 from logger import logger
 
 
 async def signup(callback_query: CallbackQuery, state: FSMContext):
     try:
+<<<<<<< HEAD:telegram/utils/commands/signup.py
         user = SyncUsersRepository.get_by_tg(callback_query.from_user.id)
+=======
+<<<<<<< HEAD:src/telegram/utils/commands/signup.py
+        user = await UsersRepository.get_by_tg(callback_query.from_user.id)
+=======
+        user = SyncUsersRepository.get_by_tg(callback_query.from_user.id)
+>>>>>>> dev:telegram/utils/commands/signup.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/utils/commands/signup.py
 
         if user:
             await bot.send_message(

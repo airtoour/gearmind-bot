@@ -5,13 +5,32 @@ from telegram.bot import bot
 from telegram.states import UserStates
 from telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
 
+<<<<<<< HEAD:telegram/handlers/solution/solution.py
 from db.users.repository import UsersRepository
 from logger import logger
+=======
+<<<<<<< HEAD:src/telegram/handlers/solution.py
+from db.models.users.repository import UsersRepository
+
+from loguru import logger
+=======
+from db.users.repository import UsersRepository
+from logger import logger
+>>>>>>> dev:telegram/handlers/solution/solution.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/solution.py
 
 
 async def solution(message: Message):
     try:
+<<<<<<< HEAD:telegram/handlers/solution/solution.py
         user = await UsersRepository.get_by_tg(message.from_user.id)
+=======
+<<<<<<< HEAD:src/telegram/handlers/solution.py
+        user = awaitUsersRepository.get_by_tg(message.from_user.id)
+=======
+        user = await UsersRepository.get_by_tg(message.from_user.id)
+>>>>>>> dev:telegram/handlers/solution/solution.py
+>>>>>>> 617c386 (Merge branch 'dev'):src/telegram/handlers/solution.py
 
         if user:
             await message.answer(
