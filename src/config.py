@@ -1,8 +1,3 @@
-<<<<<<< HEAD:src/config.py
-=======
-from typing import Literal
-
->>>>>>> dev:config.py
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv
@@ -13,6 +8,7 @@ load_dotenv()
 
 class Settings(BaseSettings):
     TOKEN: str
+    BOT_ID: int
 
     DB_USER: str
     DB_PASS: str
@@ -20,17 +16,17 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
-    CARS_URL: str
-
-<<<<<<< HEAD:src/config.py
-    class Config:
-        env_file = "D:/my-project/diplom-diplomych/.env"
-=======
-    MODE: Literal["DEV", "TEST", "PROD"]
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    REDIS_HOST: str
+    REDIS_PORT: int
 
     model_config = ConfigDict(from_attributes=True)
->>>>>>> dev:config.py
+
+    @property
+    def DATABASE_URL(self):
+        return (
+            f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@"
+            f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        )
 
 
 settings = Settings()

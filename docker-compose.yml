@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env-non-dev
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+      interval: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+
+  telegram:
+    container_name: autocomp-bot
+    build:
+      context: .
+    command: /app/start.sh
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env-non-dev
+    networks:
+      - default
+
+  scheduler:
+    container_name: scheduler
+    build: .
+    command: python src/scheduler.py
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env-non-dev
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+
+networks:
+  default:

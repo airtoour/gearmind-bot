@@ -7,23 +7,12 @@ from sqlalchemy import pool
 
 from alembic import context
 
-<<<<<<< HEAD
-from db.db_config import Base, DATABASE_URL
-
 from db.models.cars.models import Cars
 from db.models.users.models import Users
-from db.models.product_types.models import ProductsTypes
-from db.models.product_types.disks.models import Disks
-from db.models.product_types.oils.models import Oils
-from db.models.product_types.busbars.models import Busbars
-from db.models.product_types.battaries.models import Batteries
 
-=======
-from db.db import Base, DATABASE_URL
+from db.db_config import Base
+from config import settings
 
-from db.users.models import Users
-from db.cars.models import Cars
->>>>>>> dev
 
 sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 
@@ -31,7 +20,7 @@ sys.path.insert(0, dirname(dirname(dirname(abspath(__file__)))))
 # access to the values within the .ini file in use.
 config = context.config
 
-config.set_main_option("sqlalchemy.url", f"{DATABASE_URL}?async_fallback=True")
+config.set_main_option("sqlalchemy.url", f"{settings.DATABASE_URL}?async_fallback=True")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

@@ -1,118 +1,89 @@
+from typing import Union, Any
+
+from aiogram import Router, F
+from aiogram.exceptions import TelegramAPIError
+from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from src.telegram.bot import bot
-from src.telegram.states import UserStates
-from src.telegram.keyboards.inline.inline import to_signup, prod_types, first_param, result_solution
+from telegram.states.signup_car import SignupUserCarStates
+from telegram.keyboards.inline.inline import (
+    prod_types,
+    result_solution,
+    first_param
+)
+from telegram.utils.utils import TABLES_TEXT_MAPPING
 
-<<<<<<< HEAD:src/telegram/handlers/solution.py
-from db.models.users.repository import UsersRepository
-
-from loguru import logger
-=======
-from db.users.repository import UsersRepository
 from logger import logger
->>>>>>> dev:telegram/handlers/solution/solution.py
 
 
-async def solution(message: Message):
+router = Router(name="solution")
+
+
+@router.message(Command("solution"))
+@router.callback_query(F.data == "solution")
+async def solution(event: Union[Message, CallbackQuery]):
+    """Обработчик, запускающий процесс подбора запчастей"""
     try:
-<<<<<<< HEAD:src/telegram/handlers/solution.py
-        user = awaitUsersRepository.get_by_tg(message.from_user.id)
-=======
-        user = await UsersRepository.get_by_tg(message.from_user.id)
->>>>>>> dev:telegram/handlers/solution/solution.py
+        text = (
+            "Для того, чтобы я смог подобрать Вам нужную продукцию, "
+            "выберите проблемную область своей машины ниже 👇"
+        )
 
-        if user:
-            await message.answer(
-                "Для того, чтобы я смог подобрать тебе нужную продукцию, "
-                "выбери область проблемной зоны своей машины ниже", reply_markup=prod_types()
-            )
+        if isinstance(event, Message):
+            await event.delete()
+            await event.answer(text=text, reply_markup=prod_types())
         else:
-            await message.answer(
-                "Для того, чтобы начать пользоваться этой функцией, нужно сначала Вас <b>зарегистрировать</b>.\n"
-                "Это займёт буквально 1-2 минуты по кнопке ниже", reply_markup=to_signup()
-            )
-    except Exception as e:
-        logger.error(f"Solution: {e}", exc_info=True)
-        await message.answer(
+            await event.message.delete()
+            await event.message.answer(text=text, reply_markup=prod_types())
+    except (Exception, TelegramAPIError) as e:
+        logger.error(f"Solution: {e}")
+        await event.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
         )
 
-
-async def problem_field(callback_query: CallbackQuery, state: FSMContext):
+@router.callback_query(F.data.startswith("table:"))
+async def problem_field(callback: CallbackQuery, state: FSMContext):
+    """Хендлер, обрабатывающий выбранный проблемный аспект"""
     try:
-        table = callback_query.data.replace("table:", "")
-        sql_table = ""
-        field = ""
+        aspect_name = callback.data.split(":")[-1]
+        text = TABLES_TEXT_MAPPING.get(aspect_name, "")
 
-        if table == "Масла":
-            sql_table = "oils"
-            field = "comment"
-            await bot.send_message(
-                callback_query.message.chat.id,
-                "Выбери, пожалуйста вид масла, который ты чаще "
-                "всего используешь для своей машины, чтобы подобрать новое ниже",
-                reply_markup=first_param(sql_table)
-            )
-        if table == "Шины":
-            sql_table = "busbars"
-            field = "diameter"
-            await bot.send_message(
-                callback_query.message.chat.id,
-                "Выбери, пожалуйста, диаметр твоих шин, чтобы подобрать новые ниже",
-                reply_markup=first_param(sql_table)
-            )
-        if table == "Аккумуляторы":
-            sql_table = "batteries"
-            field = "capacity"
-            await bot.send_message(
-                callback_query.message.chat.id,
-                "Выбери, пожалуйста, ёмкость аккумулятора, который, "
-                "приемлем для твоей машины, чтобы подобрать подходящий ниже",
-                reply_markup=first_param(sql_table)
-            )
-        if table == "Диски":
-            sql_table = "disks"
-            field = "diameter"
-            await bot.send_message(
-                callback_query.message.chat.id,
-                "Выбери, пожалуйста, диаметр твоих дисков, чтобы подобрать новые ниже",
-                reply_markup=first_param(sql_table)
-            )
+        await callback.message.answer(text=text, reply_markup=first_param(aspect_name))
 
-        await state.set_state(UserStates.set_result)
-        await state.update_data(table=table)
-        await state.update_data(field=field)
-    except Exception as e:
-        logger.error(f"Problem_field: {e}", exc_info=True)
-        await bot.send_message(
-            callback_query.message.chat.id,
+        await state.set_state(SignupUserCarStates.set_result)
+        await state.update_data(aspect=aspect_name)
+    except (Exception, TelegramAPIError) as e:
+        logger.error(f"Problem_field: {e}")
+        await callback.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
         )
 
-
-async def set_result(callback_query: CallbackQuery, state: FSMContext):
+@router.callback_query(F.data.startswith("value:"))
+async def set_result(callback: CallbackQuery, state: FSMContext, user: Any):
+    """Хендлер, выдающий результаты обработки проблемы"""
     try:
-        data = callback_query.data.replace('value:', '')
-        get_data = await state.get_data()
-        table_name = get_data.get('table')
+        data = callback.data.split(":")[-1]
+        aspect_name = await state.get_value("aspect")
 
-        await bot.send_message(
-            callback_query.from_user.id,
-            "Я поискал для Вас продукты, которые Вам необходимы, можете взглянуть на них по сcылке ниже\n"
-            "\n"
-            "<b>P.S НАСТОЯТЕЛЬНО РЕКОМЕНДУЕТСЯ!!!</b>\n"
-            "Перед тем, как приобрести необходимый компонент, пожалуйста, проконсультируйтесь со специалистами,"
-            "компетентными в данном вопросе.",
-            reply_markup = await result_solution(table_name, data, callback_query.from_user.id)
+        await callback.message.answer(
+            text="Я поискал для Вас продукты, которые <b>могут подойти</b> для Вас, "
+                 "можете взглянуть на них по сcылке ниже 👇\n"
+                 "\n\n"
+                 "<blockquote>"
+                 "<b>❗️ НАСТОЯТЕЛЬНО РЕКОМЕНДУЕТСЯ ❗️</b>\n"
+                 "\n"
+                 "Перед тем, как приобрести необходимый компонент, "
+                 "<b>пожалуйста</b>, проконсультируйтесь со специалистами,"
+                 "<b><u>компетентными</u></b> по данному вопросу"
+                 "</blockquote>",
+            reply_markup=await result_solution(aspect_name, data, user)
         )
-    except Exception as e:
-        logger.error(f"Set Result: {e}", exc_info=True)
-        await bot.send_message(
-            callback_query.message.chat.id,
+    except (Exception, TelegramAPIError) as e:
+        logger.error(f"Set Result: {e}")
+        await callback.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
         )
