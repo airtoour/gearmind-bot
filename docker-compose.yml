@@ -24,20 +24,6 @@ services:
     build:
       context: .
     command: /app/start.sh
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env-non-dev
-    networks:
-      - default
-
-  scheduler:
-    container_name: scheduler
-    build: .
-    command: python src/scheduler.py
     depends_on:
       db:
         condition: service_healthy
