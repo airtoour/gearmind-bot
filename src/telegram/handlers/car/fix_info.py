@@ -4,6 +4,7 @@ from aiogram import Router, F
 from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
+from db.db_config import async_session_maker
 from db.models.cars.repository import CarsRepository
 from telegram.keyboards.inline.inline import car_info
 from telegram.states.update_car_info import UpdateCarInfo
@@ -11,7 +12,7 @@ from telegram.states.update_car_info import UpdateCarInfo
 from logger import logger
 
 
-router = Router(name="fix_info")
+router = Router(name="Fix Info of User`s Car")
 
 
 @router.message(UpdateCarInfo.confirm_info)
@@ -19,18 +20,18 @@ async def confirm_car(message: Message, state: FSMContext, user: Any):
     try:
         await message.delete()
 
-        if message.text == "Всё верно":
+        if "Всё верно" in message.text:
             await message.answer(
                 "Я рад! 😊\n"
                 "Если у Вас больше нет вопросов, связанных с машиной, "
                 "то выберите, пожалуйста, интересующую Вас команду "
                 "в меню команд слева снизу"
             )
-        elif message.text == "Не верно":
+        elif "Не верно" in message.text:
             await message.answer(
                 text="Оу, что именно не так в названии Вашей машины?\n"
                      "Выберите необходимую часть, в которой проблема ниже",
-                reply_markup=car_info(user.id)
+                reply_markup=await car_info(user.id)
             )
         else:
             if message.text.startswith("/"):
@@ -71,7 +72,14 @@ async def update_part(message: Message, state: FSMContext, user: Any):
         problem_field = await state.get_value("problem_field")
         new_value = message.text
 
-        await CarsRepository.update_car(user.id, problem_field, new_value)
+        data = {problem_field: new_value}
+
+        async with async_session_maker() as session:
+            await CarsRepository.update(
+                session,
+                CarsRepository.model.user_id == user.id,
+                **data
+            )
 
         await message.edit_text(
             "Всё! Поправили. Надеюсь, такого больше не случится, успехов!"

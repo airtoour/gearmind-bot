@@ -1,97 +1,78 @@
-from sqlalchemy import select, insert, delete
+from typing import List
+
+from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.db_config import async_session_maker
-
-from loguru import logger
+from logger import logger
 
 
 class BaseRepository:
     model = None
 
     @classmethod
-    async def find_by_id(cls, model_id: int):
+    async def find_one_or_none(cls, session: AsyncSession, **filter_by) -> model:
         try:
-            async with async_session_maker() as session:
-                stmt = select(cls.model).filter_by(id=model_id)
+            stmt = select(cls.model).filter_by(**filter_by)
+            result = await session.execute(stmt)
+
+            return result.unique().scalar_one_or_none()
+        except SQLAlchemyError as e:
+            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
+            logger.error(error_message + f"Error:\n{e}")
+            return None
+
+    @classmethod
+    async def find_all(cls, session: AsyncSession, **filter_by) -> List[model]:
+        try:
+            stmt = select(cls.model).filter_by(**filter_by)
+            result = await session.execute(stmt)
+
+            return result.unique().scalars().all()
+        except SQLAlchemyError as e:
+            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
+            logger.error(error_message + f"Error:\n{e}")
+            return []
+
+    @classmethod
+    async def add(cls, session: AsyncSession, **data) -> model:
+        try:
+            async with session.begin():
+                stmt = (
+                    insert(cls.model)
+                    .values(**data)
+                    .returning(cls.model)
+                )
                 result = await session.execute(stmt)
                 return result.unique().scalar_one_or_none()
         except SQLAlchemyError as e:
             error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
             logger.error(error_message + f"Error:\n{e}")
-            raise
+            return None
 
     @classmethod
-    async def find_one_or_none(cls, **filter_by):
+    async def update(cls, session: AsyncSession, *filters, **data) -> model:
         try:
-            async with async_session_maker() as session:
-                stmt = select(cls.model).filter_by(**filter_by)
+            async with session.begin():
+                stmt = (
+                    update(cls.model)
+                    .where(*filters)
+                    .values(**data)
+                    .returning(cls.model)
+                )
                 result = await session.execute(stmt)
-                return result.unique().scalar_one_or_none()
-        except SQLAlchemyError as e:
-            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
-            logger.error(error_message + f"Error:\n{e}")
-            raise
 
-    @classmethod
-    async def find_all(cls, **filter_by):
-        try:
-            async with async_session_maker() as session:
-                stmt = select(cls.model).filter_by(**filter_by)
-                result = await session.execute(stmt)
-                return result.unique().mappings().all()
-        except SQLAlchemyError as e:
-            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
-            logger.error(error_message + f"Error:\n{e}")
-            raise
-
-    @classmethod
-    async def add(cls, **data):
-        try:
-            async with async_session_maker() as session:
-                stmt = insert(cls.model).values(**data)
-                await session.execute(stmt)
-                await session.commit()
-        except SQLAlchemyError as e:
-            await session.rollback()
-            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
-            logger.error(error_message + f"Error:\n{e}")
-            raise
-
-    @classmethod
-    async def update(cls, *filters, **data):
-        try:
-            async with async_session_maker() as session:
-                stmt = select(cls.model).where(*filters)
-                result = await session.execute(stmt)
-                row = result.unique().scalar_one_or_none()
-
-                if row:
-                    for key, value in data.items():
-                        setattr(row, key, value)
-
-                    session.add(row)
-                    await session.commit()
-                    await session.refresh(row)
-
-                    logger.info(f"Объект обновлён: {row}")
-                    return row
-                else:
-                    logger.warning("Не найден объект для обновления")
-                    return None
+            return result.unique().scalar_one_or_none()
         except (SQLAlchemyError, Exception) as e:
-            await session.rollback()
-            error_message = "Database" if isinstance(e, SQLAlchemyError) else "Other"
-            logger.error(error_message + f"Error:\n{e}")
-            raise
+            logger.error(f"Ошибка в update {cls.model.__name__}: {e}")
+            return None
 
     @classmethod
-    async def delete(cls, **data):
+    async def delete(cls, session: AsyncSession, **data):
         try:
-            async with async_session_maker() as session:
+            async with session.begin():
                 query = delete(cls.model).where(**data)
                 await session.execute(query)
-                await session.commit()
-        except SQLAlchemyError as e:
-            await session.rollback()
-            logger.error(e)
+        except (SQLAlchemyError, Exception) as e:
+            logger.error(f"Ошибка в delete {cls.model.__name__}: {e}")
+            return None

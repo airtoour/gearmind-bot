@@ -16,7 +16,7 @@ class Users(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
 
     # Связи
-    cars: Mapped[List["Cars"]] = relationship(
+    cars: Mapped[List["Cars"]] = relationship(  # type: ignore
         argument="Cars",
         back_populates="user",
         lazy="joined"

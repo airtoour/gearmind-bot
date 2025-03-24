@@ -18,10 +18,10 @@ class Requests(Base):
     response_data: Mapped[dict] = mapped_column(JSONB, nullable=False)
 
     # Зависимости
-    prompt: Mapped["Prompts"] = relationship(
+    prompt: Mapped["Prompts"] = relationship(  # type: ignore
         argument="Prompts",
         back_populates="requests",
         foreign_keys=[prompt_id],
-        cascade="all, delete-orphan",
-        lazy="joined"
+        lazy="joined",
+        single_parent=True
     )

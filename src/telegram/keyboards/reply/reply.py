@@ -5,8 +5,8 @@ def car_info_confirm() -> ReplyKeyboardMarkup:
     """Подтверждение правильности информации о машине"""
     kb = [
         [
-            KeyboardButton(text="Всё верно"),
-            KeyboardButton(text="Не верно")
+            KeyboardButton(text="✅ Всё верно"),
+            KeyboardButton(text="❌ Не верно")
         ],
     ]
     keyboard = ReplyKeyboardMarkup(
@@ -17,16 +17,15 @@ def car_info_confirm() -> ReplyKeyboardMarkup:
     return keyboard
 
 
-# Отправка контакта пользователя
-get_phone = ReplyKeyboardMarkup(
+
+get_problem_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(
-                text="Отправить номер телефона ☎️",
-                request_contact=True
-            )
-        ]
+            KeyboardButton(text="🛞 Запчасти"),
+            KeyboardButton(text="📿 Аксессуары")
+        ],
+        [KeyboardButton(text="🛢 Жидкости для авто")]
     ],
     resize_keyboard=True,
-    input_field_placeholder="Отправьте, пожалуйста, Ваш номер телефона"
+    one_time_keyboard=True
 )

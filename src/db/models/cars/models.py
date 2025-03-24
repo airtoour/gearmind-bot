@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import UUID, Integer, String, ForeignKey
+from sqlalchemy import UUID, Integer, String, ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
@@ -16,10 +16,15 @@ class Cars(Base):
     model_name: Mapped[str] = mapped_column(String, nullable=False)
     gen_name: Mapped[str] = mapped_column(String, nullable=False)
     year: Mapped[int] = mapped_column(Integer, nullable=False)
+    mileage: Mapped[int] = mapped_column(Integer, nullable=False)
+    full: Mapped[str] = mapped_column(String, nullable=False)
 
     # Связи
-    user: Mapped["Users"] = relationship(
+    user: Mapped["Users"] = relationship(  # type: ignore
         argument="Users",
         back_populates="cars",
         lazy="joined"
     )
+
+    # Индексы
+    idx_cars_full = Index("idx_cars_full", full)

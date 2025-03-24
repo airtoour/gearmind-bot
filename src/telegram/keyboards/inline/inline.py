@@ -1,7 +1,9 @@
 from typing import Any
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+
+from db.db_config import async_session_maker
 from db.models.cars.repository import CarsRepository
-from config import settings
+
 
 TABLES_NAMES = ["Масла", "Шины", "Аккумуляторы", "Диски"]
 TABLES = ["oils", "busbars", "batteries", "disks"]
@@ -29,14 +31,18 @@ social_links = InlineKeyboardMarkup(inline_keyboard=[
 
 
 def car_list() -> InlineKeyboardMarkup:
-    button = InlineKeyboardButton(text="Список машин 📑", web_app=WebAppInfo(url="https://google.com"))
+    button = InlineKeyboardButton(
+        text="Найти мою машину в списке 🔍",
+        web_app=WebAppInfo(url="https://google.com")
+    )
     markup = InlineKeyboardMarkup(inline_keyboard=[[button]])
 
     return markup
 
 
-def car_info(user_id: int) -> InlineKeyboardMarkup:
-    car = CarsRepository.find_one_or_none(user_id=user_id)
+async def car_info(user_id: int) -> InlineKeyboardMarkup:
+    async with async_session_maker() as session:
+        car = CarsRepository.find_one_or_none(session, user_id=user_id)
     keyboard = []
     fields = ["brand_name", "model_name", "gen_name", "year"]
 
@@ -133,7 +139,9 @@ def first_param(table_name: str):
 
 
 async def result_solution(table_name: str, comment: str, user: Any) -> InlineKeyboardMarkup:
-    car = await CarsRepository.find_one_or_none(user_id=user.id)
+    async with async_session_maker() as session:
+        car = await CarsRepository.find_one_or_none(session, user_id=user.id)
+
     url = (
         f"https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} "
         f"Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year}"

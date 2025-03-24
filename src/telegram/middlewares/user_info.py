@@ -4,6 +4,7 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Update
 
 from config import settings
+from db.db_config import async_session_maker
 from db.models.users.repository import UsersRepository
 
 from logger import logger
@@ -27,11 +28,13 @@ class UserDataMiddleware(BaseMiddleware):
         try:
             if event.message:
                 user_id = event.message.from_user.id
+
             elif event.callback_query:
                 user_id = event.callback_query.from_user.id
 
             if user_id is not None:
-                user = await self.repository.find_one_or_none(tg_user_id=user_id)
+                async with async_session_maker() as session:
+                    user = await self.repository.find_one_or_none(session, tg_user_id=user_id)
 
                 if user and user.tg_user_id == settings.BOT_ID:
                     return await handler(event, data)

@@ -16,7 +16,7 @@ class Prompts(Base):
     text: Mapped[str] = mapped_column(String, nullable=False, index=True)
 
     # Зависимости
-    requests: Mapped[List["Requests"]] = relationship(
+    requests: Mapped[List["Requests"]] = relationship(  # type: ignore
         argument="Requests",
         back_populates="prompt",
         foreign_keys="Requests.prompt_id",
