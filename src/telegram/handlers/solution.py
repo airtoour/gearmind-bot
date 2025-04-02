@@ -30,18 +30,21 @@ router = Router(name="Work With User`s Solution")
 @router.callback_query(F.data == "solution")
 async def solution(event: Union[Message, CallbackQuery]):
     """Обработчик, запускающий процесс подбора запчастей"""
+    message = None
+
     try:
-        text = (
-            "Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите, "
-            "пожалуйста, <b>проблемную область</b> ниже 👇"
+        if isinstance(event, Message):
+            message = event
+        if isinstance(event, CallbackQuery):
+            message = event.message
+
+        await message.delete()
+        await message.answer(
+            text="Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите, "
+                 "пожалуйста, <b>проблемную область</b> ниже 👇",
+            reply_markup=get_problem_keyboard
         )
 
-        if isinstance(event, Message):
-            await event.delete()
-            await event.answer(text=text, reply_markup=get_problem_keyboard)
-        else:
-            await event.message.delete()
-            await event.message.answer(text=text, reply_markup=get_problem_keyboard)
     except (Exception, TelegramAPIError) as e:
         logger.error(f"Solution: {e}")
         await event.answer(
@@ -98,7 +101,7 @@ async def process_content(message: Message, state: FSMContext, user: Any):
         # Отправляем ответ от ИИ пользователю
         await message.answer(
             f"{result}\n\n"
-            f"<i>Хорошего Вам дня</i> ☀️\n"
+            f"<i>Хорошего Вам дня</i> ☀️\n\n"
             f"<b>Ваша команда GearMind</b> 🚗"
         )
 
