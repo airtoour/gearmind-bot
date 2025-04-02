@@ -4,7 +4,6 @@ from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.db_config import async_session_maker
 from db.models import UsersRepository
 
 from config import settings

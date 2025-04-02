@@ -31,3 +31,6 @@ class Requests(Base):
         back_populates="request",
         lazy="joined",
     )
+
+    def __str__(self):
+        return f"Запрос от {self.date}"

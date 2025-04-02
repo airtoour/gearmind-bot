@@ -26,3 +26,6 @@ class Prompts(Base):
 
     # Индексы
     idx_prompts_type_text = Index("idx_prompts_type_text", type, text)
+
+    def __str__(self):
+        return f"Промпт для {self.type}"
