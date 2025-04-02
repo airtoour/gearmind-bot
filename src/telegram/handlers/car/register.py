@@ -63,6 +63,8 @@ async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any
             )
             await state.set_state(UpdateCarInfo.confirm_info)
 
+            return
+
         # Если автомобиля не существует отправляем сообщение на его регистрацию
         to_register_car_message = await message.answer(
             text="⚠️ <b>Видим, что Вы ещё не регистрировали свой "

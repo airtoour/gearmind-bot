@@ -37,6 +37,8 @@ async def start(message: Message, user: Any):
             # Ставим команды в чате
             await set_main_menu(message.bot)
 
+            return
+
         # Шлём приветственное сообщение
         await message.answer(
             text="Добро пожаловать в нашу команду <b>GearMind</b> 😇\n"
