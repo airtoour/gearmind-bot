@@ -1,11 +1,5 @@
-create venv
+# КАК ЗАПУСТИТЬ ПРОЕКТ
 
-pip install -r requirements.txt
-
-написание моделей данных (sqlalchemy/models)
-
-alembic init migrations
-
-alembic revision --autogenerate -m "Initial migration"
-
-alembic upgrade head
+1. Заполнить файл `.env_non_dev`
+2. В консоли прописать `docker compose run --build`
+3. ГОТОВО!
