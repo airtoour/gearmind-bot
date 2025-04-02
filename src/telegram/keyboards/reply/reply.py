@@ -1,21 +1,16 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 
-def car_info_confirm() -> ReplyKeyboardMarkup:
-    """Подтверждение правильности информации о машине"""
-    kb = [
+car_info_confirm = ReplyKeyboardMarkup(
+    keyboard=[
         [
             KeyboardButton(text="✅ Всё верно"),
             KeyboardButton(text="❌ Не верно")
-        ],
-    ]
-    keyboard = ReplyKeyboardMarkup(
-        keyboard=kb,
-        resize_keyboard=True,
-        one_time_keyboard=True
-    )
-    return keyboard
-
+        ]
+    ],
+    resize_keyboard=True,
+    one_time_keyboard=True
+)
 
 
 get_problem_keyboard = ReplyKeyboardMarkup(

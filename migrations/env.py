@@ -8,10 +8,13 @@ from sqlalchemy import pool
 from alembic import context
 
 from db.db_config import Base
-from db.models.users.models import Users
-from db.models.cars.models import Cars
-from db.models.prompts.models import Prompts
-from db.models.requests.models import Requests
+from db.models import (
+    Users,
+    Cars,
+    Prompts,
+    Requests,
+    Scores
+)
 
 from config import settings
 

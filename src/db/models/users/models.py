@@ -11,9 +11,9 @@ class Users(Base):
     """Модель таблицы Users"""
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
-    tg_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, index=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID пользователя")
+    tg_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True, index=True, doc="TelegramID")
+    name: Mapped[str] = mapped_column(String, nullable=False, doc="Имя пользователя")
 
     # Связи
     cars: Mapped[List["Cars"]] = relationship(  # type: ignore
@@ -21,7 +21,11 @@ class Users(Base):
         back_populates="user",
         lazy="joined"
     )
+    recommendation_score: Mapped[List["Scores"]] = relationship(  # type: ignore
+        argument="Scores",
+        back_populates="user",
+        lazy="joined"
+    )
 
     # Индексы
     idx_users_tg_user_id_unq = Index("idx_users_tg_user_id", tg_user_id, unique=True)
-

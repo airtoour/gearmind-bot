@@ -5,7 +5,8 @@ from aiogram.types import CallbackQuery, Message
 from aiogram.fsm.context import FSMContext
 
 from db.db_config import async_session_maker
-from db.models.cars.repository import CarsRepository
+from db.models import CarsRepository
+
 from telegram.keyboards.inline.inline import car_info
 from telegram.states.update_car_info import UpdateCarInfo
 

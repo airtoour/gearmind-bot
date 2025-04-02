@@ -5,7 +5,7 @@ from aiogram.types import TelegramObject, Update
 
 from config import settings
 from db.db_config import async_session_maker
-from db.models.users.repository import UsersRepository
+from db.models import UsersRepository
 
 from logger import logger
 

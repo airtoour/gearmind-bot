@@ -16,9 +16,9 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
-    DEEPSEEK_TOKEN: str
-    OPENAI_TOKEN: str
-    GOOGLE_TOKEN: str
+    YANDEX_TOKEN: str
+    YANDEX_CATALOG: str
+    YANDEX_MODEL: str
 
     model_config = ConfigDict(from_attributes=True)
 

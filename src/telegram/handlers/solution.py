@@ -1,20 +1,24 @@
-from io import BytesIO
-from typing import Union
+
+from typing import Any, Union
 
 from aiogram import Router, F
-from aiogram.enums import ContentType
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command
-from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import (
+    Message,
+    CallbackQuery,
+    ReplyKeyboardRemove
+)
 from aiogram.fsm.context import FSMContext
 
+from ai import yandex
 from db.db_config import async_session_maker
-from db.models.prompts.repository import PromptsRepository
+from db.models.scores.repository import ScoresRepository
+from services.process_ai_requests import RequestAIService
 
+from telegram.keyboards.inline.inline import score_result
 from telegram.keyboards.reply.reply import get_problem_keyboard
 from telegram.states.solution import SolutionStates
-
-from ai.openai_api import openai_client
 
 from logger import logger
 
@@ -28,8 +32,8 @@ async def solution(event: Union[Message, CallbackQuery]):
     """Обработчик, запускающий процесс подбора запчастей"""
     try:
         text = (
-            "Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите "
-            "ниже, пожалуйста <b>проблемную область</b> ниже 👇"
+            "Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите, "
+            "пожалуйста, <b>проблемную область</b> ниже 👇"
         )
 
         if isinstance(event, Message):
@@ -50,8 +54,13 @@ async def solution(event: Union[Message, CallbackQuery]):
 async def problem_part(message: Message, state: FSMContext):
     try:
         await message.answer(
-            "Хорошо! Отправьте, пожалуйста, <b>текстовое</b> или "
-            "<b>голосовое</b> сообщение ниже, чтобы я смог Вам помочь 👇"
+            "Хорошо! Отправьте, пожалуйста, <b>сообщение</b> "
+            "ниже, чтобы я смог Вам помочь 👇\n"
+            "\n"
+            "<blockquote>"
+            "<i>Пожалуйста, опишите, ситуацию чётко, ёмко и подробно "
+            "настолько, насколько это возможно</i>"
+            "</blockquote>"
         )
         await state.set_state(SolutionStates.solution_type)
         await state.set_data({"type": message.text})
@@ -63,69 +72,84 @@ async def problem_part(message: Message, state: FSMContext):
         )
 
 
-@router.message(
-    SolutionStates.solution_type,
-    F.content_type.in_([
-        ContentType.AUDIO,
-        ContentType.TEXT
-    ])
-)
-async def process_content(message: Message, state: FSMContext):
-    file_info = None
-    file_data = BytesIO()
-
+@router.message(SolutionStates.solution_type)
+async def process_content(message: Message, state: FSMContext, user: Any):
     try:
+        working = await message.answer("<i>Внимательно изучаю Ваш запрос...</i>")
+
         prompt_type = await state.get_value("type")
 
-        async with async_session_maker() as session:
-            prompt = await PromptsRepository.find_one_or_none(
-                session, type=prompt_type[2:]
+        ai_service = RequestAIService(
+            yandex, message.text, prompt_type[2:], user
+        )
+
+        result, request_id = await ai_service.create()
+
+        await message.bot.delete_message(message.chat.id, working.message_id)
+
+        if not result:
+            await message.answer(
+                "Произошла <b>ошибка при получении результата</b>, "
+                "пожалуйста, попробуйте позже или ещё раз"
             )
+            await state.clear()
+            return
 
-        message_types = {
-            "text": message.text,
-            "audio": message.audio
-        }
+        # Отправляем ответ от ИИ пользователю
+        await message.answer(
+            f"{result}\n\n"
+            f"<i>Хорошего Вам дня</i> ☀️\n"
+            f"<b>Ваша команда GearMind</b> 🚗"
+        )
 
-        for message_type, content in message_types.items():
-            if message_type == "audio":
-                if content:
-                    file_info = await message.bot.get_file(message.audio.file_id)
-
-                if not file_info:
-                    await message.reply("<b>Неподдерживаемый</b> формат медиа-файла")
-                    return
-
-                try:
-                    await message.bot.download_file(file_info.file_path, destination=file_data)
-                    file_data.seek(0)
-                except Exception as e:
-                    logger.error(f"Ошибка при сохранении файла: {e}")
-                    await message.reply(
-                        "<b>Не получилось сохранить</b> Ваши файлы, "
-                        "<i>попробуйте снова</i>"
-                    )
-                    return
-
-                response = await openai_client.audio(prompt.text, file_data)
-
-                if not response:
-                    await message.answer(
-                        "Произошла ошибка на стороне помощника!\n"
-                        "Пожалуйста, попробуйте снова или позже!"
-                    )
-                    return
-
-                await message.answer(str(response), reply_markup=ReplyKeyboardRemove())
-            else:
-                if content:
-                    response = await openai_client.create(prompt.text, content)
-                    await message.answer(str(response), reply_markup=ReplyKeyboardRemove())
-
-            break
+        await message.answer(
+            text="Оцените, пожалуйста, ответ от <b>1</b> до <b>5</b> ⭐️",
+            reply_markup=score_result
+        )
+        await state.update_data(request_id=request_id)
     except (Exception, TelegramAPIError) as e:
         logger.error(f"Process Content: {e}")
         await message.answer(
+            "Кажется, произошла какая-то ошибка.\n"
+            "Стараемся разобраться с этим, извините за неудобства..."
+        )
+        await state.clear()
+
+
+@router.callback_query(F.data.startswith("score:"))
+async def process_score_result(callback: CallbackQuery, state: FSMContext, user: Any):
+    try:
+        # Получение оценки от пользователя
+        score = int(callback.data.split(":")[-1])
+
+        # Получение ID запроса, для сохранения в БД
+        request_id = await state.get_value("request_id")
+
+        # Записываем оценку в БД
+        async with async_session_maker() as session:
+            added_score = await ScoresRepository.add(
+                session, request_id=request_id, user_id=user.id, score=score
+            )
+
+        # Если не получилось сохранить оценку
+        if not added_score:
+            await callback.message.edit_text(
+                "Произошла ошибка <b>сохранении</b> Вашей <b>оценки</b>, "
+                "приносим, свои извинения..."
+            )
+            return
+
+        # Оповещаем пользователя об успешном сохранении оценки
+        await callback.message.edit_text(f"<b>Ваша оценка</b>: {score} ⭐️")
+
+        await callback.message.answer(
+            text="Спасибо больше Вам за эту оценку ❤️\n"
+                 "Мы стараемся сделать сервис <b>как можно лучше</b> 😎",
+            reply_markup=ReplyKeyboardRemove()
+        )
+    except (Exception, TelegramAPIError) as e:
+        logger.error(f"Process Score: {e}")
+        await callback.answer(
             "Кажется, произошла какая-то ошибка.\n"
             "Стараемся разобраться с этим, извините за неудобства..."
         )

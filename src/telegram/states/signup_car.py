@@ -7,5 +7,3 @@ class SignupUserCarStates(StatesGroup):
     gen = State()
     year = State()
     mileage = State()
-
-    set_result = State()

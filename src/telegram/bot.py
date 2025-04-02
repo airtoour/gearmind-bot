@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 
-from db.models.users.repository import UsersRepository
+from db.models import UsersRepository
 from telegram.middlewares.user_info import UserDataMiddleware
 
 from config import settings
