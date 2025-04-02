@@ -66,7 +66,7 @@ def upgrade() -> None:
         """
         WITH bot_data AS (
             SELECT uuid_generate_v4() AS id,
-                   941959438          AS tg_user_id,
+                   7433112188         AS tg_user_id,
                    'GearMindBot'      AS name
         )
         INSERT INTO users(id, tg_user_id, name)

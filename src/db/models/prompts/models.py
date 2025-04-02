@@ -9,14 +9,15 @@ from db.models.prompts.schemas import TypesEnum, EnumsDecorator
 
 
 class Prompts(Base):
+    """Справочник промптов для работы с ИИ"""
     __tablename__ = "prompts"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4())
-    type: Mapped[TypesEnum] = mapped_column(EnumsDecorator(TypesEnum), nullable=False, index=True)
-    text: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID промпта")
+    type: Mapped[TypesEnum] = mapped_column(EnumsDecorator(TypesEnum), nullable=False, index=True, doc="Тип промпта")
+    text: Mapped[str] = mapped_column(String, nullable=False, index=True, doc="Текст промпта")
 
     # Зависимости
-    requests: Mapped[List["Requests"]] = relationship(
+    requests: Mapped[List["Requests"]] = relationship(  # type: ignore
         argument="Requests",
         back_populates="prompt",
         foreign_keys="Requests.prompt_id",

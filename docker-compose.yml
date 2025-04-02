@@ -20,7 +20,7 @@ services:
       - default
 
   telegram:
-    container_name: autocomp-bot
+    container_name: gearmind-bot
     build:
       context: .
     command: /app/start.sh
@@ -31,6 +31,23 @@ services:
       - .env-non-dev
     networks:
       - default
+
+  app:
+    container_name: gearmind-app
+    build:
+      context: .
+    command:
+      - sh -c "python src/main.py"
+    env_file:
+      - .env-non-dev
+    volumes:
+      - ./:/app/
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - default
+
 
 volumes:
   postgres_data:

@@ -1,7 +1,9 @@
 from typing import Any
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
-from db.models.cars.repository import CarsRepository
-from config import settings
+
+from db.db_config import async_session_maker
+from db.models import CarsRepository
+
 
 TABLES_NAMES = ["Масла", "Шины", "Аккумуляторы", "Диски"]
 TABLES = ["oils", "busbars", "batteries", "disks"]
@@ -22,29 +24,37 @@ retry_register_car = InlineKeyboardMarkup(inline_keyboard=[
 
 social_links = InlineKeyboardMarkup(inline_keyboard=[
     [
-        InlineKeyboardButton(text="Телеграм-канал 🩵", url="https://t.me/autocomp_team/"),
-        InlineKeyboardButton(text="Instagram* 💜", url="https://www.instagram.com/autocomp_team/")
+        InlineKeyboardButton(text="Телеграм-канал 🩵", url="https://t.me/gearmind_team/"),
+        InlineKeyboardButton(text="Instagram* 💜", url="https://www.instagram.com/gearmind_team/")
     ]
 ])
 
 
-def car_list() -> InlineKeyboardMarkup:
-    button = InlineKeyboardButton(text="Список машин 📑", web_app=WebAppInfo(url="https://google.com"))
-    markup = InlineKeyboardMarkup(inline_keyboard=[[button]])
+car_list = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(
+            text="Найти мой автомобиль в списке 🔍",
+            web_app=WebAppInfo(url="https://auto.mail.ru/catalog/")
+        )
+    ]
+])
 
-    return markup
 
+async def car_info(user_id: int) -> InlineKeyboardMarkup:
+    async with async_session_maker() as session:
+        car = CarsRepository.find_one_or_none(session, user_id=user_id)
 
-def car_info(user_id: int) -> InlineKeyboardMarkup:
-    car = CarsRepository.find_one_or_none(user_id=user_id)
     keyboard = []
-    fields = ["brand_name", "model_name", "gen_name", "year"]
+    fields = ["brand_name", "model_name", "gen_name", "year", "mileage"]
 
     for field in fields:
         value = getattr(car, field)
         keyboard.append([
-            InlineKeyboardButton(text=str(value), callback_data=f"info:{str(field)}")
+            InlineKeyboardButton(
+                text=str(value), callback_data=f"info:{str(field)}"
+            )
         ])
+
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
 
@@ -133,7 +143,9 @@ def first_param(table_name: str):
 
 
 async def result_solution(table_name: str, comment: str, user: Any) -> InlineKeyboardMarkup:
-    car = await CarsRepository.find_one_or_none(user_id=user.id)
+    async with async_session_maker() as session:
+        car = await CarsRepository.find_one_or_none(session, user_id=user.id)
+
     url = (
         f"https://www.wildberries.ru/catalog/0/search.aspx?search={table_name} {comment} "
         f"Для машины {car.brand_name} {car.model_name} {car.gen_name} {car.year}"
@@ -142,3 +154,13 @@ async def result_solution(table_name: str, comment: str, user: Any) -> InlineKey
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[[button]])
     return keyboard
+
+score_result = InlineKeyboardMarkup(inline_keyboard=[
+    [
+        InlineKeyboardButton(text="1 ⭐️", callback_data=f"score:1"),
+        InlineKeyboardButton(text="2 ⭐️", callback_data=f"score:2"),
+        InlineKeyboardButton(text="3 ⭐️", callback_data=f"score:3"),
+        InlineKeyboardButton(text="4 ⭐️", callback_data=f"score:4"),
+        InlineKeyboardButton(text="5 ⭐️", callback_data=f"score:5"),
+    ]
+])
