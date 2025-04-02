@@ -2,11 +2,12 @@ from typing import Any, Awaitable, Callable, Dict
 
 from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject, Update
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import settings
 from db.db_config import async_session_maker
 from db.models import UsersRepository
 
+from config import settings
 from logger import logger
 
 
@@ -24,6 +25,7 @@ class UserDataMiddleware(BaseMiddleware):
         """Мидлварь для проверки пользователя на наличие в системе"""
         user_id = None
         user = None
+        session: AsyncSession = data.get("session")
 
         try:
             if event.message:
@@ -33,8 +35,7 @@ class UserDataMiddleware(BaseMiddleware):
                 user_id = event.callback_query.from_user.id
 
             if user_id is not None:
-                async with async_session_maker() as session:
-                    user = await self.repository.find_one_or_none(session, tg_user_id=user_id)
+                user = await self.repository.find_one_or_none(session, tg_user_id=user_id)
 
                 if user and user.tg_user_id == settings.BOT_ID:
                     return await handler(event, data)

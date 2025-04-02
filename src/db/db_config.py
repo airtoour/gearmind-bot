@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     create_async_engine,
@@ -23,6 +26,13 @@ async_session_maker = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False
 )
+
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """Генератор сессий для БД"""
+    async with async_session_maker() as session:
+        yield session
+
 
 # Определяем класс Base, для создания таблиц
 class Base(DeclarativeBase):

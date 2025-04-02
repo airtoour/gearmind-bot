@@ -1,4 +1,3 @@
-
 from typing import Any, Union
 
 from aiogram import Router, F
@@ -12,8 +11,9 @@ from aiogram.types import (
 from aiogram.fsm.context import FSMContext
 
 from ai import yandex
-from db.db_config import async_session_maker
-from db.models.scores.repository import ScoresRepository
+
+from db.models import ScoresRepository
+from sqlalchemy.ext.asyncio import AsyncSession
 from services.process_ai_requests import RequestAIService
 
 from telegram.keyboards.inline.inline import score_result
@@ -23,6 +23,7 @@ from telegram.states.solution import SolutionStates
 from logger import logger
 
 
+# Определяем роутер процесса
 router = Router(name="Work With User`s Solution")
 
 
@@ -76,14 +77,18 @@ async def problem_part(message: Message, state: FSMContext):
 
 
 @router.message(SolutionStates.solution_type)
-async def process_content(message: Message, state: FSMContext, user: Any):
+async def process_content(message: Message, state: FSMContext, user: Any, session: AsyncSession):
     try:
         working = await message.answer("<i>Внимательно изучаю Ваш запрос...</i>")
 
         prompt_type = await state.get_value("type")
 
         ai_service = RequestAIService(
-            yandex, message.text, prompt_type[2:], user
+            ai=yandex,
+            request=message.text,
+            prompt_type=prompt_type[2:],
+            user=user,
+            session=session
         )
 
         result, request_id = await ai_service.create()
@@ -120,7 +125,7 @@ async def process_content(message: Message, state: FSMContext, user: Any):
 
 
 @router.callback_query(F.data.startswith("score:"))
-async def process_score_result(callback: CallbackQuery, state: FSMContext, user: Any):
+async def process_score_result(callback: CallbackQuery, state: FSMContext, user: Any, session: AsyncSession):
     try:
         # Получение оценки от пользователя
         score = int(callback.data.split(":")[-1])
@@ -129,10 +134,9 @@ async def process_score_result(callback: CallbackQuery, state: FSMContext, user:
         request_id = await state.get_value("request_id")
 
         # Записываем оценку в БД
-        async with async_session_maker() as session:
-            added_score = await ScoresRepository.add(
-                session, request_id=request_id, user_id=user.id, score=score
-            )
+        added_score = await ScoresRepository.add(
+            session, request_id=request_id, user_id=user.id, score=score
+        )
 
         # Если не получилось сохранить оценку
         if not added_score:
