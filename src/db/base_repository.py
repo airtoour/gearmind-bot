@@ -12,6 +12,7 @@ class BaseRepository:
 
     @classmethod
     async def find_one_or_none(cls, session: AsyncSession, **filter_by) -> Union[model, None]:
+        """Метод поиска записи, возвращает её или ничего"""
         try:
             stmt = select(cls.model).filter_by(**filter_by)
             result = await session.execute(stmt)
@@ -20,8 +21,6 @@ class BaseRepository:
         except (SQLAlchemyError, Exception) as e:
             logger.error(f"Ошибка в find_one_or_none {cls.model.__name__}: {e}")
             return None
-        finally:
-            await session.close()
 
     @classmethod
     async def find_all(cls, session: AsyncSession, **filter_by) -> List[model]:
@@ -33,8 +32,6 @@ class BaseRepository:
         except (SQLAlchemyError, Exception) as e:
             logger.error(f"Ошибка в find_all {cls.model.__name__}: {e}")
             return []
-        finally:
-            await session.close()
 
     @classmethod
     async def add(cls, session: AsyncSession, **data) -> model:
@@ -52,8 +49,6 @@ class BaseRepository:
             await session.rollback()
             logger.error(f"Ошибка в add {cls.model.__name__}: {e}")
             return None
-        finally:
-            await session.close()
 
     @classmethod
     async def update(cls, session: AsyncSession, *filters, **data) -> model:
@@ -72,8 +67,6 @@ class BaseRepository:
             await session.rollback()
             logger.error(f"Ошибка в update {cls.model.__name__}: {e}")
             return None
-        finally:
-            await session.close()
 
     @classmethod
     async def delete(cls, session: AsyncSession, **data):
@@ -86,5 +79,3 @@ class BaseRepository:
             await session.rollback()
             logger.error(f"Ошибка в delete {cls.model.__name__}: {e}")
             return None
-        finally:
-            await session.close()

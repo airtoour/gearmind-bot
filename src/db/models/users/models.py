@@ -30,6 +30,12 @@ class Users(Base):
         back_populates="user",
         lazy="joined"
     )
+    game_progress: Mapped["GameProgressUsers"] = relationship(  # type: ignore
+        argument="GameProgressUsers",
+        back_populates="user",
+        lazy="joined",
+        uselist=False
+    )
 
     # Индексы
     idx_users_tg_user_id_unq = Index("idx_users_tg_user_id", tg_user_id, unique=True)

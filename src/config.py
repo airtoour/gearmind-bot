@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     YANDEX_CATALOG: str
     YANDEX_MODEL: str
 
+    SECRET_KEY: str
+
     model_config = ConfigDict(from_attributes=True)
 
     @property

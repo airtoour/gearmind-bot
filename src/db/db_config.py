@@ -27,9 +27,13 @@ async_session_maker = async_sessionmaker(
     expire_on_commit=False
 )
 
+async def get_session_app() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        yield session
+
 @asynccontextmanager
-async def get_session() -> AsyncGenerator[AsyncSession, None]:
-    """Генератор сессий для БД"""
+async def get_session_bot() -> AsyncGenerator[AsyncSession, None]:
+    """Генератор сессий для Бота"""
     async with async_session_maker() as session:
         yield session
 
