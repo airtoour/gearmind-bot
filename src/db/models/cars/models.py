@@ -36,3 +36,6 @@ class Cars(Base):
 
     # Индексы
     idx_cars_full = Index("idx_cars_full", full)
+
+    def __str__(self):
+        return f"{self.brand_name} {self.model_name} {self.year} года"

@@ -1,45 +1,36 @@
 from fastapi import (
     APIRouter,
-    Depends,
-    HTTPException,
-    status
+    HTTPException, Depends
 )
-from sqlalchemy.ext.asyncio import AsyncSession
+from jose import jwt
 
-from app.api.schemas.auth import AuthResponse, AuthInfo
-from app.dependencies import create_access_token, decode_access_token
-from db.db_config import get_session_app
-
-from logger import logger
-
+from app.api.schemas.auth import AuthRequest
+from app.dependencies import SECRET_KEY, verify_telegram_data, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Авторизация"])
 
 
-@router.post("/login", response_model=AuthResponse)
-async def login(tg_user_id: int, session: AsyncSession = Depends(get_session_app)):
-    try:
-        access_data = await create_access_token(tg_user_id, session)
-        return {
-            "access_token": access_data["access_token"],
-            "token_type": "bearer",
-            "first_login_time": access_data["first_login_time"]
-        }
-    except HTTPException as e:
-        raise e
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
-        )
-    except Exception as e:
-        logger.error(f"Login error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
-        )
+@router.post("/auth")
+async def auth(request: AuthRequest):
+    # Проверяем данные
+    parsed_data = verify_telegram_data(request.init_data)
+    if not parsed_data:
+        raise HTTPException(401, detail="Неверные данные авторизации")
+
+    # Извлекаем информацию о пользователе
+    user_data = parsed_data.get("user", [{}])[0]
+    user_id = user_data.get("id")
+
+    # Создаем JWT-токен
+    token = jwt.encode(
+        {"user_id": user_id},
+        SECRET_KEY,
+        algorithm="HS256"
+    )
+
+    return {"access_token": token, "token_type": "bearer"}
 
 
-@router.get("/me", response_model=AuthInfo)
-async def get_current_user(token_data: dict = Depends(decode_access_token)):
-    return token_data
+@router.get("/protected")
+async def protected_route(user: dict = Depends(get_current_user)):
+    return {"message": f"Доступ разрешен для пользователя {user['user_id']}"}

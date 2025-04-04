@@ -29,7 +29,7 @@ router = Router(name="Work With User`s Solution")
 
 @router.message(Command("solution"))
 @router.callback_query(F.data == "solution")
-async def solution(event: Union[Message, CallbackQuery]):
+async def solution(event: Union[Message, CallbackQuery], user: Any):
     """Обработчик, запускающий процесс подбора запчастей"""
     message = None
 
@@ -43,7 +43,7 @@ async def solution(event: Union[Message, CallbackQuery]):
         await message.answer(
             text="Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите, "
                  "пожалуйста, <b>проблемную область</b> ниже 👇",
-            reply_markup=get_problem_keyboard
+            reply_markup=get_problem_keyboard(user.tg_user_id)
         )
 
     except (Exception, TelegramAPIError) as e:

@@ -1,5 +1,4 @@
 from sqladmin import ModelView
-
 from db.models import Prompts
 
 
@@ -17,5 +16,15 @@ class PromptsView(ModelView, model=Prompts):
         Prompts.id,
         Prompts.requests
     ]
+
+    column_labels = {
+        Prompts.type: "Тип",
+        Prompts.text: "Текст"
+    }
+
+    column_formatters = {Prompts.type: lambda m, a: m.type.value}
+    column_formatters_detail = {Prompts.type: lambda m, a: m.type.value}
+
+    column_searchable_list = [Prompts.type]
 
     can_delete = False

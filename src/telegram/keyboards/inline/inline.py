@@ -6,8 +6,10 @@ from aiogram.types import (
     InlineKeyboardButton,
     WebAppInfo
 )
-from db.models import Cars
 
+from config import settings
+from db.models import Cars
+from db.models.users.schemas import UsersRoles
 
 # Маппинг с информацией и названием модулей Автомобиля
 CAR_MODULES_MAPPING: Dict[str, str] = {
@@ -80,3 +82,13 @@ score_result = InlineKeyboardMarkup(inline_keyboard=[
         InlineKeyboardButton(text="5 ⭐️", callback_data=f"score:5"),
     ]
 ])
+
+def profile_keyboard(role: UsersRoles) -> InlineKeyboardMarkup:
+    keyboard = [
+        [InlineKeyboardButton(text="Редактировать профиль ✍️", callback_data="edit_profile")]
+    ]
+
+    if role == UsersRoles.ADMIN:
+        keyboard.append([InlineKeyboardButton(text="Админка 🧙‍♀️", url=f"{settings.GEAR_URL}/admin/{role}")])
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)

@@ -25,3 +25,6 @@ class GameProgressUsers(Base):
     # Связи
     user: Mapped["Users"] = relationship("Users", back_populates="game_progress")  # type: ignore
     car: Mapped["Cars"] = relationship("Cars", back_populates="game_progress")  # type: ignore
+
+    def __str__(self):
+        return f"Профиль. Уровень: {self.level}"
