@@ -20,10 +20,11 @@ class Users(Base):
     )
 
     # Связи
-    cars: Mapped[List["Cars"]] = relationship(  # type: ignore
+    car: Mapped["Cars"] = relationship(  # type: ignore
         argument="Cars",
         back_populates="user",
-        lazy="joined"
+        lazy="joined",
+        single_parent=True
     )
     recommendation_score: Mapped[List["Scores"]] = relationship(  # type: ignore
         argument="Scores",

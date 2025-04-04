@@ -10,12 +10,12 @@ class UsersView(ModelView, model=Users):
 
     column_exclude_list = [
         Users.id,
-        Users.cars,
+        Users.car,
         Users.recommendation_score
     ]
     column_details_exclude_list = [
         Users.id,
-        Users.cars,
+        Users.car,
         Users.recommendation_score
     ]
 

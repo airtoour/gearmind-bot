@@ -24,8 +24,14 @@ class Cars(Base):
     # Связи
     user: Mapped["Users"] = relationship(  # type: ignore
         argument="Users",
-        back_populates="cars",
+        back_populates="car",
         lazy="joined"
+    )
+    game_progress: Mapped["GameProgressUsers"] = relationship(  # type: ignore
+        argument="GameProgressUsers",
+        back_populates="car",
+        lazy="joined",
+        uselist=False
     )
 
     # Индексы

@@ -1,5 +1,3 @@
-from pydantic import BaseModel
-from typing import Optional
 from fastapi import (
     APIRouter,
     Depends,
@@ -8,6 +6,7 @@ from fastapi import (
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.schemas.auth import AuthResponse, AuthInfo
 from app.dependencies import create_access_token, decode_access_token
 from db.db_config import get_session_app
 
@@ -15,18 +14,6 @@ from logger import logger
 
 
 router = APIRouter(prefix="/auth", tags=["Авторизация"])
-
-
-class AuthResponse(BaseModel):
-    access_token: str
-    token_type: str
-    first_login_time: Optional[float]
-
-
-class AuthInfo(BaseModel):
-    tg_user_id: int
-    first_login_time: Optional[float]
-    role: str
 
 
 @router.post("/login", response_model=AuthResponse)

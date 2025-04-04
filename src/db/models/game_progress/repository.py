@@ -1,3 +1,5 @@
+from typing import Union
+
 from sqlalchemy import select, insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,7 +15,7 @@ class GameProgressUsersRepository(BaseRepository):
     model = GameProgressUsers
 
     @classmethod
-    async def get_user(cls, session: AsyncSession, tg_user_id: int):
+    async def get_user(cls, session: AsyncSession, tg_user_id: int) -> Union[model, None]:
         try:
             stmt = (
                 select(cls.model)
@@ -43,3 +45,17 @@ class GameProgressUsersRepository(BaseRepository):
             await session.rollback()
             logger.error(f"Ошибка в add_progress {cls.model.__name__}: {e}")
             return None
+
+    @classmethod
+    async def get_level(cls, session: AsyncSession, tg_user_id: int) -> [model.level, model.experience]:
+        try:
+            stmt = (
+                select(cls.model.level, cls.model.experience)
+                .join(Users, Users.id == cls.model.user_id)
+                .where(Users.tg_user_id == tg_user_id)
+            )
+            result = await session.execute(stmt)
+            return result.unique().scalars().first()
+        except (SQLAlchemyError, Exception) as e:
+            logger.error(f"Ошибка в get_user {cls.model.__name__}: {e}")
+            return []
