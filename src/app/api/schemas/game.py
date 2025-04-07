@@ -12,6 +12,12 @@ class BasePageReturnSchema(BaseModel):
     experience: int
 
 
+class CreateProgressSchema(BaseModel):
+    """Схема создания прогресса игры"""
+    user_id: uuid.UUID
+    car_id: uuid.UUID
+
+
 class WashStatusReturnSchema(BaseModel):
     """Схема, возвращающая статус 'загрязнённости' автомобиля"""
     status: Literal["ok", "fail"]

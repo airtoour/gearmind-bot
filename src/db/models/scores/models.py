@@ -1,12 +1,13 @@
 import uuid
 
 from sqlalchemy import UUID, ForeignKey, Integer, CheckConstraint
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 
 
-class Scores(Base):
+class Scores(AsyncAttrs, Base):
     """Модель таблицы с оценками запросов от пользователей"""
     __tablename__ = "scores"
 

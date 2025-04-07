@@ -20,7 +20,11 @@ class Settings(BaseSettings):
     YANDEX_CATALOG: str
     YANDEX_MODEL: str
 
+    CARS_URL: str
+
     GEAR_URL: str
+
+    ADMIN_URL: str
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -30,6 +34,9 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
+
+    def get_webhook_url(self) -> str:
+        return f"{self.GEAR_URL}/webhook"
 
 
 settings = Settings()  # type: ignore

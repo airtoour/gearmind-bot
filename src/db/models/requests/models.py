@@ -1,13 +1,15 @@
 import uuid
 from datetime import datetime
+
 from sqlalchemy import UUID, DateTime, func, String, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 
 
-class Requests(Base):
+class Requests(AsyncAttrs, Base):
     """Модель таблицы запросов в ИИ"""
     __tablename__ = "requests"
 

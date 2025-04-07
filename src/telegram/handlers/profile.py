@@ -19,7 +19,7 @@ async def profile(message: Message, user: Any):
         await message.answer(
             text="Пожалуйста, <b>Ваш профиль</b> 👇\n\n"
                  f"▪️ <b>Имя</b>: {user.name}",
-            reply_markup=profile_keyboard(user.role)
+            reply_markup=profile_keyboard(user.tg_user_id, user.role)
         )
     except (Exception, TelegramAPIError) as e:
         logger.error(f"Profile Content: {e}")

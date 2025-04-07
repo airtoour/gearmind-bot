@@ -12,7 +12,7 @@ from config import settings
 
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.ERROR,
     format="%(asctime)s | %(levelname)-8s | %(name)s - %(message)s",
     handlers=[logging.StreamHandler()],
 )

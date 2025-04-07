@@ -2,13 +2,14 @@ import uuid
 from typing import List
 
 from sqlalchemy import UUID, String, Index
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 from db.models.prompts.schemas import TypesEnum, EnumsDecorator
 
 
-class Prompts(Base):
+class Prompts(AsyncAttrs, Base):
     """Справочник промптов для работы с ИИ"""
     __tablename__ = "prompts"
 

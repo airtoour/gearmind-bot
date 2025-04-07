@@ -1,12 +1,13 @@
 import uuid
 
 from sqlalchemy import UUID, Integer, String, ForeignKey, Index
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 
 
-class Cars(Base):
+class Cars(AsyncAttrs, Base):
     """Таблица с автомобилями пользователей"""
     __tablename__ = "cars"
 

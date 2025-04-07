@@ -2,13 +2,14 @@ import uuid
 from datetime import datetime
 from typing import Union
 
-from sqlalchemy import UUID, ForeignKey, Integer, DateTime, func
+from sqlalchemy import UUID, ForeignKey, Integer, DateTime
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 
 
-class GameProgressUsers(Base):
+class GameProgressUsers(AsyncAttrs, Base):
     __tablename__ = "game_progress"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID прогресса")

@@ -2,13 +2,14 @@ import uuid
 from typing import List
 
 from sqlalchemy import UUID, BigInteger, String, Index
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 from .schemas import UsersRoles, UsersRolesTypeDecorator
 
 
-class Users(Base):
+class Users(AsyncAttrs, Base):
     """Модель таблицы Users"""
     __tablename__ = "users"
 

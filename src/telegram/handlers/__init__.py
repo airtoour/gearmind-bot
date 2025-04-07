@@ -11,7 +11,7 @@ from .social import router as social_router
 from .help import router as help_router
 
 
-routers_list: List[Router] = [
+bot_routers_list: List[Router] = [
     start_router,
     profile_router,
     register_cars,
