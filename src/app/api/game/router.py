@@ -2,6 +2,7 @@ from app import TEMPLATES_DIR
 
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.responses import RedirectResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +11,6 @@ from db.models import UsersRepository, GameProgressUsersRepository
 
 from .garage.router import router as garage_router
 from ..schemas.game import CreateProgressSchema
-from ...dependencies import verify_telegram_data
 
 from logger import logger
 
@@ -27,43 +27,18 @@ async def get_game(
     tg_user_id: int,
     session: AsyncSession = Depends(get_session_app)
 ):
-    """Обработчик игры с прямой проверкой Telegram данных"""
-
-    # Получаем initData из заголовков
-    init_data = request.headers.get("X-Telegram-InitData")
-
-    logger.debug(init_data)
-
-    # Валидируем данные Telegram
-    parsed_data = verify_telegram_data(init_data)
-
-    logger.debug(parsed_data)
-
-    if not parsed_data:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Telegram auth")
-
-    # Извлекаем ID пользователя
-    user_data = parsed_data.get("user", {})
-    telegram_user_id = user_data.get("id")
-
-    logger.debug(f"{user_data} {telegram_user_id}")
-
-    # Проверяем соответствие ID в URL и данных Telegram
-    if int(telegram_user_id) != tg_user_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ID mismatch")
-
+    """
+    Обработчик игры. Получает initData из заголовка X-Telegram-InitData,
+    парсит его и проверяет соответствие id пользователя.
+    """
     # Проверяем регистрацию пользователя
     user = await UsersRepository.find_one_or_none(session, tg_user_id=tg_user_id)
-
-    logger.debug(user)
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Register in bot first")
 
     # Логика получения прогресса
     progress = await GameProgressUsersRepository.get_user(session, tg_user_id=tg_user_id)
-
-    logger.debug(progress)
 
     if not progress:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Register your progress first")
@@ -81,9 +56,32 @@ async def get_game(
 
 @router.post("/create")
 async def create_progress(data: CreateProgressSchema, session: AsyncSession = Depends(get_session_app)):
-    added_progress = await GameProgressUsersRepository.add(
-        session, user_id=data.id, car_id=data.car.id
+    """Создание прогресса игры для пользователя"""
+
+    # Получение прогресса
+    progress = await GameProgressUsersRepository.find_one_or_none(
+        session, user_id=data.user_id
     )
+
+    # Если прогресс найден
+    if progress:
+        # Получение пользователя
+        user = await UsersRepository.find_one_or_none(
+            session, id=data.user_id
+        )
+
+        # Редирект на главную страницу игры
+        return RedirectResponse(
+            url=f"/game/{user.tg_user_id}",
+            status_code=status.HTTP_303_SEE_OTHER
+        )
+
+    # Создаём новый Прогресс
+    added_progress = await GameProgressUsersRepository.add(
+        session, user_id=data.user_id, car_id=data.car_id
+    )
+
+    # Ответ сервера
     return {
         "status": "ok",
         "message": "Ну что ж, начнём игру?",

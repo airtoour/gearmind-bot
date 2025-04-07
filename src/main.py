@@ -1,8 +1,7 @@
 from app import STATIC_DIR
-from app.api import api_routers_list
 from app.admin.views import views_list
-
-from contextlib import asynccontextmanager
+from app.api import api_routers_list
+from app.api.webhook import lifespan
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,27 +9,14 @@ from fastapi.staticfiles import StaticFiles
 
 from sqladmin import Admin
 
-from telegram.bot import bot, dp
+from telegram.bot import dp
 from telegram.handlers import bot_routers_list
 
 from db.db_config import async_engine
 from config import settings
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Вебхук обработки обновлений от Aiogram"""
-    webhook_url = settings.get_webhook_url()
-
-    await bot.set_webhook(
-        url=webhook_url,
-        allowed_updates=dp.resolve_used_update_types()
-    )
-    yield
-    await bot.delete_webhook()
-
-
-# Определение приложения
+# Инициализация приложения
 app = FastAPI(
     version="1.0",
     title="Assemble Your Car",
@@ -56,7 +42,7 @@ admin = Admin(
 for view in views_list:
     admin.add_view(view)
 
-
+# Добавление мидлвари для обработки работы фронта
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -65,6 +51,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Монтирование статических файлов
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

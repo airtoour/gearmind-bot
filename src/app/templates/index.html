@@ -1,28 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}GearMind Mini-Game{% endblock %}</title>
 
-        {% block styles%}{% endblock %}
+        {% block styles %}
+        <link rel="stylesheet" href="/static/css/index.css">
+        {% endblock %}
 
         <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <script src="/static/js/auth.js"></script>
-
-        {% block scripts %}
-            <script>
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-            </script>
+        {% block script %}
+        <script src="/static/js/index.js"></script>
         {% endblock %}
     </head>
     <body>
         {% block content %}{% endblock %}
-        <div>
+        <div class="container">
             <h2>Добро пожаловать, {{ user_name }}</h2>
 
-            <p>Ваш уровень: {{ level }}</p>
-            <p>Ваш Опыт: {{ experience }}</p>
+            {% if level is defined and experience is defined %}
+                <p id="level" style="display: none">Уровень: {{ level }}</p>
+                <p id="experience" style="display: none">Опыт: {{ experience }}</p>
+                <button class="btn" id="play">Играть</button>
+            {% else %}
+                <button class="btn" id="create">Создать профиль</button>
+            {% endif %}
         </div>
     </body>
 </html>
