@@ -14,25 +14,20 @@ from telegram.bot import bot, dp
 from telegram.handlers import bot_routers_list
 
 from db.db_config import async_engine
-
 from config import settings
-from logger import logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """Вебхук обработки обновлений от Aiogram"""
     webhook_url = settings.get_webhook_url()
 
     await bot.set_webhook(
         url=webhook_url,
         allowed_updates=dp.resolve_used_update_types()
     )
-    logger.info(f"Webhook set to {webhook_url}")
-
     yield
-
     await bot.delete_webhook()
-    logger.info("Webhook removed")
 
 
 # Определение приложения
@@ -42,6 +37,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Добавление роутеров aiogram
 dp.include_routers(*bot_routers_list)
 
 # Подключаем роутеры

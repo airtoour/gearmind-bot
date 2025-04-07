@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const response = await fetch(`/game/${tgUserId}`, {
                 headers: {
+                    "Content-Type": "application/json"
                     "X-Telegram-InitData": initData
                 }
             });
