@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
 
+    REDIS_HOST: str
+    REDIS_PORT: int
+
     YANDEX_TOKEN: str
     YANDEX_CATALOG: str
     YANDEX_MODEL: str
@@ -30,12 +33,19 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self):
+        """Возвращает ссылку на подключение к БД"""
         return (
             f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}"
             f"@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         )
 
+    @property
+    def REDIS_URL(self):
+        """Возвращает ссылку на подключение к Redis"""
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
+
     def get_webhook_url(self) -> str:
+        """Возвращает ссылку на endpoint Webhook`ов"""
         return f"{self.GEAR_URL}/webhook"
 
 

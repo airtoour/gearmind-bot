@@ -1,25 +1,33 @@
-body {
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
     font-family: "Segoe UI", sans-serif;
     background-color: var(--tg-theme-bg-color, #ffffff);
     color: var(--tg-theme-text-color, #222);
-    padding: 16px;
 }
 
 .container {
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 .btn {
-    background-color: var(--tg-theme-button-color, #50a8eb);
+    margin: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background: var(--tg-theme-button-color, #2cab37);
     color: var(--tg-theme-button-text-color, #fff);
     border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    margin: 10px;
-    font-size: 16px;
+    border-radius: 6px;
     cursor: pointer;
-}
-
-.btn:hover {
-    opacity: 0.9;
 }

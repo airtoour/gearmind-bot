@@ -83,13 +83,13 @@ score_result = types.InlineKeyboardMarkup(inline_keyboard=[
     ]
 ])
 
-def profile_keyboard(telegram_id: int, role: UsersRoles) -> types.InlineKeyboardMarkup:
+def profile_keyboard(role: UsersRoles) -> types.InlineKeyboardMarkup:
     keyboard = [
         [types.InlineKeyboardButton(text="Редактировать профиль ✍️", callback_data="edit_profile")],
         [
             types.InlineKeyboardButton(
                 text="GearGame 🎮",
-                web_app=types.WebAppInfo(url=f"{settings.GEAR_URL}/game/{telegram_id}")
+                web_app=types.WebAppInfo(url=f"{settings.GEAR_URL}/game")
             )
         ]
     ]

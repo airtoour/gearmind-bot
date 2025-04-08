@@ -1,3 +1,5 @@
+from fastapi_cache.decorator import cache
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -5,6 +7,7 @@ from db.base_repository import BaseRepository
 from db.models import Cars, Users
 
 from sqlalchemy import select
+from services.redis_cache.service import cache_service
 
 from logger import logger
 
@@ -14,6 +17,7 @@ class CarsRepository(BaseRepository):
     model = Cars
 
     @classmethod
+    @cache(expire=120, key_builder=cache_service.model_key_builder)
     async def get_car_id(cls, session: AsyncSession, tg_user_id: int):
         try:
             stmt = (

@@ -1,48 +1,63 @@
-from app import STATIC_DIR
+from app import STATIC_DIR, TEMPLATES_DIR
 from app.admin.views import views_list
 from app.api import api_routers_list
-from app.api.webhook import lifespan
+from app.exceptions.base import GearMindAPIException
 
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from sqladmin import Admin
+from services.redis_cache.service import cache_service
 
-from telegram.bot import dp
+from telegram.bot import bot, dp
 from telegram.handlers import bot_routers_list
 
 from db.db_config import async_engine
+from logger import logger
 from config import settings
 
 
-# Инициализация приложения
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await bot.set_webhook(
+        url=settings.get_webhook_url(),
+        allowed_updates=dp.resolve_used_update_types()
+    )
+    logger.info("Webhook установлен")
+
+    await cache_service.connect()
+    logger.info("Redis инициализирован")
+
+    yield
+
+    await bot.delete_webhook()
+    await cache_service.disconnect()
+    logger.info("Webhook и Redis очищены")
+
+
+# 🔧 Приложение для API
 app = FastAPI(
-    version="1.0",
-    title="Assemble Your Car",
+    title="GearMind API",
     lifespan=lifespan
 )
 
-# Добавление роутеров aiogram
-dp.include_routers(*bot_routers_list)
-
-# Подключаем роутеры
+# Добавление API-роутеров
 for router in api_routers_list:
     app.include_router(router)
 
-# Определяем админку
-admin = Admin(
-    app,
-    engine=async_engine,
-    base_url=settings.ADMIN_URL,
-    title="GearAdmin"
-)
+# Подключаем роутеры бота
+dp.include_routers(*bot_routers_list)
 
-# Подключаем вьюхи для админки
+# Подключаем админку
+admin = Admin(app, engine=async_engine, base_url=settings.ADMIN_URL, title="GearAdmin")
 for view in views_list:
     admin.add_view(view)
 
-# Добавление мидлвари для обработки работы фронта
+# CORS мидлварь
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,9 +66,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Монтирование статических файлов
-app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
+# Глобальный хендлер ошибок
+@app.exception_handler(GearMindAPIException)
+async def handle_custom_exception(request: Request, exc: GearMindAPIException):
+    return templates.TemplateResponse(
+        "errors.html",
+        {
+            "request": request,
+            "status_code": exc.status_code,
+            "detail": exc.detail or "Что-то пошло не так"
+        },
+        status_code=exc.status_code,
+    )
+
+# Монтируем статику
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 if __name__ == "__main__":
     import uvicorn

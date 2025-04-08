@@ -1,53 +1,58 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const tg = window.Telegram.WebApp;
-    const user_id = tg.initDataUnsafe.user?.id;
+    const user_id = tg.initDataUnsafe?.user?.id;
 
+    const greeting = document.getElementById("greeting");
     const playButton = document.getElementById("play");
     const createButton = document.getElementById("create");
 
-    if (createButton) {
-        document.getElementById("create")?.addEventListener("click", async () => {
-            const user_car_id = await fetch(`/cars/${user_id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json"
+    tg.expand();
+
+    if (!user_id) {
+        window.location.href = "/errors/400";
+        return;
+    }
+
+    try {
+        const res = await fetch(`/game/init/${user_id}`);
+        const data = await res.json();
+
+        if (data.user_name) {
+            greeting.innerText = `Добро пожаловать, ${data.user_name}!`;
+        }
+
+        if (data.has_progress) {
+            playButton.style.display = "inline-block";
+            playButton.addEventListener("click", () => {
+                window.location.href = `/game/profile/${user_id}`;
+            });
+        } else {
+            createButton.style.display = "inline-block";
+            createButton.addEventListener("click", async () => {
+                try {
+                    const carRes = await fetch(`/cars/${user_id}`);
+                    const car_id = await carRes.json();
+
+                    const createRes = await fetch("/game/create", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            user_id: user_id,
+                            car_id: car_id
+                        })
+                    });
+
+                    if (createRes.ok || createRes.redirected) {
+                        window.location.href = `/game/profile/${user_id}`;
+                    }
+                } catch (err) {
+                    window.location.href = `/errors/${carRes.status}`;
                 }
             });
-
-            const create_game = await fetch("/game/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    car_id: user_car_id
-                })
-            });
-
-            if (create_game.redirected) {
-                window.location.href = create_game.url;
-            }
-        });
+        }
+    } catch (err) {
+        window.location.href = `/errors/${res.status}`;
     }
-
-    if (playButton) {
-        playButton.addEventListener("click", () => {
-            // Показать уровень и опыт
-            document.getElementById("level").style.display = "block";
-            document.getElementById("experience").style.display = "block";
-
-            // Скрыть кнопку "Играть"
-            playButton.style.display = "none";
-
-            // Получить user_id из переменной шаблона
-            const user_id = "{{ user_id }}";  // Убедись, что user_id передается правильно в шаблоне
-
-            // Ждем некоторое время, чтобы изменения DOM были видны
-            setTimeout(() => {
-                // После показа информации — редирект
-                window.location.href = `/game/${user_id}`;
-            }, 500);  // Задержка в 500 мс
-        });
-    }
-)};
+});

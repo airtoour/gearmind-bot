@@ -1,18 +1,19 @@
 from app import TEMPLATES_DIR
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse
+from fastapi_cache.decorator import cache
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from services.redis_cache.service import cache_service
 
 from db.db_config import get_session_app
-from db.models import UsersRepository, GameProgressUsersRepository
+from db.models import GameProgressUsersRepository
 
-from .garage.router import router as garage_router
-from ..schemas.game import CreateProgressSchema
-
-from logger import logger
+from app.api.garage.router import router as garage_router
+from app.api.game.schemas import CreateProgressSchema, UserProfileResponse
+from app.exceptions.game import ProfileNotFound, CreateProfileBadRequest
 
 
 router = APIRouter(prefix="/game", tags=["Игра"])
@@ -21,79 +22,84 @@ router.include_router(garage_router)
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
-@router.get("/{tg_user_id}")
-async def get_game(
-    request: Request,
-    tg_user_id: int,
+@router.get("")
+async def entry(request: Request):
+    """Точка входа в игру"""
+    return templates.TemplateResponse("entry_game.html", {"request": request})
+
+
+@router.get("/init/{telegram_id}")
+@cache(expire=120, key_builder=cache_service.model_key_builder)
+async def init_progress(
+    telegram_id: int,
     session: AsyncSession = Depends(get_session_app)
 ):
-    """
-    Обработчик игры. Получает initData из заголовка X-Telegram-InitData,
-    парсит его и проверяет соответствие id пользователя.
-    """
-    # Проверяем регистрацию пользователя
-    user = await UsersRepository.find_one_or_none(session, tg_user_id=tg_user_id)
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Register in bot first")
-
-    # Логика получения прогресса
-    progress = await GameProgressUsersRepository.get_user(session, tg_user_id=tg_user_id)
-
-    if not progress:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Register your progress first")
-
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "user_name": user.name,
-            "level": progress.level,
-            "experience": progress.experience
+    """Проверка прогресса и имени пользователя для инициализации клиента."""
+    progress = await GameProgressUsersRepository.get_user(session, tg_user_id=telegram_id)
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "has_progress": True,
+            "user_name": progress.user.name,  # noqa
+            "level": progress.level,  # noqa
+            "experience": progress.experience,  # noqa
+            "last_wash": progress.last_wash_car_time  # noqa
         }
     )
 
 
-@router.post("/create")
-async def create_progress(data: CreateProgressSchema, session: AsyncSession = Depends(get_session_app)):
-    """Создание прогресса игры для пользователя"""
+@router.get("/get_profile/{telegram_id}", response_model=UserProfileResponse)
+@cache(240)
+async def get_profile_data(
+    request: Request,  # noqa
+    telegram_id: int,
+    session: AsyncSession = Depends(get_session_app)
+):
+    """Получение данных прогресса пользователя"""
+    progress = await GameProgressUsersRepository.get_user(session, tg_user_id=telegram_id)
 
-    # Получение прогресса
-    progress = await GameProgressUsersRepository.find_one_or_none(
-        session, user_id=data.user_id
+    if not progress:
+        raise ProfileNotFound
+
+    return {
+        "user_name": progress.user.name,  # noqa
+        "level": progress.level,  # noqa
+        "experience": progress.experience,  # noqa
+        "last_wash": progress.last_wash_car_time  # noqa
+    }
+
+
+@router.get("/profile/{telegram_id}")
+async def get_profile(
+    request: Request,
+    telegram_id: int,
+    session: AsyncSession = Depends(get_session_app)
+):
+    profile_data = await get_profile_data(request, telegram_id, session)
+
+    return templates.TemplateResponse(
+        "profile.html",
+        {
+            "request": request,
+            **profile_data
+        }
     )
 
-    # Если прогресс найден
-    if progress:
-        # Получение пользователя
-        user = await UsersRepository.find_one_or_none(
-            session, id=data.user_id
-        )
-
-        # Редирект на главную страницу игры
-        return RedirectResponse(
-            url=f"/game/{user.tg_user_id}",
-            status_code=status.HTTP_303_SEE_OTHER
-        )
-
-    # Создаём новый Прогресс
+@router.post("/create")
+async def create_profile(
+    data: CreateProgressSchema,
+    session: AsyncSession = Depends(get_session_app)
+):
+    """Создание прогресса игры для пользователя"""
     added_progress = await GameProgressUsersRepository.add(
         session, user_id=data.user_id, car_id=data.car_id
     )
 
-    # Ответ сервера
+    if not added_progress:
+        raise CreateProfileBadRequest
+
     return {
         "status": "ok",
         "message": "Ну что ж, начнём игру?",
         "data": added_progress.model_dump()
     }
-
-
-@router.get("/level/{tg_user_id}")
-async def get_user_level(tg_user_id: int, session: AsyncSession = Depends(get_session_app)):
-    try:
-        progress = await GameProgressUsersRepository.get_level(session, tg_user_id)
-        return progress
-    except HTTPException as e:
-        logger.error(e)
-        return {"status": "fail", "error": str(e)}

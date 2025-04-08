@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from app.api.schemas.game import (
+from .schemas import (
     WashStatusReturnSchema,
     WashCarSchema,
     WashedCarReturnSchema
@@ -9,7 +9,7 @@ from app.api.schemas.game import (
 from db.db_config import get_session_app
 from db.models import GameProgressUsersRepository
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -74,15 +74,18 @@ async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_sess
 
         if not progress:
             response_data["data"]["message"] = "Профиль не найден"
-            return JSONResponse(content=response_data, status_code=302,
-                                headers={"Location": f"/game/{data.tg_user_id}"})
+            return JSONResponse(
+                content=response_data,
+                status_code=status.HTTP_302_FOUND,
+                headers={"Location": f"/game/{data.tg_user_id}"}
+            )
 
         if progress.last_wash_car_time + timedelta(hours=6) < datetime.now():
             washed = await service.wash(100)
 
             if not washed:
                 response_data["data"]["message"] = "Ошибка при мытье автомобиля, попробуйте позже"
-                return JSONResponse(content=response_data, status_code=400)
+                return JSONResponse(content=response_data, status_code=status.HTTP_400_BAD_REQUEST)
 
             response_data["status"] = "ok"
             response_data["washed"] = True
@@ -93,12 +96,16 @@ async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_sess
             return response_data
         else:
             response_data["data"]["message"] = "Мойка доступна через 6 часов"
-            return JSONResponse(content=response_data, status_code=302,
-                                headers={"Location": f"/game/wash/status?tg_user_id={data.tg_user_id}"})
-
+            return JSONResponse(
+                content=response_data,
+                status_code=status.HTTP_302_FOUND,
+                headers={"Location": f"/game/wash/status?tg_user_id={data.tg_user_id}"}
+            )
     except Exception as e:
         logger.error(e)
         response_data["data"]["message"] = "Ошибка при обработке запроса"
+
         if progress:
             response_data["data"]["new_level"] = progress.level  # type: ignore
+
         return response_data

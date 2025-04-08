@@ -1,21 +1,6 @@
-import uuid
 from datetime import datetime
 from typing import Literal, Optional
 from pydantic import BaseModel
-
-
-class BasePageReturnSchema(BaseModel):
-    """Схема, возвращающая информацию о профиле пользователя"""
-    status: Literal["ok", "fail"]
-    user_name: str
-    level: int
-    experience: int
-
-
-class CreateProgressSchema(BaseModel):
-    """Схема создания прогресса игры"""
-    user_id: uuid.UUID
-    car_id: uuid.UUID
 
 
 class WashStatusReturnSchema(BaseModel):

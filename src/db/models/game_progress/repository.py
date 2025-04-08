@@ -1,8 +1,9 @@
-from typing import Union
+from typing import Optional
 
 from sqlalchemy import select, insert
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from db.base_repository import BaseRepository
 from db.models import GameProgressUsers, Users, UsersRepository
@@ -15,10 +16,11 @@ class GameProgressUsersRepository(BaseRepository):
     model = GameProgressUsers
 
     @classmethod
-    async def get_user(cls, session: AsyncSession, tg_user_id: int) -> Union[model, None]:
+    async def get_user(cls, session: AsyncSession, tg_user_id: int):
         try:
             stmt = (
                 select(cls.model)
+                .options(joinedload(cls.model.user))
                 .join(Users, Users.id == cls.model.user_id)
                 .where(Users.tg_user_id == tg_user_id)
             )
