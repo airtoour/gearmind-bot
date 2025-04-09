@@ -7,7 +7,7 @@ from .schemas import (
 )
 
 from db.db_config import get_session_app
-from db.models import GameProgressUsersRepository
+from db.models import UsersGameProfilesRepository
 
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import RedirectResponse, JSONResponse
@@ -25,7 +25,7 @@ router = APIRouter(prefix="/garage")
 async def check_wash_car(tg_user_id: int, session: AsyncSession = Depends(get_session_app)):
     """Запрос на проверку 'Загрязнённости' автомобиля"""
     try:
-        progress = await GameProgressUsersRepository.get_user(session, tg_user_id)
+        progress = await UsersGameProfilesRepository.get_user(session, tg_user_id)
 
         if not progress:
             return RedirectResponse(f"/game/{tg_user_id}")
@@ -57,7 +57,7 @@ async def check_wash_car(tg_user_id: int, session: AsyncSession = Depends(get_se
 @router.patch("/wash", response_model=WashedCarReturnSchema)
 async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_session_app)):
     """Запрос на помывку автомобиля"""
-    progress = None
+    profile = None
     response_data = {
         "status": "fail",
         "washed": False,
@@ -69,10 +69,10 @@ async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_sess
     }
 
     try:
-        progress = await GameProgressUsersRepository.get_user(session, data.tg_user_id)
-        service = GearGameService(data.tg_user_id, session, progress)
+        profile = await UsersGameProfilesRepository.get_user(session, data.tg_user_id)
+        service = GearGameService(session, profile)
 
-        if not progress:
+        if not profile:
             response_data["data"]["message"] = "Профиль не найден"
             return JSONResponse(
                 content=response_data,
@@ -80,7 +80,7 @@ async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_sess
                 headers={"Location": f"/game/{data.tg_user_id}"}
             )
 
-        if progress.last_wash_car_time + timedelta(hours=6) < datetime.now():
+        if profile.last_wash_car_time + timedelta(hours=6) < datetime.now():
             washed = await service.wash(100)
 
             if not washed:
@@ -105,7 +105,7 @@ async def wash_car(data: WashCarSchema, session: AsyncSession = Depends(get_sess
         logger.error(e)
         response_data["data"]["message"] = "Ошибка при обработке запроса"
 
-        if progress:
+        if profile:
             response_data["data"]["new_level"] = progress.level  # type: ignore
 
         return response_data

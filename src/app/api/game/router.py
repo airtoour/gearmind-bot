@@ -6,14 +6,20 @@ from fastapi.responses import JSONResponse
 from fastapi_cache.decorator import cache
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from services.game.service import GearGameService
 from services.redis_cache.service import cache_service
 
 from db.db_config import get_session_app
-from db.models import GameProgressUsersRepository
+from db.models import UsersGameProfilesRepository
 
 from app.api.garage.router import router as garage_router
-from app.api.game.schemas import CreateProgressSchema, UserProfileResponse
+from app.api.game.schemas import UserProfileResponse
 from app.exceptions.game import ProfileNotFound, CreateProfileBadRequest
+
+from services.game.schemas import CreateProfileSchema
+
+from logger import logger
 
 
 router = APIRouter(prefix="/game", tags=["Игра"])
@@ -35,18 +41,30 @@ async def init_progress(
     session: AsyncSession = Depends(get_session_app)
 ):
     """Проверка прогресса и имени пользователя для инициализации клиента."""
-    progress = await GameProgressUsersRepository.get_user(session, tg_user_id=telegram_id)
+    progress = await UsersGameProfilesRepository.get_user(session, tg_user_id=telegram_id)
+
+    if not progress:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "has_progress": False,
+                "user_name": None,
+                "level": 0,
+                "experience": 0,
+                "last_wash": None
+            }
+        )
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
             "has_progress": True,
-            "user_name": progress.user.name,  # noqa
-            "level": progress.level,  # noqa
-            "experience": progress.experience,  # noqa
-            "last_wash": progress.last_wash_car_time  # noqa
+            "user_name": progress.user.name,
+            "level": progress.level,
+            "experience": progress.experience,
+            "last_wash": progress.last_wash_car_time
         }
     )
-
 
 @router.get("/get_profile/{telegram_id}", response_model=UserProfileResponse)
 @cache(240)
@@ -56,16 +74,16 @@ async def get_profile_data(
     session: AsyncSession = Depends(get_session_app)
 ):
     """Получение данных прогресса пользователя"""
-    progress = await GameProgressUsersRepository.get_user(session, tg_user_id=telegram_id)
+    progress = await UsersGameProfilesRepository.get_user(session, tg_user_id=telegram_id)
 
     if not progress:
         raise ProfileNotFound
 
     return {
-        "user_name": progress.user.name,  # noqa
-        "level": progress.level,  # noqa
-        "experience": progress.experience,  # noqa
-        "last_wash": progress.last_wash_car_time  # noqa
+        "user_name": progress.user.name,
+        "level": progress.level,
+        "experience": progress.experience,
+        "last_wash": progress.last_wash_car_time
     }
 
 
@@ -87,19 +105,24 @@ async def get_profile(
 
 @router.post("/create")
 async def create_profile(
-    data: CreateProgressSchema,
+    data: CreateProfileSchema,
     session: AsyncSession = Depends(get_session_app)
 ):
-    """Создание прогресса игры для пользователя"""
-    added_progress = await GameProgressUsersRepository.add(
-        session, user_id=data.user_id, car_id=data.car_id
-    )
+    """Создание профиля в игре"""
+    try:
+        service = GearGameService(session)
 
-    if not added_progress:
-        raise CreateProfileBadRequest
+        new_profile = await service.create_profile(data)
 
-    return {
-        "status": "ok",
-        "message": "Ну что ж, начнём игру?",
-        "data": added_progress.model_dump()
-    }
+        if not new_profile:
+            raise CreateProfileBadRequest
+
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "status": "ok",
+                "message": "Профиль успешно создан!"
+            }
+        )
+    except Exception as e:
+        logger.error(e)

@@ -9,10 +9,24 @@
     </head>
 
     <body>
+        <!-- Кнопка уже есть -->
+        <button id="my-tasks" class="btn">Мои задания</button>
+
+        <!-- Контейнер для заданий -->
+        <div id="task-panel" class="task-panel hidden">
+            <div class="task-header">
+                <h3>Мои задания</h3>
+                <button id="close-tasks" class="close-btn">✕</button>
+            </div>
+            <div id="task-list" class="task-list"></div>
+        </div>
+
         <div class="container">
-            <h2>Прогресс игрока: {{ user_name }}</h2>
+            <h2>Мой профиль</h2>
             <p><strong>Уровень:</strong> {{ level }}</p>
             <p><strong>Опыт:</strong> {{ experience }}</p>
         </div>
+
+        <script src="/static/js/tasks.js"></script>
     </body>
 </html>

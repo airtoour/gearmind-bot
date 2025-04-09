@@ -9,14 +9,16 @@ from .users import UsersView
 from .cars import CarsView
 from .scores import ScoresView
 
-from .game_progress import ProgressView
+from .game_profiles import ProfilesView
 
 views_list: List[ModelView] = [
     AdminBaseView,
+
     PromptsView,
     RequestsView,
     ScoresView,
+
     UsersView,
     CarsView,
-    ProgressView,
+    ProfilesView,
 ]

@@ -9,8 +9,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from db.db_config import Base
 
 
-class GameProgressUsers(AsyncAttrs, Base):
-    __tablename__ = "game_progress"
+class UsersGameProfiles(AsyncAttrs, Base):
+    __tablename__ = "users_game_profiles"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID прогресса")
 

@@ -43,7 +43,7 @@ class BaseRepository:
     async def add(cls, session: AsyncSession, **data):
         """Метод добавления объекта в таблицу"""
         try:
-            select_result = await cls.find_one_or_none(**data)
+            select_result = await cls.find_one_or_none(session, **data)
 
             if select_result:
                 return select_result

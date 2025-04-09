@@ -32,11 +32,16 @@ class Users(AsyncAttrs, Base):
         back_populates="user",
         lazy="joined"
     )
-    game_progress: Mapped["GameProgressUsers"] = relationship(  # type: ignore
-        argument="GameProgressUsers",
+    game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
+        argument="UsersGameProfiles",
         back_populates="user",
         lazy="joined",
         uselist=False
+    )
+    user_tasks: Mapped[List["UsersTasks"]] = relationship(  # type: ignore
+        argument="UsersTasks",
+        back_populates="user",
+        lazy="joined"
     )
 
     # Индексы

@@ -5,7 +5,9 @@ from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 
 from redis import asyncio as aioredis
+
 from config import settings
+from logger import logger
 
 
 class GearMindCacheService:
@@ -36,7 +38,8 @@ class GearMindCacheService:
     async def disconnect(self):
         """Метод закрытия подключения от Redis-клиента"""
         if self.client:
-            self.client.connection_pool.disconnect()
+            await self.client.close()
+
             self.client = None
             self.initialized = False
 
@@ -71,20 +74,27 @@ class GearMindCacheService:
         )
 
     async def invalidate_cache(self, model):
-        redis: aioredis.Redis = self._get_backend()
+        if not self.initialized:
+            raise RuntimeError("Redis client is not initialized")
+
         cursor = 0
 
-        while True:
-            cursor, keys = await redis.scan(
-                cursor=cursor,
-                match=f"{model.__name__.lower()}:*",
-                count=100
-            )
+        try:
+            while True:
+                cursor, keys = await self.client.scan(
+                    cursor=cursor,
+                    match=f"{model.__name__.lower().replace(' ', '_')}:*",
+                    count=500
+                )
 
-            if keys:
-                await redis.delete(*keys)
-            if cursor == 0:
-                break
+                if keys:
+                    await self.client.delete(*keys)
+
+                if cursor == 0:
+                    break
+        except aioredis.RedisError as e:
+            logger.error(f"Cache invalidation failed: {str(e)}")
+            raise
 
     @staticmethod
     def _get_backend():

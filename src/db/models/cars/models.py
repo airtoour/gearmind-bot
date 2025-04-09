@@ -28,8 +28,8 @@ class Cars(AsyncAttrs, Base):
         back_populates="car",
         lazy="joined"
     )
-    game_progress: Mapped["GameProgressUsers"] = relationship(  # type: ignore
-        argument="GameProgressUsers",
+    game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
+        argument="UsersGameProfiles",
         back_populates="car",
         lazy="joined",
         uselist=False

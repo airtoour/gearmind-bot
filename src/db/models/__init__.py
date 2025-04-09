@@ -3,17 +3,23 @@ from .prompts.models import Prompts
 from .requests.models import Requests
 from .scores.models import Scores
 
-from .cars.models import Cars
+from .users_game_profiles.models import UsersGameProfiles
 
+from .cars.models import Cars
 from .users.models import Users
-from .game_progress.models import GameProgressUsers
+
+from .tasks.models import Tasks
+from .users_tasks.models import UsersTasks
 
 # Репозитории
 from .prompts.repository import PromptsRepository
 from .requests.repository import RequestsRepository
 from .scores.repository import ScoresRepository
 
-from .cars.repository import CarsRepository
+from .users_game_profiles.repository import UsersGameProfilesRepository
 
+from .cars.repository import CarsRepository
 from .users.repository import UsersRepository
-from .game_progress.repository import GameProgressUsersRepository
+
+from .tasks.repository import TasksRepository
+from .users_tasks.repository import UsersTasksRepository

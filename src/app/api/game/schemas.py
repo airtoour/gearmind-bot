@@ -1,12 +1,5 @@
-import uuid
 from datetime import datetime
 from pydantic import BaseModel, ConfigDict
-
-
-class CreateProgressSchema(BaseModel):
-    """Схема создания прогресса игры"""
-    user_id: uuid.UUID
-    car_id: uuid.UUID
 
 
 class UserProfileResponse(BaseModel):

@@ -13,7 +13,10 @@ from db.models import (
     Cars,
     Prompts,
     Requests,
-    Scores
+    Scores,
+    UsersGameProfiles,
+    Tasks,
+    UsersTasks
 )
 
 from config import settings

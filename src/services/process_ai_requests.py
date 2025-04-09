@@ -1,17 +1,17 @@
 import uuid
 from datetime import datetime
-from typing import Any, Dict, Union
+from typing import Dict, Union
 
 from pydantic import ValidationError
 
-from ai import yandex
-from ai.yandex.schemas import CompletionCreateSchema
+from ai import yandex, CompletionCreateSchema
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import (
     Requests,
     Prompts,
     Cars,
+    Users,
     CarsRepository,
     PromptsRepository,
     RequestsRepository
@@ -28,7 +28,7 @@ class RequestAIService:
         ai: yandex,
         request: str,
         prompt_type: str,
-        user: Any,
+        user: Users,
         session: AsyncSession
     ):
         self.ai = ai

@@ -17,12 +17,13 @@ pydantic-settings = "^2.8.1"
 httpx = "^0.28.1"
 psycopg2-binary = "^2.9.10"
 fastapi = {extras = ["all"], version = "^0.115.11"}
-sqladmin = "^0.20.1"
+sqladmin = {extras = ["full"], version = "^0.20.1"}
 openai = "^1.66.3"
 google-generativeai = ">=0.4.0"
 python-jose = "^3.4.0"
 fastapi-versioning = "^0.10.0"
 fastapi-cache2 = {extras = ["redis"], version = "^0.2.2"}
+apscheduler = "^3.11.0"
 
 
 [build-system]

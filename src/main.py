@@ -4,8 +4,9 @@ from app.api import api_routers_list
 from app.exceptions.base import GearMindAPIException
 
 from contextlib import asynccontextmanager
+from db.db_config import async_engine
 
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -16,7 +17,6 @@ from services.redis_cache.service import cache_service
 from telegram.bot import bot, dp
 from telegram.handlers import bot_routers_list
 
-from db.db_config import async_engine
 from logger import logger
 from config import settings
 
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
         url=settings.get_webhook_url(),
         allowed_updates=dp.resolve_used_update_types()
     )
-    logger.info("Webhook установлен")
+    logger.info(f"Webhook установлен")
 
     await cache_service.connect()
     logger.info("Redis инициализирован")
@@ -54,6 +54,7 @@ dp.include_routers(*bot_routers_list)
 
 # Подключаем админку
 admin = Admin(app, engine=async_engine, base_url=settings.ADMIN_URL, title="GearAdmin")
+
 for view in views_list:
     admin.add_view(view)
 
@@ -84,6 +85,15 @@ async def handle_custom_exception(request: Request, exc: GearMindAPIException):
 # Монтируем статику
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+
 if __name__ == "__main__":
+    """Запуск приложения"""
     import uvicorn
-    uvicorn.run(app, host="localhost", port=80)
+
+    uvicorn.run(
+        app=app,
+        host="localhost",
+        port=8888,
+        forwarded_allow_ips="*",
+        proxy_headers=True
+    )
