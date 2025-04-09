@@ -22,24 +22,29 @@ from config import settings
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    await bot.set_webhook(
-        url=settings.get_webhook_url(),
-        allowed_updates=dp.resolve_used_update_types()
-    )
-    logger.info(f"Webhook установлен")
+async def lifespan(app: FastAPI):  # noqa
+    try:
+        await bot.set_webhook(
+            url=settings.get_webhook_url(),
+            allowed_updates=dp.resolve_used_update_types()
+        )
+        logger.info(f"Webhook установлен")
 
-    await cache_service.connect()
-    logger.info("Redis инициализирован")
+        await cache_service.connect()
+        logger.info("Redis инициализирован")
 
-    yield
+        yield
+    except (Exception, KeyboardInterrupt):
+        await bot.delete_webhook()
+        await cache_service.disconnect()
+        logger.info("Webhook и Redis очищены вручную")
+    finally:
+        await bot.delete_webhook()
+        await cache_service.disconnect()
+        logger.info("Webhook и Redis очищены")
 
-    await bot.delete_webhook()
-    await cache_service.disconnect()
-    logger.info("Webhook и Redis очищены")
 
-
-# 🔧 Приложение для API
+# Приложение для API
 app = FastAPI(
     title="GearMind API",
     lifespan=lifespan

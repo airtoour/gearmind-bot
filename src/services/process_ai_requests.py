@@ -5,8 +5,6 @@ from typing import Dict, Union
 from pydantic import ValidationError
 
 from ai import yandex, CompletionCreateSchema
-
-from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import (
     Requests,
     Prompts,
@@ -17,6 +15,7 @@ from db.models import (
     RequestsRepository
 )
 from telegram.utils.utils import get_formatted_prompt
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from logger import logger
 

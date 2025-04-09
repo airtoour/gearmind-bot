@@ -23,3 +23,12 @@ RUN poetry config virtualenvs.create false && \
 COPY . .
 
 ENV PYTHONPATH="/app/src"
+
+CMD [
+    "gunicorn", "app.main:app",
+    "--workers", "4",
+    "--worker-class", "uvicorn.workers.UvicornWorker",
+    "--bind=0.0.0.0:8000",
+    "--forwarded_allow_ips", "*",
+    "--proxy_headers", "true"
+]

@@ -54,6 +54,10 @@ class GearGameService:
         except Exception as e:
             logger.error(e)
 
+    # todo process tasks. под каждое задание отдельно
+    #  нужно пример, придумать какой нибудь сокет, который слушает выполнение заданий и обновляет БД
+    #  в FastAPI есть websockets.
+
     async def wash(self, xp: int) -> NewLevelReturnSchema:
         """Метод обновляющий уровень игрока"""
         try:

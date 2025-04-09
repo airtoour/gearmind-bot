@@ -48,6 +48,10 @@ services:
     networks:
       - default
 
+  redis:
+    image: redis:7
+    container_name: gearmind-redis
+
 
 volumes:
   postgres_data:

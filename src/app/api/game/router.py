@@ -29,6 +29,7 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 @router.get("")
+@cache(expire=3600, key_builder=cache_service.model_key_builder)
 async def entry(request: Request):
     """Точка входа в игру"""
     return templates.TemplateResponse("entry_game.html", {"request": request})
