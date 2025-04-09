@@ -3,7 +3,6 @@ from typing import List
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
 
 from db.base_repository import BaseRepository
 from db.models import Tasks, UsersTasks, Users

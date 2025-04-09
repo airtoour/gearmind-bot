@@ -106,8 +106,7 @@ async def process_content(message: Message, state: FSMContext, user: Any, sessio
         # Отправляем ответ от ИИ пользователю
         await message.answer(
             f"{result}\n\n"
-            f"<i>Хорошего Вам дня</i> ☀️\n\n"
-            f"<b>Ваша команда GearMind</b> 🚗"
+            f"<i>Хорошего Вам дня</i> ☀️"
         )
 
         await message.answer(
@@ -151,7 +150,8 @@ async def process_score_result(callback: CallbackQuery, state: FSMContext, user:
 
         await callback.message.answer(
             text="Спасибо больше Вам за эту оценку ❤️\n"
-                 "Мы стараемся сделать сервис <b>как можно лучше</b> 😎",
+                 "Мы стараемся сделать сервис <b>как можно лучше</b> 😎\n\n"
+                 "f<b>Ваша команда GearMind</b> 🚗",
             reply_markup=ReplyKeyboardRemove()
         )
     except (Exception, TelegramAPIError) as e:

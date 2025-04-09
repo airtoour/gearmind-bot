@@ -1,5 +1,3 @@
-from fastapi_cache.decorator import cache
-
 from sqlalchemy import select, insert, delete, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,7 +12,6 @@ class BaseRepository:
     model = None
 
     @classmethod
-    @cache(expire=3600, key_builder=cache_service.model_key_builder)
     async def find_one_or_none(cls, session: AsyncSession, **filter_by):
         """Метод поиска записи, возвращает её или ничего"""
         try:
@@ -27,7 +24,6 @@ class BaseRepository:
             return None
 
     @classmethod
-    @cache(expire=3600, key_builder=cache_service.model_key_builder)
     async def find_all(cls, session: AsyncSession, **filter_by):
         """Метод поиска всех записей из таблицы"""
         try:
