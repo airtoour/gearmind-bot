@@ -1,3 +1,4 @@
+import re
 import uuid
 from datetime import datetime
 from typing import Dict, Union
@@ -70,11 +71,14 @@ class RequestAIService:
             if not result:
                 raise RuntimeError("Нет ответа от YandexGPT...")
 
+            # Даже если ИИ допустил Markdown-разметку, заменяем на HTML
+            result_text = self.format_result(result.text)
+
             # Отправляем ответ запроса в БД
             added_request = await self._add_to_requests(
                 session=self.session,
                 prompt_id=prompt.id,
-                response_text=result.text,
+                response_text=result_text,
                 usage=result.usage.model_dump(mode="json")
             )
 
@@ -82,7 +86,7 @@ class RequestAIService:
             if not added_request:
                 raise RuntimeError("Не получилось логировать информацию об использовании запроса...")
 
-            return result.text, added_request.id
+            return result_text, added_request.id
         except Exception as e:
             logger.error(e)
             return None
@@ -115,3 +119,8 @@ class RequestAIService:
         return await CarsRepository.find_one_or_none(
             session, user_id=self.user.id
         )
+
+    @staticmethod
+    def format_result(text: str):
+        """Метод замены Markdown-разметки на HTML-разметку"""
+        return re.sub(pattern=r"\*\*(.*?)\*\*", repl=r"<b>\1</b>", string=text)

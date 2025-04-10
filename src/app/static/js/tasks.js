@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!telegramId) return;
 
         try {
-            const res = await fetch(`/tasks/${telegramId}/all`);
+            const res = await fetch(`/game/tasks/${telegramId}/all`);
             const tasks = await res.json();
             renderTasks(tasks);
             panel.classList.add("visible");

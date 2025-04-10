@@ -62,7 +62,7 @@ async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any
                      f"<b>🔻 Модификация:</b> {users_car.gen_name}\n"
                      f"<b>🔻 Год выпуска:</b> {users_car.year} года\n"
                      f"<b>🔻 Пробег:</b> {users_car.mileage}",
-                reply_markup=car_info_confirm(user.tg_user_id)
+                reply_markup=car_info_confirm
             )
             await state.set_state(UpdateCarInfo.confirm_info)
             messages_ids.append(exists_car_message.message_id)

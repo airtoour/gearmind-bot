@@ -14,10 +14,13 @@ from ai import yandex
 
 from db.models import ScoresRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.process_ai_requests import RequestAIService
 
-from telegram.keyboards.inline.inline import score_result
-from telegram.keyboards.reply.reply import get_problem_keyboard
+from db.models.cars.repository import CarsRepository
+from services.ai_service.find_products import FindProducts
+from services.ai_service.process_requests import RequestAIService
+
+from telegram.keyboards.inline.inline import score_result, products_ozon_keyboard
+from telegram.keyboards.reply.reply import get_type_keyboard
 from telegram.states.solution import SolutionStates
 
 from logger import logger
@@ -29,7 +32,7 @@ router = Router(name="Work With User`s Solution")
 
 @router.message(Command("solution"))
 @router.callback_query(F.data == "solution")
-async def solution(event: Union[Message, CallbackQuery], user: Any):
+async def solution(event: Union[Message, CallbackQuery]):
     """Обработчик, запускающий процесс подбора запчастей"""
     message = None
 
@@ -43,7 +46,7 @@ async def solution(event: Union[Message, CallbackQuery], user: Any):
         await message.answer(
             text="Для того, чтобы я <b>понял с чем Вам помочь</b>, выберите, "
                  "пожалуйста, <b>проблемную область</b> ниже 👇",
-            reply_markup=get_problem_keyboard(user.tg_user_id)
+            reply_markup=get_type_keyboard
         )
 
     except (Exception, TelegramAPIError) as e:
@@ -79,10 +82,16 @@ async def problem_part(message: Message, state: FSMContext):
 @router.message(SolutionStates.solution_type)
 async def process_content(message: Message, state: FSMContext, user: Any, session: AsyncSession):
     try:
+        # Поиск автомобиля пользователя для использования дальше
+        car = await CarsRepository.find_one_or_none(session, user_id=user.id)
+
+        # Отправляем сообщение о том, что начали работу
         working = await message.answer("<i>Внимательно изучаю Ваш запрос...</i>")
 
+        # Получаем тип промпта
         prompt_type = await state.get_value("type")
 
+        # Определяем сервис работы с ИИ
         ai_service = RequestAIService(
             ai=yandex,
             request=message.text,
@@ -91,8 +100,10 @@ async def process_content(message: Message, state: FSMContext, user: Any, sessio
             session=session
         )
 
+        # Получаем ответ от ИИ
         result, request_id = await ai_service.create()
 
+        # Удаляем сообщение о начале работы
         await message.bot.delete_message(message.chat.id, working.message_id)
 
         if not result:
@@ -103,12 +114,36 @@ async def process_content(message: Message, state: FSMContext, user: Any, sessio
             await state.clear()
             return
 
+        # Определяем сервис получения продуктов
+        products = FindProducts(car, result)
+
+        # Отправляем сообщение о поиске товаров на маркетплейсах
+        finding = await message.answer("<i>Ищу на маркетплейсах...</i>")
+
+        # Формируем названия товаров и ссылок
+        products_data = products.get_urls_list()
+
+        # Удаляем сообщение о поиске товаров
+        await message.bot.delete_message(message.chat.id, finding.message_id)
+
+        if not products_data:
+            await message.answer(
+                "Произошла ошибка <b>при поиске товаров на маркетплейсах</b>, "
+                "пожалуйста, попробуйте позже или ещё раз"
+            )
+
         # Отправляем ответ от ИИ пользователю
+        await message.answer(result)
+
+        # Отправляем сообщений с товарами
         await message.answer(
-            f"{result}\n\n"
-            f"<i>Хорошего Вам дня</i> ☀️"
+            text=f"Также мы <b>нашли</b> эти товары на маркетплейсе "
+                 f"нашего <b>партнёра OZON</b> 👇\n\n"
+                 f"<i>Хорошего Вам дня</i> ☀️",
+            reply_markup=products_ozon_keyboard(products_data)
         )
 
+        # Запрашиваем оценку от пользователя
         await message.answer(
             text="Оцените, пожалуйста, ответ от <b>1</b> до <b>5</b> ⭐️",
             reply_markup=score_result
@@ -146,12 +181,11 @@ async def process_score_result(callback: CallbackQuery, state: FSMContext, user:
             return
 
         # Оповещаем пользователя об успешном сохранении оценки
-        await callback.message.edit_text(f"<b>Ваша оценка</b>: {score} ⭐️")
-
-        await callback.message.answer(
-            text="Спасибо больше Вам за эту оценку ❤️\n"
-                 "Мы стараемся сделать сервис <b>как можно лучше</b> 😎\n\n"
-                 "f<b>Ваша команда GearMind</b> 🚗",
+        await callback.message.edit_text(
+            text=f"<b>Ваша оценка</b>: {score} ⭐️\n\n"
+                 "Спасибо больше Вам за эту оценку ❤️\n"
+                 "Мы стараемся сделать наш сервис <b>как можно лучше</b> 😎\n\n"
+                 "<b>Ваша команда GearMind</b> 🚗",
             reply_markup=ReplyKeyboardRemove()
         )
     except (Exception, TelegramAPIError) as e:

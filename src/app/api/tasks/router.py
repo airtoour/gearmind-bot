@@ -7,7 +7,7 @@ from db.models import TasksRepository
 from .schemas import TaskInfo
 
 
-router = APIRouter(prefix="/sprav", tags=["Справочник Заданий GearGame"])
+router = APIRouter(prefix="/sprav")
 
 
 @router.get("/all")

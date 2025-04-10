@@ -24,9 +24,7 @@ class Settings(BaseSettings):
     YANDEX_MODEL: str
 
     CARS_URL: str
-
     GEAR_URL: str
-
     ADMIN_URL: str
 
     model_config = ConfigDict(from_attributes=True)

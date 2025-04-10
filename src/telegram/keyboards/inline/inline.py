@@ -2,6 +2,8 @@ from enum import StrEnum
 from typing import Dict, List
 
 from aiogram import types
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 from db.models import Cars
 from db.models.users.schemas import UsersRoles
 
@@ -105,3 +107,14 @@ def profile_keyboard(role: UsersRoles) -> types.InlineKeyboardMarkup:
         )
 
     return types.InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def products_ozon_keyboard(data: Dict[str, str]) -> InlineKeyboardMarkup:
+    keyboard = []
+
+    for title, url in data.items():
+        keyboard.append(
+            [InlineKeyboardButton(text=f"{title}", url=f"{url}")]
+        )
+
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)

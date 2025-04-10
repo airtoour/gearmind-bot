@@ -14,6 +14,9 @@ from db.db_config import get_session_app
 from db.models import UsersGameProfilesRepository
 
 from app.api.garage.router import router as garage_router
+from app.api.tasks.router import router as sprav_tasks_router
+from app.api.users_tasks.router import router as users_tasks_router
+
 from app.api.game.schemas import UserProfileResponse
 from app.exceptions.game import ProfileNotFound, CreateProfileBadRequest
 
@@ -24,6 +27,8 @@ from logger import logger
 
 router = APIRouter(prefix="/game", tags=["Игра"])
 router.include_router(garage_router)
+router.include_router(sprav_tasks_router)
+router.include_router(users_tasks_router)
 
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 

@@ -1,3 +1,5 @@
+from aiohttp import ClientSession
+
 from app import STATIC_DIR, TEMPLATES_DIR
 from app.admin.views import views_list
 from app.api import api_routers_list
@@ -23,6 +25,8 @@ from config import settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # noqa
+    session = ClientSession()
+
     try:
         await bot.set_webhook(
             url=settings.get_webhook_url(),
@@ -34,11 +38,18 @@ async def lifespan(app: FastAPI):  # noqa
         logger.info("Redis инициализирован")
 
         yield
-    except (Exception, KeyboardInterrupt):
+    except (Exception, KeyboardInterrupt) as e:
+        logger.error(
+            f"Ошибка инициализации: {e}"
+            if isinstance(e, Exception)
+            else "Закрытие вручную..."
+        )
         await bot.delete_webhook()
         await cache_service.disconnect()
         logger.info("Webhook и Redis очищены вручную")
     finally:
+        await session.close()
+        logger.info("Сессия закрыта")
         await bot.delete_webhook()
         await cache_service.disconnect()
         logger.info("Webhook и Redis очищены")
@@ -91,14 +102,14 @@ async def handle_custom_exception(request: Request, exc: GearMindAPIException):
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+# Запуск приложения
 if __name__ == "__main__":
-    """Запуск приложения"""
     import uvicorn
 
     uvicorn.run(
         app=app,
-        host="localhost",
-        port=8888,
+        host="127.0.0.1",
+        port=7777,
         forwarded_allow_ips="*",
         proxy_headers=True
     )
