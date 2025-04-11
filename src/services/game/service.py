@@ -3,15 +3,17 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from db.models import UsersGameProfiles, UsersGameProfilesRepository
-from db.models.tasks.repository import TasksRepository
-from db.models.users_tasks.repository import UsersTasksRepository
-
+from db.models import (
+    Tasks,
+    UsersGameProfiles,
+    UsersGameProfilesRepository,
+    TasksRepository,
+    UsersTasksRepository
+)
 from services.game.schemas import (
     NewLevelReturnSchema,
     CreateProfileSchema
 )
-
 from logger import logger
 
 
@@ -26,37 +28,69 @@ class GearGameService:
         self.profile = profile
 
     async def create_profile(self, data: CreateProfileSchema) -> UsersGameProfiles:
-        """Метод создания профиля """
+        """Метод создания профиля"""
         try:
-            # Создание профиля в БД
+            # Проверяем, существует ли уже профиль для данного user_id
+            existing_profile = await UsersGameProfilesRepository.find_one_or_none(self.session, user_id=data.user_id)
+
+            if existing_profile:
+                raise ValueError("Профиль с данным user_id уже существует")
+
+            # Создаем новый профиль в БД
             new_profile = await UsersGameProfilesRepository.add(
                 self.session, user_id=data.user_id, car_id=data.car_id
             )
 
-            # Получение всех заданий из справочника
-            # todo На данный момент все. В будущем есть идея
-            #  делать задания по уровням и автоматическое назначение на Игрока
+            # Получаем все активные задания
             tasks = await TasksRepository.find_all(self.session, is_active=True)
 
-            # Если активных заданий нет, возвращаем профиль
+            # Если нет активных заданий, просто возвращаем профиль
             if not tasks:
                 return new_profile
 
-            # Назначаем каждую таску на игрока
-            for task in tasks:
-                await UsersTasksRepository.add(
-                    self.session,
-                    user_id=new_profile.user_id,
-                    task_id=task.id,
-                )
+            # Для каждого задания создаем запись в таблице users_tasks
+            if new_profile:
+                for task in tasks:
+                    await UsersTasksRepository.add(
+                        self.session,
+                        profile_id=new_profile.id,
+                        task_id=task.id,
+                    )
 
             return new_profile
         except Exception as e:
-            logger.error(e)
+            logger.error(f"Ошибка при создании профиля: {e}")
+            raise
 
-    # todo process tasks. под каждое задание отдельно
-    #  нужно пример, придумать какой нибудь сокет, который слушает выполнение заданий и обновляет БД
-    #  в FastAPI есть websockets.
+    async def process_task(self, task: Tasks) -> bool:
+        try:
+            # Ищем текущий прогресс по заданию пользователя
+            user_task = await UsersTasksRepository.find_one_or_none(
+                self.session, profile_id=self.profile.id, task_id=task.id
+            )
+
+            if not user_task:
+                return False  # если задача не найдена
+
+            # Если текущий прогресс достиг целевого, завершаем задание
+            if user_task.current_value >= user_task.task.target_value:
+                user_task.is_completed = True
+                user_task.completed_at = datetime.now()
+
+                # Добавляем опыт пользователю только при завершении задания
+                await UsersGameProfilesRepository.reward_user_experience(
+                    self.session, self.profile, task.reward_xp
+                )
+            else:
+                # Просто увеличиваем прогресс, если задание не завершено
+                await UsersTasksRepository.increment_task(self.session, user_task)
+
+            await self.session.commit()
+            return True
+        except Exception as e:
+            logger.error(e)
+            await self.session.rollback()
+            return False
 
     async def wash(self, xp: int) -> NewLevelReturnSchema:
         """Метод обновляющий уровень игрока"""

@@ -5,7 +5,7 @@ from fastapi_cache.decorator import cache
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, selectinload
 from services.redis_cache.service import cache_service
 
 from db.base_repository import BaseRepository
@@ -24,11 +24,11 @@ class UsersRepository(BaseRepository):
         try:
             stmt = (
                 select(cls.model)
-                .options(joinedload(cls.model.car))
+                .options(selectinload(cls.model.car))
                 .filter_by(**filter_by)
             )
             result = await session.execute(stmt)
-            return result.unique().scalars().first()
+            return result.scalars().first()
         except (SQLAlchemyError, Exception) as e:
             logger.error(f"Ошибка в find_one_or_none {cls.model.__name__}: {e}")
             return None

@@ -14,7 +14,7 @@ class UsersTasks(AsyncAttrs, Base):
     __tablename__ = "users_tasks"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("users.id"))
+    profile_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("users_game_profiles.id"))
     task_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("tasks.id"))
     current_value: Mapped[int] = mapped_column(insert_default=0)
     is_completed: Mapped[bool] = mapped_column(insert_default=False)
@@ -22,5 +22,5 @@ class UsersTasks(AsyncAttrs, Base):
     completed_at: Mapped[Union[datetime, None]]
 
     # Отношения
-    user: Mapped["Users"] = relationship(argument="Users", back_populates="user_tasks", lazy="joined")  # noqa
-    task: Mapped["Tasks"] = relationship(argument="Tasks", back_populates="user_tasks", lazy="joined")  # noqa
+    user: Mapped["UsersGameProfiles"] = relationship(argument="UsersGameProfiles", back_populates="user_tasks", lazy="selectin")  # noqa
+    task: Mapped["Tasks"] = relationship(argument="Tasks", back_populates="user_tasks", lazy="selectin")  # noqa

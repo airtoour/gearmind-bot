@@ -17,7 +17,6 @@ class WashCarSchema(BaseModel):
 
 class WashedCarData(BaseModel):
     """Схема полученных данных после помывки"""
-    new_level: Optional[int]
     last_wash_car_time: Optional[datetime]
     message: str
 

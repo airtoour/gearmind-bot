@@ -34,7 +34,6 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 
 @router.get("")
-@cache(expire=3600, key_builder=cache_service.model_key_builder)
 async def entry(request: Request):
     """Точка входа в игру"""
     return templates.TemplateResponse("entry_game.html", {"request": request})
@@ -47,7 +46,7 @@ async def init_progress(
     session: AsyncSession = Depends(get_session_app)
 ):
     """Проверка прогресса и имени пользователя для инициализации клиента."""
-    progress = await UsersGameProfilesRepository.get_user(session, tg_user_id=telegram_id)
+    progress = await UsersGameProfilesRepository.get_user(session, telegram_id=telegram_id)
 
     if not progress:
         return JSONResponse(
@@ -68,7 +67,7 @@ async def init_progress(
             "user_name": progress.user.name,
             "level": progress.level,
             "experience": progress.experience,
-            "last_wash": progress.last_wash_car_time
+            "last_wash": progress.last_wash_car_time.isoformat()
         }
     )
 
@@ -80,7 +79,7 @@ async def get_profile_data(
     session: AsyncSession = Depends(get_session_app)
 ):
     """Получение данных прогресса пользователя"""
-    progress = await UsersGameProfilesRepository.get_user(session, tg_user_id=telegram_id)
+    progress = await UsersGameProfilesRepository.get_user(session, telegram_id=telegram_id)
 
     if not progress:
         raise ProfileNotFound
@@ -102,7 +101,7 @@ async def get_profile(
     profile_data = await get_profile_data(request, telegram_id, session)
 
     return templates.TemplateResponse(
-        "profile.html",
+        "garage.html",
         {
             "request": request,
             **profile_data
@@ -132,3 +131,14 @@ async def create_profile(
         )
     except Exception as e:
         logger.error(e)
+
+
+@router.get("/level/{telegram_id}")
+async def get_level(telegram_id: int, session: AsyncSession = Depends(get_session_app)):
+    """Запрос на получение текущих данных по уровню и опыту"""
+    profile = await UsersGameProfilesRepository.get_user(session, telegram_id)
+
+    if profile is None:
+        raise ProfileNotFound
+
+    return {"level": profile.level, "experience": profile.experience}

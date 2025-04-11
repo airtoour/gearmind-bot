@@ -31,7 +31,7 @@ class CarsRepository(BaseRepository):
             )
 
             result = await session.execute(stmt)
-            return result.unique().mappings().one_or_none()
+            return result.mappings().one_or_none()
         except (SQLAlchemyError, Exception) as e:
             logger.error(e)
             return None

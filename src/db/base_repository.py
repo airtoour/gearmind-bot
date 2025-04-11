@@ -18,7 +18,7 @@ class BaseRepository:
             stmt = select(cls.model).filter_by(**filter_by)
             result = await session.execute(stmt)
 
-            return result.unique().scalar_one_or_none()
+            return result.scalar_one_or_none()
         except (SQLAlchemyError, Exception) as e:
             logger.error(f"Ошибка в find_one_or_none {cls.model.__name__}: {e}")
             return None
@@ -30,7 +30,7 @@ class BaseRepository:
             stmt = select(cls.model).filter_by(**filter_by)
             result = await session.execute(stmt)
 
-            return result.unique().scalars().all()
+            return result.scalars().all()
         except (SQLAlchemyError, Exception) as e:
             logger.error(f"Ошибка в find_all {cls.model.__name__}: {e}")
             return []
@@ -52,7 +52,7 @@ class BaseRepository:
             result = await session.execute(insert_query)
             await session.commit()
 
-            added_instance = result.unique().scalar_one_or_none()
+            added_instance = result.scalar_one_or_none()
             await cache_service.invalidate_cache(cls.model)
 
             return added_instance
@@ -74,7 +74,7 @@ class BaseRepository:
             result = await session.execute(stmt)
             await session.commit()
 
-            updated_instance = result.unique().scalar_one_or_none()
+            updated_instance = result.scalar_one_or_none()
 
             if updated_instance:
                 await cache_service.invalidate_cache(cls.model)

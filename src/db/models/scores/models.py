@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import UUID, ForeignKey, Integer, CheckConstraint
+from sqlalchemy import UUID, ForeignKey, CheckConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,9 +12,9 @@ class Scores(AsyncAttrs, Base):
     __tablename__ = "scores"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
-    request_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("requests.id", ondelete="CASCADE"), nullable=False)
-    user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    score: Mapped[int] = mapped_column(Integer, nullable=False)
+    request_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("requests.id", ondelete="CASCADE"))
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("users.id", ondelete="CASCADE"))
+    score: Mapped[int]
 
     # Ограничения
     __table_args__ = (
@@ -30,7 +30,7 @@ class Scores(AsyncAttrs, Base):
         back_populates="score",
         foreign_keys=[request_id],
         cascade="all, delete-orphan",
-        lazy="joined",
+        lazy="selectin",
         single_parent=True
     )
     user: Mapped["Users"] = relationship(  # type: ignore
@@ -38,6 +38,6 @@ class Scores(AsyncAttrs, Base):
         back_populates="recommendation_score",
         foreign_keys=[user_id],
         cascade="all, delete-orphan",
-        lazy="joined",
+        lazy="selectin",
         single_parent=True
     )

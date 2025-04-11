@@ -13,9 +13,9 @@ class Prompts(AsyncAttrs, Base):
     """Справочник промптов для работы с ИИ"""
     __tablename__ = "prompts"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID промпта")
-    type: Mapped[TypesEnum] = mapped_column(EnumsDecorator(TypesEnum), nullable=False, index=True, doc="Тип промпта")
-    text: Mapped[str] = mapped_column(String, nullable=False, index=True, doc="Текст промпта")
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
+    type: Mapped[TypesEnum] = mapped_column(EnumsDecorator(TypesEnum), index=True)
+    text: Mapped[str] = mapped_column(String(2000))
 
     # Зависимости
     requests: Mapped[List["Requests"]] = relationship(  # type: ignore
@@ -26,7 +26,7 @@ class Prompts(AsyncAttrs, Base):
     )
 
     # Индексы
-    idx_prompts_type_text = Index("idx_prompts_type_text", type, text)
+    idx_prompts_type = Index("idx_prompts_type", type)
 
     def __str__(self):
         return f"Промпт для {self.type}"

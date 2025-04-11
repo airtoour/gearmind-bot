@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import UUID, Integer, String, ForeignKey, Index
+from sqlalchemy import UUID, String, ForeignKey, Index
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -11,31 +11,30 @@ class Cars(AsyncAttrs, Base):
     """Таблица с автомобилями пользователей"""
     __tablename__ = "cars"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID автомобиля")
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, doc="ID владельца"
-    )
-    brand_name: Mapped[str] = mapped_column(String, nullable=False, doc="Марка")
-    model_name: Mapped[str] = mapped_column(String, nullable=False, doc="Модель")
-    gen_name: Mapped[str] = mapped_column(String, nullable=False, doc="Модификация")
-    year: Mapped[int] = mapped_column(Integer, nullable=False, doc="Год выпуска")
-    mileage: Mapped[int] = mapped_column(Integer, nullable=False, doc="Пробег")
-    full: Mapped[str] = mapped_column(String, nullable=False, doc="Полное название")
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("users.id", ondelete="CASCADE"))
+    brand_name: Mapped[str] = mapped_column(String(128))
+    model_name: Mapped[str] = mapped_column(String(128))
+    gen_name: Mapped[str] = mapped_column(String(128))
+    year: Mapped[int]
+    mileage: Mapped[int]
+    full: Mapped[str] = mapped_column(String(256))
 
     # Связи
     user: Mapped["Users"] = relationship(  # type: ignore
         argument="Users",
         back_populates="car",
-        lazy="joined"
+        lazy="selectin"
     )
     game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
         argument="UsersGameProfiles",
         back_populates="car",
-        lazy="joined",
+        lazy="selectin",
         uselist=False
     )
 
     # Индексы
+    idx_cars_brand = Index("idx_cars_brand", brand_name)
     idx_cars_full = Index("idx_cars_full", full)
 
     def __str__(self):

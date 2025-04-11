@@ -13,35 +13,28 @@ class Users(AsyncAttrs, Base):
     """Модель таблицы Users"""
     __tablename__ = "users"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4, doc="ID пользователя")
-    tg_user_id: Mapped[int] = mapped_column(BigInteger, nullable=False, unique=True, index=True, doc="TelegramID")
-    name: Mapped[str] = mapped_column(String, nullable=False, doc="Имя пользователя")
-    role: Mapped[UsersRoles] = mapped_column(
-        UsersRolesTypeDecorator(), nullable=False, insert_default=UsersRoles.USER.value, doc="Роль пользователя"
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, insert_default=uuid.uuid4)
+    tg_user_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(128))
+    role: Mapped[UsersRoles] = mapped_column(UsersRolesTypeDecorator(), insert_default=UsersRoles.USER.value)
 
     # Связи
     car: Mapped["Cars"] = relationship(  # type: ignore
         argument="Cars",
         back_populates="user",
-        lazy="joined",
+        lazy="selectin",
         single_parent=True
     )
     recommendation_score: Mapped[List["Scores"]] = relationship(  # type: ignore
         argument="Scores",
         back_populates="user",
-        lazy="joined"
+        lazy="selectin"
     )
     game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
         argument="UsersGameProfiles",
         back_populates="user",
-        lazy="joined",
+        lazy="selectin",
         uselist=False
-    )
-    user_tasks: Mapped[List["UsersTasks"]] = relationship(  # type: ignore
-        argument="UsersTasks",
-        back_populates="user",
-        lazy="joined"
     )
 
     # Индексы

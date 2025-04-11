@@ -3,7 +3,7 @@ from typing import List
 
 from db.db_config import Base
 
-from sqlalchemy import UUID
+from sqlalchemy import UUID, Index
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -20,10 +20,14 @@ class Tasks(AsyncAttrs, Base):
     type: Mapped[TasksType] = mapped_column(TasksTypeTypeDecorator())
     target_value: Mapped[int]
     reward_xp: Mapped[int]
-    is_active: Mapped[bool] = mapped_column(insert_default=True)
+    is_active: Mapped[bool] = mapped_column(insert_default=True, index=True)
 
+    # Отношения
     user_tasks: Mapped[List["UsersTasks"]] = relationship(  # noqa
         argument="UsersTasks",
         back_populates="task",
-        lazy="joined"
+        lazy="selectin"
     )
+
+    # Индексы
+    ix_tasks_is_active = Index("ix_tasks_is_active", is_active)

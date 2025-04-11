@@ -5,6 +5,7 @@ from .base import AdminBaseView
 
 from .prompts import PromptsView
 from .requests import RequestsView
+from .tasks import TasksView
 from .users import UsersView
 from .cars import CarsView
 from .scores import ScoresView
@@ -20,5 +21,7 @@ views_list: List[ModelView] = [
 
     UsersView,
     CarsView,
+
     ProfilesView,
+    TasksView
 ]
