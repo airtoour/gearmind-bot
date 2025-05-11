@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:latest
-    container_name: db
+    container_name: gearmind-db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -19,32 +19,48 @@ services:
     networks:
       - default
 
-  telegram:
-    container_name: gearmind-bot
+#  telegram:
+#    container_name: gearmind-bot
+#    build:
+#      context: .
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    env_file:
+#      - .env-non-dev
+#    networks:
+#      - default
+
+  api:
+    container_name: gearmind-api
     build:
       context: .
     command: /app/start.sh
-    depends_on:
-      db:
-        condition: service_healthy
-    env_file:
-      - .env-non-dev
-    networks:
-      - default
-
-  app:
-    container_name: gearmind-app
-    build:
-      context: .
-    command:
-      - sh -c "python src/main.py"
-    env_file:
-      - .env-non-dev
     volumes:
       - ./:/app/
     depends_on:
       db:
         condition: service_healthy
+    env_file:
+      - .env-non-dev
+    ports:
+      - 7777:8000
+    networks:
+      - default
+
+  redis:
+    image: redis:7
+    container_name: gearmind-redis
+
+  scheduler:
+    container_name: gearmind-scheduler
+    build: .
+    command: python src/scheduler.py
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env-non-dev
     networks:
       - default
 

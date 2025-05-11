@@ -5,14 +5,18 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from db.db_config import async_session_maker
+from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import UsersRepository
+
 from telegram.commands import set_main_menu
-from telegram.keyboards.inline.inline import to_signup, to_car_register
+from telegram.keyboards.inline.inline import (
+    to_signup,
+    to_car_register
+)
+from telegram.states.signup_users import SignupUserStates
 
 from loguru import logger
 
-from telegram.states.signup_users import SignupUserStates
 
 router = Router(name="LETS FKING START")
 
@@ -87,7 +91,7 @@ async def signup(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(SignupUserStates.name)
-async def get_name(message: Message, state: FSMContext):
+async def get_name(message: Message, state: FSMContext, session: AsyncSession):
     """Хэндлер, обрабатывающий введённое имя пользователя"""
     try:
         # Получаем ID сообщения с запросом имени
@@ -100,12 +104,11 @@ async def get_name(message: Message, state: FSMContext):
         await message.delete()
 
         # В рамках сессии записываем пользователя в БД
-        async with async_session_maker() as session:
-            new_user = await UsersRepository.add(
-                session=session,
-                tg_user_id=message.from_user.id,
-                name=message.text
-            )
+        new_user = await UsersRepository.add(
+            session=session,
+            tg_user_id=message.from_user.id,
+            name=message.text
+        )
 
         # Если не получилось, сообщаем об ошибке
         if not new_user:

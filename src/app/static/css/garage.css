@@ -1,0 +1,19 @@
+.my-car {
+    width: 100%;
+    aspect-ratio: 2.5 / 1;
+    background: var(--tg-theme-secondary-bg-color, #f3f3f3);
+    border: 2px dashed var(--tg-theme-hint-color, #aaa);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--tg-theme-text-color, #333);
+    font-size: 16px;
+    font-style: italic;
+    text-align: center;
+}
+
+.wash-status {
+    align-items: center;
+    justify-content: center;
+}

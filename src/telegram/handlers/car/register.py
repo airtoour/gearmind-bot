@@ -6,14 +6,18 @@ from aiogram.filters import Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
-from db.db_config import async_session_maker
+from sqlalchemy.ext.asyncio import AsyncSession
 from db.models import CarsRepository
 
 from telegram.handlers.car.fix_info import router as fix_info_cars
 from telegram.states.signup_car import SignupUserCarStates
 from telegram.states.update_car_info import UpdateCarInfo
 from telegram.keyboards.reply.reply import car_info_confirm
-from telegram.keyboards.inline.inline import car_list, lets_solution, retry_register_car
+from telegram.keyboards.inline.inline import (
+    car_list,
+    lets_solution,
+    retry_register_car
+)
 
 from logger import logger
 
@@ -27,7 +31,7 @@ router.include_router(fix_info_cars)
 
 @router.message(Command("car"))
 @router.callback_query(F.data.in_(["car", "retry_register_car"]))
-async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any):
+async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any, session: AsyncSession):
     """Обработчик команды /car и кнопки car, а также возвращения регистрации машины к началу"""
     message = None
 
@@ -44,15 +48,14 @@ async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any
         await state.clear()
 
         # Ищем автомобиль пользователя
-        async with async_session_maker() as session:
-            users_car = await CarsRepository.find_one_or_none(session, user_id=user.id)
+        users_car = await CarsRepository.find_one_or_none(session, user_id=user.id)
 
         # Удаляем предыдущее сообщение
         await message.delete()
 
         if users_car:
             # Показываем пользователю информацию о его автомобиле
-            await message.answer(
+            exists_car_message = await message.answer(
                 text="Ваша машина зарегистрирована у нас. Это она, верно?\n\n"
                      f"<b>🔻 Брэнд:</b> {users_car.brand_name}\n"
                      f"<b>🔻 Марка:</b> {users_car.model_name}\n"
@@ -62,6 +65,8 @@ async def car(event: Union[Message, CallbackQuery], state: FSMContext, user: Any
                 reply_markup=car_info_confirm
             )
             await state.set_state(UpdateCarInfo.confirm_info)
+            messages_ids.append(exists_car_message.message_id)
+            await state.update_data(messages_ids=messages_ids)
 
             return
 
@@ -205,8 +210,8 @@ async def get_mileage(message: Message, state: FSMContext):
 
         get_mileage_message = await message.answer(
             "Напишите, пожалуйста, пробег Вашей машины ниже 👇\n"
-            "Напишите именно количество тысяч километров.\n"
-            "Например, если у Вас <i>150.000 км</i>, тогда напишите, только <i>150</i>"
+            "Напишите именно сумму тысяч километров.\n\n"
+            "<i>Например, если у Вас 150.000 км, тогда напишите, только 150</i>"
         )
 
         messages_ids.append(message.message_id)
@@ -222,7 +227,7 @@ async def get_mileage(message: Message, state: FSMContext):
         )
 
 @router.message(SignupUserCarStates.mileage)
-async def register(message: Message, state: FSMContext, user: Any):
+async def register(message: Message, state: FSMContext, user: Any, session: AsyncSession):
     try:
         messages_ids = await state.get_value("messages_ids")
 
@@ -240,19 +245,18 @@ async def register(message: Message, state: FSMContext, user: Any):
             ) for message_id in messages_ids
         ]
 
-        async with async_session_maker() as session:
-            added_car = CarsRepository.add(
-                session=session,
-                user_id=user.id,
-                brand_name=car_brand,
-                model_name=car_model,
-                gen_name=car_gen,
-                year=car_year,
-                mileage=car_mileage,
-                full=f"{car_brand} {car_model} "
-                     f"{car_gen} {car_year} года с "
-                     f"пробегом {car_mileage} тыс. км"
-            )
+        added_car = CarsRepository.add(
+            session=session,
+            user_id=user.id,
+            brand_name=car_brand,
+            model_name=car_model,
+            gen_name=car_gen,
+            year=car_year,
+            mileage=car_mileage,
+            full=f"{car_brand} {car_model} "
+                 f"{car_gen} {car_year} года с "
+                 f"пробегом {car_mileage} тыс. км"
+        )
 
         try:
             # Выполняем таски

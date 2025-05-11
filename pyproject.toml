@@ -3,7 +3,7 @@ name = "diplom-diplomych"
 version = "0.1.0"
 description = ""
 authors = ["a.vaits <a.vaits@skai.online>"]
-readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -14,13 +14,17 @@ loguru = "^0.7.2"
 asyncpg = "^0.30.0"
 pydantic = "^2.10.6"
 pydantic-settings = "^2.8.1"
-redis = "^5.2.1"
 httpx = "^0.28.1"
 psycopg2-binary = "^2.9.10"
 fastapi = {extras = ["all"], version = "^0.115.11"}
-sqladmin = "^0.20.1"
+sqladmin = {extras = ["full"], version = "^0.20.1"}
 openai = "^1.66.3"
 google-generativeai = ">=0.4.0"
+python-jose = "^3.4.0"
+fastapi-versioning = "^0.10.0"
+fastapi-cache2 = {extras = ["redis"], version = "^0.2.2"}
+apscheduler = "^3.11.0"
+gunicorn = "^23.0.0"
 
 
 [build-system]

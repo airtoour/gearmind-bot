@@ -8,8 +8,6 @@ RUN apt update -y && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN chmod +x /app/start.sh
-
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
@@ -23,3 +21,8 @@ RUN poetry config virtualenvs.create false && \
 COPY . .
 
 ENV PYTHONPATH="/app/src"
+
+RUN chmod +x /app/start.sh
+
+#CMD ["poetry", "run", "python", "src/main.py"]
+CMD ["gunicorn", "src.main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind=0.0.0.0:8000"]

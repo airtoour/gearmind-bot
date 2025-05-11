@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>Прогресс игрока</title>
+        <link rel="stylesheet" href="/static/css/index.css">
+        <link rel="stylesheet" href="/static/css/tasks.css">
+        <link rel="stylesheet" href="/static/css/garage.css">
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    </head>
+
+    <body>
+        <button id="my-tasks" class="tasks-btn">Мои задания</button>
+
+        <div id="task-panel" class="task-panel hidden">
+            <div class="task-header">
+                <h3>Мои задания</h3>
+                <button id="close-tasks" class="close-btn">✕</button>
+            </div>
+            <div id="task-list" class="task-list"></div>
+        </div>
+
+        <div class="container">
+            <h2>Мой Gear-гараж</h2>
+            <div class="profile-row">
+                <p id="level"><strong>Уровень:</strong> {{ level }}</p>
+                <p id="experience"><strong>Опыт:</strong> {{ experience }}</p>
+            </div>
+
+            <br><br><br>
+
+            <small id="wash-status" class="wash-status"></small><br>
+            <div id="my-car" class="my-car">
+                <span>🚗 Ваш автомобиль скоро появится здесь</span>
+            </div>
+        </div>
+
+        <script src="/static/js/tasks.js"></script>
+        <script src="/static/js/myCar.js"></script>
+    </body>
+</html>
