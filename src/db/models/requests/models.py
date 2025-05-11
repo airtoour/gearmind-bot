@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, DateTime, func, String, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
@@ -7,6 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
+
+if TYPE_CHECKING:
+    from db.models import Prompts, Scores
 
 
 class Requests(AsyncAttrs, Base):
@@ -21,14 +25,14 @@ class Requests(AsyncAttrs, Base):
     response_data: Mapped[dict] = mapped_column(JSONB)
 
     # Связи
-    prompt: Mapped["Prompts"] = relationship(  # type: ignore
+    prompt: Mapped["Prompts"] = relationship(
         argument="Prompts",
         back_populates="requests",
         foreign_keys=[prompt_id],
         lazy="selectin",
         single_parent=True
     )
-    score: Mapped["Scores"] = relationship(  # type: ignore
+    score: Mapped["Scores"] = relationship(
         argument="Scores",
         back_populates="request",
         lazy="selectin",

@@ -1,10 +1,14 @@
 import uuid
+from typing import TYPE_CHECKING
 
 from sqlalchemy import UUID, ForeignKey, CheckConstraint
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
+
+if TYPE_CHECKING:
+    from db.models import Requests, Users
 
 
 class Scores(AsyncAttrs, Base):
@@ -25,7 +29,7 @@ class Scores(AsyncAttrs, Base):
     )
 
     # Связи
-    request: Mapped["Requests"] = relationship(  # type: ignore
+    request: Mapped["Requests"] = relationship(
         argument="Requests",
         back_populates="score",
         foreign_keys=[request_id],
@@ -33,7 +37,7 @@ class Scores(AsyncAttrs, Base):
         lazy="selectin",
         single_parent=True
     )
-    user: Mapped["Users"] = relationship(  # type: ignore
+    user: Mapped["Users"] = relationship(
         argument="Users",
         back_populates="recommendation_score",
         foreign_keys=[user_id],

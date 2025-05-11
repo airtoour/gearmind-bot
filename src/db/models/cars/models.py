@@ -1,10 +1,15 @@
 import uuid
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import UUID, String, ForeignKey, Index
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
+
+if TYPE_CHECKING:
+    from db.models import Users, UsersGameProfiles
 
 
 class Cars(AsyncAttrs, Base):
@@ -21,12 +26,12 @@ class Cars(AsyncAttrs, Base):
     full: Mapped[str] = mapped_column(String(256))
 
     # Связи
-    user: Mapped["Users"] = relationship(  # type: ignore
+    user: Mapped["Users"] = relationship(
         argument="Users",
         back_populates="car",
         lazy="selectin"
     )
-    game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
+    game_progress: Mapped["UsersGameProfiles"] = relationship(
         argument="UsersGameProfiles",
         back_populates="car",
         lazy="selectin",

@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import UUID, BigInteger, String, Index
 from sqlalchemy.ext.asyncio import AsyncAttrs
@@ -7,6 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 from .schemas import UsersRoles, UsersRolesTypeDecorator
+
+if TYPE_CHECKING:
+    from db.models import Cars, Scores, UsersGameProfiles
 
 
 class Users(AsyncAttrs, Base):
@@ -19,18 +22,18 @@ class Users(AsyncAttrs, Base):
     role: Mapped[UsersRoles] = mapped_column(UsersRolesTypeDecorator(), insert_default=UsersRoles.USER.value)
 
     # Связи
-    car: Mapped["Cars"] = relationship(  # type: ignore
+    car: Mapped["Cars"] = relationship(
         argument="Cars",
         back_populates="user",
         lazy="selectin",
         single_parent=True
     )
-    recommendation_score: Mapped[List["Scores"]] = relationship(  # type: ignore
+    recommendation_score: Mapped[List["Scores"]] = relationship(
         argument="Scores",
         back_populates="user",
         lazy="selectin"
     )
-    game_progress: Mapped["UsersGameProfiles"] = relationship(  # type: ignore
+    game_progress: Mapped["UsersGameProfiles"] = relationship(
         argument="UsersGameProfiles",
         back_populates="user",
         lazy="selectin",

@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from db.db_config import Base
 
@@ -8,6 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .schemas import TasksType, TasksTypeTypeDecorator
+
+if TYPE_CHECKING:
+    from db.models import UsersTasks
 
 
 class Tasks(AsyncAttrs, Base):
@@ -23,7 +26,7 @@ class Tasks(AsyncAttrs, Base):
     is_active: Mapped[bool] = mapped_column(insert_default=True, index=True)
 
     # Отношения
-    user_tasks: Mapped[List["UsersTasks"]] = relationship(  # noqa
+    user_tasks: Mapped[List["UsersTasks"]] = relationship(
         argument="UsersTasks",
         back_populates="task",
         lazy="selectin"

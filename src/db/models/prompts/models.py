@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import UUID, String, Index
 from sqlalchemy.ext.asyncio import AsyncAttrs
@@ -7,6 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
 from db.models.prompts.schemas import TypesEnum, EnumsDecorator
+
+if TYPE_CHECKING:
+    from db.models import Requests
 
 
 class Prompts(AsyncAttrs, Base):
@@ -18,7 +21,7 @@ class Prompts(AsyncAttrs, Base):
     text: Mapped[str] = mapped_column(String(2000))
 
     # Зависимости
-    requests: Mapped[List["Requests"]] = relationship(  # type: ignore
+    requests: Mapped[List["Requests"]] = relationship(
         argument="Requests",
         back_populates="prompt",
         foreign_keys="Requests.prompt_id",

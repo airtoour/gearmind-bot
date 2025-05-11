@@ -1,12 +1,15 @@
 import uuid
 from datetime import datetime
-from typing import List, Union
+from typing import List, Union, TYPE_CHECKING
 
 from sqlalchemy import UUID, ForeignKey, DateTime
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db.db_config import Base
+
+if TYPE_CHECKING:
+    from db.models import Users, Cars, UsersTasks
 
 
 class UsersGameProfiles(AsyncAttrs, Base):
@@ -24,9 +27,9 @@ class UsersGameProfiles(AsyncAttrs, Base):
     last_wash_car_time: Mapped[Union[datetime, None]] = mapped_column(DateTime)
 
     # Связи
-    user: Mapped["Users"] = relationship("Users", back_populates="game_progress")  # type: ignore
-    car: Mapped["Cars"] = relationship("Cars", back_populates="game_progress")  # type: ignore
-    user_tasks: Mapped[List["UsersTasks"]] = relationship(  # noqa
+    user: Mapped["Users"] = relationship("Users", back_populates="game_progress")
+    car: Mapped["Cars"] = relationship("Cars", back_populates="game_progress")
+    user_tasks: Mapped[List["UsersTasks"]] = relationship(
         argument="UsersTasks",
         back_populates="user",
         lazy="selectin"
